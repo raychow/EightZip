@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <WXWIN>E:\File\wxWidgets-3.0.1</WXWIN>
+    <BOOST>E:\File\boost_1_55_0</BOOST>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="WXWIN">
+      <Value>$(WXWIN)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BOOST">
+      <Value>$(BOOST)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

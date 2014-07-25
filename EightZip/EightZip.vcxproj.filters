@@ -1,0 +1,214 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\SevenZipCore">
+      <UniqueIdentifier>{7b36d064-cac4-4335-9838-cfab66e1f52a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\SevenZipCore">
+      <UniqueIdentifier>{b53288e2-13f5-412c-bc20-1a19e2ed0f8e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdwx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EightZipFrame.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EightZipApp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FileExplorer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ExplorerListCtrl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystemModel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\Adapter.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\Archive.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\ArchiveEntry.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\ArchiveFile.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\ArchiveManager.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\Codecs.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\COM.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\Common.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\ComPtr.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\Exception.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\FileStream.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\Formats.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\IArchive.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\IArchiveAdapter.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\ICoder.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\ICoderAdapter.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\IDecl.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\IProgress.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\IStream.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\IStreamAdapter.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\Library.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\OpenCallback.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\Property.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\PropertyVariant.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\TString.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="IModel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FileListCtrl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemImageList.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdwx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EightZipFrame.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EightZipApp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FileExplorer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ExplorerListCtrl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FileSystemModel.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\Archive.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\ArchiveEntry.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\ArchiveFile.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\ArchiveManager.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\Codecs.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\Common.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\FileStream.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\IArchiveAdapter.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\ICoderAdapter.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\IStreamAdapter.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\Library.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\OpenCallback.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\PropertyVariant.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\Property.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\TString.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelBase.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FileListCtrl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SystemImageList.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="EightZip.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resource\ParentFolder.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

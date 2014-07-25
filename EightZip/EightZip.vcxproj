@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8F59FAA6-DE02-4836-8E18-2E4DA2E9762C}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>EightZip</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheet.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="PropertySheet.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;__WXMSW__;wxUSE_GUI=1;__WXDEBUG__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(BOOST);$(WXWIN)\include;$(WXWIN)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>stdwx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(BOOST)\stage\lib;$(WXWIN)\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>wxmsw30ud_core.lib;wxbase30ud.lib;comctl32.lib;rpcrt4.lib;winmm.lib;advapi32.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;__WXMSW__;wxUSE_GUI=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(BOOST);$(WXWIN)\include;$(WXWIN)\include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeaderFile>stdwx.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>$(BOOST)\stage\lib;$(WXWIN)\lib\vc_lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>wxmsw30u_core.lib;wxbase30u.lib;comctl32.lib;rpcrt4.lib;winmm.lib;advapi32.lib;wsock32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="EightZipFrame.h" />
+    <ClInclude Include="EightZipApp.h" />
+    <ClInclude Include="ExplorerListCtrl.h" />
+    <ClInclude Include="FileExplorer.h" />
+    <ClInclude Include="FileListCtrl.h" />
+    <ClInclude Include="FileSystemModel.h" />
+    <ClInclude Include="IModel.h" />
+    <ClInclude Include="ModelBase.h" />
+    <ClInclude Include="SevenZipCore\Adapter.h" />
+    <ClInclude Include="SevenZipCore\Archive.h" />
+    <ClInclude Include="SevenZipCore\ArchiveEntry.h" />
+    <ClInclude Include="SevenZipCore\ArchiveFile.h" />
+    <ClInclude Include="SevenZipCore\ArchiveManager.h" />
+    <ClInclude Include="SevenZipCore\Codecs.h" />
+    <ClInclude Include="SevenZipCore\COM.h" />
+    <ClInclude Include="SevenZipCore\Common.h" />
+    <ClInclude Include="SevenZipCore\ComPtr.h" />
+    <ClInclude Include="SevenZipCore\Exception.h" />
+    <ClInclude Include="SevenZipCore\FileStream.h" />
+    <ClInclude Include="SevenZipCore\Formats.h" />
+    <ClInclude Include="SevenZipCore\IArchive.h" />
+    <ClInclude Include="SevenZipCore\IArchiveAdapter.h" />
+    <ClInclude Include="SevenZipCore\ICoder.h" />
+    <ClInclude Include="SevenZipCore\ICoderAdapter.h" />
+    <ClInclude Include="SevenZipCore\IDecl.h" />
+    <ClInclude Include="SevenZipCore\IProgress.h" />
+    <ClInclude Include="SevenZipCore\IStream.h" />
+    <ClInclude Include="SevenZipCore\IStreamAdapter.h" />
+    <ClInclude Include="SevenZipCore\Library.h" />
+    <ClInclude Include="SevenZipCore\OpenCallback.h" />
+    <ClInclude Include="SevenZipCore\Property.h" />
+    <ClInclude Include="SevenZipCore\PropertyVariant.h" />
+    <ClInclude Include="SevenZipCore\TString.h" />
+    <ClInclude Include="stdwx.h" />
+    <ClInclude Include="SystemImageList.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="EightZipFrame.cpp" />
+    <ClCompile Include="EightZipApp.cpp" />
+    <ClCompile Include="ExplorerListCtrl.cpp" />
+    <ClCompile Include="FileExplorer.cpp" />
+    <ClCompile Include="FileListCtrl.cpp" />
+    <ClCompile Include="FileSystemModel.cpp" />
+    <ClCompile Include="ModelBase.cpp" />
+    <ClCompile Include="SevenZipCore\Archive.cpp" />
+    <ClCompile Include="SevenZipCore\ArchiveEntry.cpp" />
+    <ClCompile Include="SevenZipCore\ArchiveFile.cpp" />
+    <ClCompile Include="SevenZipCore\ArchiveManager.cpp" />
+    <ClCompile Include="SevenZipCore\Codecs.cpp" />
+    <ClCompile Include="SevenZipCore\Common.cpp" />
+    <ClCompile Include="SevenZipCore\FileStream.cpp" />
+    <ClCompile Include="SevenZipCore\IArchiveAdapter.cpp" />
+    <ClCompile Include="SevenZipCore\ICoderAdapter.cpp" />
+    <ClCompile Include="SevenZipCore\IStreamAdapter.cpp" />
+    <ClCompile Include="SevenZipCore\Library.cpp" />
+    <ClCompile Include="SevenZipCore\OpenCallback.cpp" />
+    <ClCompile Include="SevenZipCore\Property.cpp" />
+    <ClCompile Include="SevenZipCore\PropertyVariant.cpp" />
+    <ClCompile Include="SevenZipCore\TString.cpp" />
+    <ClCompile Include="stdwx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="SystemImageList.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="EightZip.rc">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(WXWIN)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(WXWIN)\include;</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resource\ParentFolder.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
