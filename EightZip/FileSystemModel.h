@@ -11,17 +11,15 @@ class FileSystemModel
     : public ModelBase
 {
 public:
-    FileSystemModel(TString tstrPath);
+    FileSystemModel(TString tstrParentFolder, TString tstrFileName);
 
     virtual const std::vector<ItemType> &GetChildrenSupportedItems() const;
-    virtual const TString GetItem(ItemType itemType) const;
+    virtual TString GetItem(ItemType itemType) const;
 
 protected:
     virtual void _UpdateInfo() const;
     virtual void _UpdateChildren() const;
-
 private:
-    static wxIcon __GetFileIcon(TString tstrExtension, bool isFolder, bool isSmallIcon);
     static std::vector<ItemType> m_vType;
 
 };

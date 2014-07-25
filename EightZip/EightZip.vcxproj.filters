@@ -126,6 +126,12 @@
     <ClInclude Include="SystemImageList.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="FileInfo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EightDirFinder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -198,6 +204,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SystemImageList.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FileInfo.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EightDirFinder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,17 +11,18 @@ struct ModelPrivate
 {
     bool IsValid = false;
     bool IsChildrenValid = false;
-    TString Name;
-    TString FullPath;
+    TString FileName;
+    TString ParentFolder;
     wxIcon Icon;
     UINT64 Size = 0;
     UINT64 PackedSize = 0;
-    // ...
+    wxDateTime Modified;
+    wxDateTime Created;
+    wxDateTime Accessed;
     boost::optional<UINT32> CRC;
-    bool IsFolder = false;
+    bool IsDirectory = false;
     bool IsOpenInside = false;
-    IModel::ChildVector DirChildren;
-    IModel::ChildVector FileChidren;
+    IModel::ChildVector Children;
 };
 
 class ModelBase
@@ -29,10 +30,10 @@ class ModelBase
 {
 public:
     virtual const TString &GetName() const;
-    virtual const TString &GetFullPath() const;
-    virtual const ChildVector &GetDirChildren() const;
-    virtual const ChildVector &GetFileChildren() const;
-    virtual bool IsFolder() const;
+    virtual const TString &GetParentFolder() const;
+    virtual TString GetFullPath() const;
+    virtual const ChildVector &GetChildren() const;
+    virtual bool IsDirectory() const;
     virtual bool IsOpenInside() const;
     virtual void Invalid() const;
 

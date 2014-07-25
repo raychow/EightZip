@@ -30,6 +30,12 @@ protected:
 private:
     std::shared_ptr<IModel> m_spModel;
     SystemImageList m_imageList;
+    std::vector<int> m_vnChildrenMap;
+
+    int m_nSortColumn = -1;
+    bool m_isSortAscend = false;
+
+    void __OnListColClick(wxListEvent &event);
 
     DECLARE_EVENT_TABLE()
 };

@@ -21,7 +21,7 @@ void FileExplorer::__Create()
     SetSizer(pSizerMain);
 }
 
-void FileExplorer::__CreatePath(wxBoxSizer * pSizerMain)
+void FileExplorer::__CreatePath(wxBoxSizer *pSizerMain)
 {
     auto *pSizerPath = new wxBoxSizer(wxHORIZONTAL);
     auto pToolBar = new wxToolBar(this, wxID_ANY);
@@ -34,12 +34,17 @@ void FileExplorer::__CreatePath(wxBoxSizer * pSizerMain)
     pSizerMain->Add(pSizerPath, wxSizerFlags().Expand().Proportion(0));
 }
 
-void FileExplorer::__CreateExplorer(wxBoxSizer * pSizerMain)
+void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
 {
-    m_spModel = make_shared<FileSystemModel>(wxT("C:\\Windows\\System32\\"));
+    m_spModel = make_shared<FileSystemModel>(wxT("C:\\Windows\\"), wxT("System32"));
     m_pListCtrl = new FileListCtrl(this);
     m_pListCtrl->SetModel(m_spModel);
     
     pSizerMain->Add(m_pListCtrl, wxSizerFlags().Expand().Proportion(1));
 
+    m_pListCtrl->Bind(wxEVT_LIST_ITEM_ACTIVATED, &FileExplorer::__OnListCtrlActive, this);
+}
+
+void FileExplorer::__OnListCtrlActive(wxListEvent &event)
+{
 }

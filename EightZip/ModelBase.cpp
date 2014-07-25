@@ -1,34 +1,32 @@
 #include "stdwx.h"
 #include "ModelBase.h"
 
-const TString &ModelBase::GetName() const
+using namespace std;
+
+const TString & ModelBase::GetName() const
 {
-    _UpdateInfo();
-    return m_upPrivate->Name;
+    return m_upPrivate->FileName;
 }
 
-const TString &ModelBase::GetFullPath() const
+const TString &ModelBase::GetParentFolder() const
 {
-    _UpdateInfo();
-    return m_upPrivate->FullPath;
+    return m_upPrivate->ParentFolder;
 }
 
-const IModel::ChildVector &ModelBase::GetDirChildren() const
+TString ModelBase::GetFullPath() const
+{
+    return wxDir(GetParentFolder()).GetNameWithSep().Append(GetName()).ToStdWstring();
+}
+
+const IModel::ChildVector &ModelBase::GetChildren() const
 {
     _UpdateChildren();
-    return m_upPrivate->DirChildren;
+    return m_upPrivate->Children;
 }
 
-const IModel::ChildVector &ModelBase::GetFileChildren() const
+bool ModelBase::IsDirectory() const
 {
-    _UpdateChildren();
-    return m_upPrivate->FileChidren;
-}
-
-bool ModelBase::IsFolder() const
-{
-    _UpdateInfo();
-    return m_upPrivate->IsFolder;
+    return m_upPrivate->IsDirectory;
 }
 
 bool ModelBase::IsOpenInside() const

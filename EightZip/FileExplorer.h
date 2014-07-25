@@ -26,8 +26,10 @@ private:
     std::shared_ptr<IModel> m_spModel;
 
     void __Create();
-    void __CreatePath(wxBoxSizer * pMainSizer);
-    void __CreateExplorer(wxBoxSizer * pSizerMain);
+    void __CreatePath(wxBoxSizer *pMainSizer);
+    void __CreateExplorer(wxBoxSizer *pSizerMain);
+
+    void __OnListCtrlActive(wxListEvent &event);
 };
 
 #endif // FILEEXPLORER_H
