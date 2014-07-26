@@ -158,41 +158,42 @@ void FileListCtrl::__OnListColClick(wxListEvent &event)
 {
     int nColumn = event.GetColumn();
     auto itemType =m_spModel->GetChildrenSupportedItems()[nColumn];
+    bool isReverse = false;
     if (m_nSortColumn == nColumn)
     {
         m_isSortAscend = !m_isSortAscend;
+        isReverse = true;
     }
     else
     {
         m_nSortColumn = nColumn;
     }
 
-    sort(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [this, itemType](int nLeft, int nRight) {
-        const auto &children = m_spModel->GetChildren();
-        const auto &leftChild = children[nLeft];
-        const auto &rightChild = children[nRight];
-        bool isLeftChildDiectory = leftChild->IsDirectory();
-        bool isRightChildDiectory = rightChild->IsDirectory();
-        bool result = false;
-        if (isLeftChildDiectory != isRightChildDiectory)
-        {
-            result = isLeftChildDiectory ^ !m_isSortAscend;
-        }
-        else
-        {
-
-            if (m_isSortAscend)
+    if (isReverse)
+    {
+        reverse(m_vnChildrenMap.begin(), m_vnChildrenMap.end());
+    }
+    else
+    {
+        sort(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [this, itemType](int nLeft, int nRight) {
+            const auto &children = m_spModel->GetChildren();
+            const auto &leftChild = children[nLeft];
+            const auto &rightChild = children[nRight];
+            bool isLeftChildDiectory = leftChild->IsDirectory();
+            bool isRightChildDiectory = rightChild->IsDirectory();
+            bool result = false;
+            if (isLeftChildDiectory != isRightChildDiectory)
             {
-                result = leftChild->GetItem(itemType) < rightChild->GetItem(itemType);
+                result = isLeftChildDiectory ^ !m_isSortAscend;
             }
             else
             {
-                result = leftChild->GetItem(itemType) > rightChild->GetItem(itemType);
+                result = leftChild->Compare(*rightChild, itemType, m_isSortAscend);
             }
-        }
 
-        return result;
-    });
+            return result;
+        });
+    }
 
     Refresh(false);
 }

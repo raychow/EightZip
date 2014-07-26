@@ -19,6 +19,8 @@ public:
     virtual const std::vector<ItemType> &GetChildrenSupportedItems() const;
     virtual TString GetItem(ItemType itemType) const;
 
+    virtual bool Compare(const IModel &otherModel, ItemType itemType, bool isAscend) const;
+
 protected:
     virtual void _UpdateInfo() const;
     virtual void _UpdateChildren() const;

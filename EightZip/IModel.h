@@ -43,6 +43,8 @@ public:
     virtual bool IsDirectory() const PURE;
     virtual bool IsOpenInside() const PURE;
     virtual void Invalid() const PURE;
+
+    virtual bool Compare(const IModel &otherModel, ItemType itemType, bool isAscend) const PURE;
 };
 
 #endif // IMODEL_H

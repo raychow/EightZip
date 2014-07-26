@@ -89,7 +89,6 @@
     <ClInclude Include="FileFinder.h" />
     <ClInclude Include="EightZipFrame.h" />
     <ClInclude Include="EightZipApp.h" />
-    <ClInclude Include="ExplorerListCtrl.h" />
     <ClInclude Include="FileExplorer.h" />
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="FileListCtrl.h" />
@@ -129,7 +128,6 @@
     <ClCompile Include="FileFinder.cpp" />
     <ClCompile Include="EightZipFrame.cpp" />
     <ClCompile Include="EightZipApp.cpp" />
-    <ClCompile Include="ExplorerListCtrl.cpp" />
     <ClCompile Include="FileExplorer.cpp" />
     <ClCompile Include="FileInfo.cpp" />
     <ClCompile Include="FileListCtrl.cpp" />

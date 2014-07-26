@@ -33,9 +33,6 @@
     <ClInclude Include="FileExplorer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ExplorerListCtrl.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="FileSystemModel.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -147,9 +144,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="FileExplorer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ExplorerListCtrl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="FileSystemModel.cpp">

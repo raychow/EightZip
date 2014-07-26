@@ -115,3 +115,76 @@ std::shared_ptr<FileSystemModel> FileSystemModel::__MakeShared()
 {
     return make_shared<FileSystemModel>(Private());
 }
+
+bool FileSystemModel::Compare(const IModel &otherModel, ItemType itemType, bool isAscend) const
+{
+    const auto &otherFileSystemModel = dynamic_cast<const FileSystemModel &>(otherModel);
+
+    switch (itemType)
+    {
+    case ItemType::Name:
+        if (isAscend)
+        {
+            return m_upPrivate->Name < otherFileSystemModel.m_upPrivate->Name;
+        }
+        else
+        {
+            return m_upPrivate->Name > otherFileSystemModel.m_upPrivate->Name;
+        }
+    case ItemType::Size:
+        if (isAscend)
+        {
+            return m_upPrivate->Size < otherFileSystemModel.m_upPrivate->Size;
+        }
+        else
+        {
+            return m_upPrivate->Size > otherFileSystemModel.m_upPrivate->Size;
+        }
+    case ItemType::PackedSize:
+        if (isAscend)
+        {
+            return m_upPrivate->PackedSize < otherFileSystemModel.m_upPrivate->PackedSize;
+        }
+        else
+        {
+            return m_upPrivate->PackedSize > otherFileSystemModel.m_upPrivate->PackedSize;
+        }
+    case IModel::ItemType::Type:
+        if (isAscend)
+        {
+            return GetItem(itemType) < otherFileSystemModel.GetItem(itemType);
+        }
+        else
+        {
+            return GetItem(itemType) > otherFileSystemModel.GetItem(itemType);
+        }
+    case IModel::ItemType::Modified:
+        if (isAscend)
+        {
+            return m_upPrivate->Modified < otherFileSystemModel.m_upPrivate->Modified;
+        }
+        else
+        {
+            return m_upPrivate->Modified > otherFileSystemModel.m_upPrivate->Modified;
+        }
+    case IModel::ItemType::Created:
+        if (isAscend)
+        {
+            return m_upPrivate->Created < otherFileSystemModel.m_upPrivate->Created;
+        }
+        else
+        {
+            return m_upPrivate->Created > otherFileSystemModel.m_upPrivate->Created;
+        }
+    case IModel::ItemType::Accessed:
+        if (isAscend)
+        {
+            return m_upPrivate->Accessed < otherFileSystemModel.m_upPrivate->Accessed;
+        }
+        else
+        {
+            return m_upPrivate->Accessed > otherFileSystemModel.m_upPrivate->Accessed;
+        }
+    }
+    return false;
+}
