@@ -3,35 +3,29 @@
 #ifndef FILEINFO_H
 #define FILEINFO_H
 
-#include <map>
-
 #include "SevenZipCore/TString.h"
+
+extern wxDateTime GetTimeFromFileTime(_In_ CONST FILETIME *lpFileTime);
 
 class FileInfo
 {
 public:
-    FileInfo() {}
+    FileInfo(TString tstrPath);
 
-    FileInfo(int nIconIndex, TString tstrTypeName)
-        : m_nIconIndex(nIconIndex)
-        , m_tstrTypeName(tstrTypeName)
-    {}
+    bool IsOK() const { return m_isOK; }
 
-    int GetIconIndex() const { return m_nIconIndex; }
-    TString GetTypeName() const { return m_tstrTypeName; }
-
-private:
-    int m_nIconIndex = -1;
-    TString m_tstrTypeName;
-};
-
-class FileInfoManager
-{
-public:
-    static FileInfo GetFileInfo(bool isDir, const TString& tstrFileName = TString(), bool isVirtual = false);
+    bool IsDirectory() const { return 0 != (m_fileAttributeData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); }
+    wxULongLong_t GetSize() const { return IsDirectory() ? 0 : wxULongLong(m_fileAttributeData.nFileSizeHigh, m_fileAttributeData.nFileSizeLow).GetValue(); }
+    wxDateTime GetAccessed() const { return GetTimeFromFileTime(&m_fileAttributeData.ftLastAccessTime); }
+    wxDateTime GetModified() const { return GetTimeFromFileTime(&m_fileAttributeData.ftLastWriteTime); }
+    wxDateTime GetCreated() const { return GetTimeFromFileTime(&m_fileAttributeData.ftCreationTime); }
 
 private:
-    static std::map<TString, FileInfo> m_mInfoCache;
+    TString m_tstrPath;
+    bool m_isOK;
+
+    WIN32_FILE_ATTRIBUTE_DATA m_fileAttributeData;
+
 };
 
 #endif // FILEINFO_H

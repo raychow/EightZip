@@ -129,7 +129,7 @@
     <ClInclude Include="FileInfo.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="EightDirFinder.h">
+    <ClInclude Include="FileFinder.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -209,7 +209,7 @@
     <ClCompile Include="FileInfo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="EightDirFinder.cpp">
+    <ClCompile Include="FileFinder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

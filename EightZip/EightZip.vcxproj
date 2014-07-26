@@ -86,7 +86,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="EightDirFinder.h" />
+    <ClInclude Include="FileFinder.h" />
     <ClInclude Include="EightZipFrame.h" />
     <ClInclude Include="EightZipApp.h" />
     <ClInclude Include="ExplorerListCtrl.h" />
@@ -125,7 +125,7 @@
     <ClInclude Include="SystemImageList.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="EightDirFinder.cpp" />
+    <ClCompile Include="FileFinder.cpp" />
     <ClCompile Include="EightZipFrame.cpp" />
     <ClCompile Include="EightZipApp.cpp" />
     <ClCompile Include="ExplorerListCtrl.cpp" />

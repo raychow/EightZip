@@ -1,0 +1,71 @@
+#include "stdwx.h"
+#include "FileFinder.h"
+
+using namespace std;
+
+FileFinder::FileFinder(TString tstrDir, bool isDiretoryOnly /*= false*/)
+    : m_isDirectoryOnly(isDiretoryOnly)
+{
+    if (wxEndsWithPathSeparator(tstrDir))
+    {
+        tstrDir.append(wxT("*"));
+    }
+    else
+    {
+        tstrDir.append(wxT("\\*"));
+    }
+    m_upHandle.reset(::FindFirstFile(tstrDir.c_str(), &m_findData));
+}
+
+void FileFinder::Close()
+{
+    m_upHandle.reset();
+}
+
+inline bool FileFinder::IsOpened() const
+{
+    return m_upHandle && m_upHandle.get() != INVALID_HANDLE_VALUE;
+}
+
+bool FileFinder::FindNext()
+{
+    if (!IsOpened())
+    {
+        return false;
+    }
+
+    while (true)
+    {
+        if (m_isFirst)
+        {
+            m_isFirst = false;
+        }
+        else
+        {
+            if (!__FindNext())
+            {
+                Close();
+                return false;
+            }
+        }
+        if (__Check())
+        {
+            return true;
+        }
+    }
+}
+
+bool FileFinder::__FindNext()
+{
+    return FALSE != ::FindNextFile(m_upHandle.get(), &m_findData);
+}
+
+bool FileFinder::__Check()
+{
+    if (GetFileName() == wxT(".") || GetFileName() == wxT(".."))
+    {
+        return false;
+    }
+    return true;
+}
+

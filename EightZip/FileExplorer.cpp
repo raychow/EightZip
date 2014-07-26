@@ -36,7 +36,7 @@ void FileExplorer::__CreatePath(wxBoxSizer *pSizerMain)
 
 void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
 {
-    m_spModel = make_shared<FileSystemModel>(wxT("C:\\Windows\\"), wxT("System32"));
+    m_spModel = make_shared<FileSystemModel>(wxT("C:/Windows/System32/"));
     m_pListCtrl = new FileListCtrl(this);
     m_pListCtrl->SetModel(m_spModel);
     

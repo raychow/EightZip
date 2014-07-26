@@ -11,11 +11,13 @@ struct ModelPrivate
 {
     bool IsValid = false;
     bool IsChildrenValid = false;
-    TString FileName;
-    TString ParentFolder;
+    // File path without filename, always with trailing separator.
+    TString Path;
+    // File name with extension.
+    TString Name;
     wxIcon Icon;
-    UINT64 Size = 0;
-    UINT64 PackedSize = 0;
+    wxULongLong_t Size = 0;
+    wxULongLong_t PackedSize = 0;
     wxDateTime Modified;
     wxDateTime Created;
     wxDateTime Accessed;
@@ -30,7 +32,7 @@ class ModelBase
 {
 public:
     virtual const TString &GetName() const;
-    virtual const TString &GetParentFolder() const;
+    virtual const TString &GetPath() const;
     virtual TString GetFullPath() const;
     virtual const ChildVector &GetChildren() const;
     virtual bool IsDirectory() const;

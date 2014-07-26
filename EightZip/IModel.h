@@ -35,7 +35,7 @@ public:
     };
 
     virtual const TString &GetName() const PURE;
-    virtual const TString &GetParentFolder() const PURE;
+    virtual const TString &GetPath() const PURE;
     virtual TString GetFullPath() const PURE;
     virtual const ChildVector &GetChildren() const PURE;
     virtual const std::vector<ItemType> &GetChildrenSupportedItems() const PURE;

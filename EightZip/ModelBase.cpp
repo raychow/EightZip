@@ -5,17 +5,17 @@ using namespace std;
 
 const TString & ModelBase::GetName() const
 {
-    return m_upPrivate->FileName;
+    return m_upPrivate->Name;
 }
 
-const TString &ModelBase::GetParentFolder() const
+const TString &ModelBase::GetPath() const
 {
-    return m_upPrivate->ParentFolder;
+    return m_upPrivate->Path;
 }
 
 TString ModelBase::GetFullPath() const
 {
-    return wxDir(GetParentFolder()).GetNameWithSep().Append(GetName()).ToStdWstring();
+    return GetPath() + GetName();
 }
 
 const IModel::ChildVector &ModelBase::GetChildren() const
