@@ -1,7 +1,7 @@
 #include "stdwx.h"
 #include "FileListCtrl.h"
 
-#include "FileInfo.h"
+#include "FileTypeCache.h"
 
 using namespace std;
 
@@ -56,9 +56,7 @@ int FileListCtrl::OnGetItemImage(long item) const
     try
     {
         const auto spChild = children.at(m_vnChildrenMap[item]);
-        return 0;
-        // TODO;
-        //return FileInfoManager::GetFileInfo(spChild->IsDirectory(), spChild->GetFullPath()).GetIconIndex();
+        return FileTypeCache::GetInfo(spChild->IsDirectory(), spChild->GetFullPath()).GetIconIndex();
     }
     catch (out_of_range)
     {

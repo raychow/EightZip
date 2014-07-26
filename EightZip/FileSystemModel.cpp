@@ -3,6 +3,7 @@
 
 #include "FileFinder.h"
 #include "FileInfo.h"
+#include "FileTypeCache.h"
 
 using namespace std;
 
@@ -42,7 +43,7 @@ TString FileSystemModel::GetItem(ItemType itemType) const
     case IModel::ItemType::Size:
         return ToTString(m_upPrivate->Size);
     case IModel::ItemType::Type:
-        //return FileInfoManager::GetFileInfo(IsDirectory(), GetPath()).GetTypeName();
+        return FileTypeCache::GetInfo(IsDirectory(), GetName()).GetName();
     case IModel::ItemType::Modified:
         return m_upPrivate->Modified.FormatISOCombined(' ').ToStdWstring();
     case IModel::ItemType::Created:

@@ -94,6 +94,7 @@
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="FileListCtrl.h" />
     <ClInclude Include="FileSystemModel.h" />
+    <ClInclude Include="FileTypeCache.h" />
     <ClInclude Include="IModel.h" />
     <ClInclude Include="ModelBase.h" />
     <ClInclude Include="SevenZipCore\Adapter.h" />
@@ -133,6 +134,7 @@
     <ClCompile Include="FileInfo.cpp" />
     <ClCompile Include="FileListCtrl.cpp" />
     <ClCompile Include="FileSystemModel.cpp" />
+    <ClCompile Include="FileTypeCache.cpp" />
     <ClCompile Include="ModelBase.cpp" />
     <ClCompile Include="SevenZipCore\Archive.cpp" />
     <ClCompile Include="SevenZipCore\ArchiveEntry.cpp" />
