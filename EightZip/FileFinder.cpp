@@ -22,14 +22,14 @@ FileFinder::FileFinder(TString tstrDir, bool isDiretoryOnly /*= false*/)
 void FileFinder::Close()
 {
 #ifdef __WXMSW__
-	m_upHandle.reset();
+    m_upHandle.reset();
 #endif
 }
 
 bool FileFinder::IsOpened() const
 {
 #ifdef __WXMSW__
-	return m_upHandle && m_upHandle.get() != INVALID_HANDLE_VALUE;
+    return m_upHandle && m_upHandle.get() != INVALID_HANDLE_VALUE;
 #endif
 }
 
@@ -64,7 +64,7 @@ bool FileFinder::FindNext()
 bool FileFinder::__FindNext()
 {
 #ifdef __WXMSW__
-	return FALSE != ::FindNextFile(m_upHandle.get(), &m_findData);
+    return FALSE != ::FindNextFile(m_upHandle.get(), &m_findData);
 #endif
 }
 

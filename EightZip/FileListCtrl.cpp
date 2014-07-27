@@ -1,8 +1,6 @@
 #include "stdwx.h"
 #include "FileListCtrl.h"
 
-#include "FileTypeCache.h"
-
 using namespace std;
 
 wxBEGIN_EVENT_TABLE(FileListCtrl, wxListCtrl)
@@ -33,73 +31,71 @@ void FileListCtrl::SetModel(shared_ptr<IModel> spModel)
     });
     SetItemCount(children.size());
     SetImageList(&m_imageList, wxIMAGE_LIST_SMALL);
-	m_nSortColumn = -1;
-	Sort(0, true);
+    m_nSortColumn = -1;
+    Sort(0, true);
 }
 
 void FileListCtrl::Sort(int nColumn, bool isAscending)
 {
-	auto itemType = m_spModel->GetChildrenSupportedItems()[nColumn];
-	bool isReverse = false;
-	if (m_nSortColumn == nColumn)
-	{
-		if (m_isSortAscending ^ isAscending)
-		{
-			isReverse = true;
-		}
-		else
-		{
-			return;
-		}
-	}
-	else
-	{
-		m_nSortColumn = nColumn;
-	}
-	m_isSortAscending = isAscending;
+    auto itemType = m_spModel->GetChildrenSupportedItems()[nColumn];
+    bool isReverse = false;
+    if (m_nSortColumn == nColumn)
+    {
+        if (m_isSortAscending ^ isAscending)
+        {
+            isReverse = true;
+        }
+        else
+        {
+            return;
+        }
+    }
+    else
+    {
+        m_nSortColumn = nColumn;
+    }
+    m_isSortAscending = isAscending;
 
-	if (isReverse)
-	{
-		reverse(m_vnChildrenMap.begin(), m_vnChildrenMap.end());
-	}
-	else
-	{
-		const auto &children = m_spModel->GetChildren();
-		sort(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [this, isAscending, itemType, &children](int nLeft, int nRight) {
-			const auto &leftChild = children[nLeft];
-			const auto &rightChild = children[nRight];
-			bool isLeftChildDiectory = leftChild->IsDirectory();
-			bool isRightChildDiectory = rightChild->IsDirectory();
-			bool result = false;
-			if (isLeftChildDiectory ^ isRightChildDiectory)
-			{
-				result = isLeftChildDiectory ^ !isAscending;
-			}
-			else
-			{
-				result = leftChild->Compare(*rightChild, itemType, isAscending);
-			}
+    if (isReverse)
+    {
+        reverse(m_vnChildrenMap.begin(), m_vnChildrenMap.end());
+    }
+    else
+    {
+        const auto &children = m_spModel->GetChildren();
+        sort(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [this, isAscending, itemType, &children](int nLeft, int nRight) {
+            const auto &leftChild = children[nLeft];
+            const auto &rightChild = children[nRight];
+            bool isLeftChildDiectory = leftChild->IsDirectory();
+            bool isRightChildDiectory = rightChild->IsDirectory();
+            bool result = false;
+            if (isLeftChildDiectory ^ isRightChildDiectory)
+            {
+                result = isLeftChildDiectory ^ !isAscending;
+            }
+            else
+            {
+                result = leftChild->Compare(*rightChild, itemType, isAscending);
+            }
 
-			return result;
-		});
-	}
+            return result;
+        });
+    }
 
-	Refresh(false);
+    Refresh(false);
 }
 
 int FileListCtrl::GetModelIndex(int nListItemIndex) const
 {
-	return m_vnChildrenMap.at(nListItemIndex);
+    return m_vnChildrenMap.at(nListItemIndex);
 }
 
 wxString FileListCtrl::OnGetItemText(long item, long column) const
 {
-    const auto &children = m_spModel->GetChildren();
     try
     {
-        const auto &spChild = children.at(m_vnChildrenMap[item]);
-        const auto &supportedItems = spChild->GetChildrenSupportedItems();
-        return spChild->GetItem(spChild->GetChildrenSupportedItems().at(column));
+        const auto &spChild = m_spModel->GetChildren().at(m_vnChildrenMap[item]);
+        return spChild->GetItem(m_spModel->GetChildrenSupportedItems().at(column));
     }
     catch (out_of_range)
     {
@@ -131,6 +127,10 @@ wxString FileListCtrl::GetColumnCaption(IModel::ItemType itemType)
         return _("Size");
     case IModel::ItemType::PackedSize:
         return _("Packed Size");
+    case IModel::ItemType::TotalSize:
+        return _("Total Size");
+    case IModel::ItemType::FreeSpace:
+        return _("Free Space");
     case IModel::ItemType::Type:
         return _("Type");
     case IModel::ItemType::Modified:
@@ -164,15 +164,10 @@ wxListColumnFormat FileListCtrl::GetColumnFormat(IModel::ItemType itemType)
 {
     switch (itemType)
     {
-    case IModel::ItemType::Name:
-    case IModel::ItemType::Modified:
-    case IModel::ItemType::Created:
-    case IModel::ItemType::Accessed:
-    case IModel::ItemType::Comment:
-    case IModel::ItemType::Method:
-        return wxLIST_FORMAT_LEFT;
     case IModel::ItemType::Size:
     case IModel::ItemType::PackedSize:
+    case IModel::ItemType::TotalSize:
+    case IModel::ItemType::FreeSpace:
     case IModel::ItemType::Attributes:
     case IModel::ItemType::Encrypted:
     case IModel::ItemType::Block:
@@ -213,7 +208,7 @@ int FileListCtrl::GetColumnWidth(IModel::ItemType itemType)
 
 void FileListCtrl::__OnListColumnClick(wxListEvent &event)
 {
-	int nColumn = event.GetColumn();
+    int nColumn = event.GetColumn();
 
-	Sort(nColumn, !m_isSortAscending);
+    Sort(nColumn, !m_isSortAscending);
 }

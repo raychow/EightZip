@@ -129,7 +129,7 @@
     <ClInclude Include="FileFinder.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FileTypeCache.h">
+    <ClInclude Include="DriveModel.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -209,7 +209,7 @@
     <ClCompile Include="FileFinder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="FileTypeCache.cpp">
+    <ClCompile Include="DriveModel.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

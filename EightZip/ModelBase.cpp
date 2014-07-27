@@ -1,70 +1,80 @@
 #include "stdwx.h"
 #include "ModelBase.h"
 
+#include "FileInfo.h"
+
 using namespace std;
-
-const TString & ModelBase::GetName() const
-{
-    return m_upPrivate->Name;
-}
-
-const TString &ModelBase::GetPath() const
-{
-    return m_upPrivate->Path;
-}
-
-TString ModelBase::GetFullPath() const
-{
-    return GetPath() + GetName();
-}
-
-const IModel::ChildVector &ModelBase::GetChildren() const
-{
-    _UpdateChildren();
-    return m_upPrivate->Children;
-}
 
 int ModelBase::GetIconIndex() const
 {
-	return m_upPrivate->IconIndex;
+    if (-1 == m_nIconIndex)
+    {
+        m_nIconIndex = FileInfo::GetIconIndex(GetFullPath(), IsDirectory(), false);
+    }
+    return m_nIconIndex;
 }
 
 TString ModelBase::GetItem(ItemType itemType) const
 {
-	switch (itemType)
-	{
-	case IModel::ItemType::Name:
-		return m_upPrivate->Name;
-	case IModel::ItemType::Size:
-		return IsDirectory() ? wxT("") : ToTString(m_upPrivate->Size);
-	case IModel::ItemType::Type:
-		return m_upPrivate->Type;
-	case IModel::ItemType::Modified:
-		return m_upPrivate->Modified.FormatISOCombined(' ').ToStdWstring();
-	case IModel::ItemType::Created:
-		return m_upPrivate->Created.FormatISOCombined(' ').ToStdWstring();
-	case IModel::ItemType::Accessed:
-		return m_upPrivate->Accessed.FormatISOCombined(' ').ToStdWstring();
-	case IModel::ItemType::Attributes:
-		break;
-	default:
-		break;
-	}
-	return wxT("");
+    switch (itemType)
+    {
+    case IModel::ItemType::Name:
+        return m_tstrName;
+    case IModel::ItemType::Size:
+        return IsDirectory() ? wxT("") : ToTString(m_un64Size);
+    case IModel::ItemType::Type:
+        return m_tstrType;
+    case IModel::ItemType::Modified:
+        return m_dtModified.FormatISOCombined(' ').ToStdWstring();
+    case IModel::ItemType::Created:
+        return m_dtCreated.FormatISOCombined(' ').ToStdWstring();
+    case IModel::ItemType::Accessed:
+        return m_dtAccessed.FormatISOCombined(' ').ToStdWstring();
+    case IModel::ItemType::Attributes:
+        break;
+    default:
+        break;
+    }
+    return wxT("");
 }
 
-bool ModelBase::IsDirectory() const
+bool ModelBase::Compare(const IModel &otherModel, ItemType itemType, bool isAscending) const
 {
-    return m_upPrivate->IsDirectory;
+    const auto &otherModelBase = dynamic_cast<const ModelBase &>(otherModel);
+
+    switch (itemType)
+    {
+    case ItemType::Name:
+        return _LocaleCompare(m_tstrName, otherModelBase.m_tstrName, isAscending);
+    case ItemType::Size:
+        return COMPARE(m_un64Size, otherModelBase.m_un64Size, isAscending);
+    case IModel::ItemType::Type:
+        return _LocaleCompare(GetItem(itemType), otherModelBase.GetItem(itemType), isAscending);
+    case IModel::ItemType::Modified:
+        return COMPARE(m_dtModified, otherModelBase.m_dtModified, isAscending);
+    case IModel::ItemType::Created:
+        return COMPARE(m_dtCreated, otherModelBase.m_dtCreated, isAscending);
+    case IModel::ItemType::Accessed:
+        return COMPARE(m_dtAccessed, otherModelBase.m_dtAccessed, isAscending);
+    }
+    return false;
 }
 
-bool ModelBase::IsOpenInside() const
+bool ModelBase::_LocaleCompare(const TString &tstrLeft, const TString & tstrRight, bool isAscending)
 {
-    return m_upPrivate->IsOpenInside;
-}
+    if (tstrLeft.empty() || tstrRight.empty())
+    {
+        return COMPARE(tstrLeft, tstrRight, isAscending);
+    }
 
-void ModelBase::Invalid() const
-{
-    m_upPrivate->IsValid = false;
-    m_upPrivate->IsChildrenValid = false;
+#ifdef __WXMSW__
+    switch (::CompareString(GetUserDefaultLCID(), 0, tstrLeft.c_str(), tstrLeft.size(), tstrRight.c_str(), tstrRight.size())) {
+    case CSTR_LESS_THAN:
+        return isAscending;
+    case CSTR_GREATER_THAN:
+        return !isAscending;
+    default:
+        return false;
+    }
+#endif
 }

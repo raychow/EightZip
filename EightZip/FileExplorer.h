@@ -12,10 +12,10 @@ class FileExplorer
     : public wxPanel
 {
 public:
-	enum
-	{
-		ID_PARENT_FOLDER = wxID_HIGHEST + 1,
-	};
+    enum
+    {
+        ID_PARENT_FOLDER = wxID_HIGHEST + 1,
+    };
 
     FileExplorer(wxWindow *parent,
         wxWindowID winid = wxID_ANY,
@@ -26,6 +26,7 @@ public:
     virtual ~FileExplorer() { }
 
 private:
+    wxToolBar *m_pToolBar = nullptr;
     FileListCtrl *m_pListCtrl = nullptr;
 
     std::shared_ptr<IModel> m_spModel;
@@ -34,8 +35,8 @@ private:
     void __CreatePath(wxBoxSizer *pMainSizer);
     void __CreateExplorer(wxBoxSizer *pSizerMain);
 
-	void __OnParentFolderClick(wxCommandEvent &WXUNUSED(event));
-	void __OnListItemActivated(wxListEvent &event);
+    void __OnParentFolderClick(wxCommandEvent &event);
+    void __OnListItemActivated(wxListEvent &event);
 };
 
 #endif // FILEEXPLORER_H

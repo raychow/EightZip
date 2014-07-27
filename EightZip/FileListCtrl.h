@@ -24,9 +24,9 @@ public:
     static wxListColumnFormat GetColumnFormat(IModel::ItemType itemType);
     static int GetColumnWidth(IModel::ItemType itemType);
 
-	void Sort(int nColumn, bool isAscending);
+    void Sort(int nColumn, bool isAscending);
 
-	int GetModelIndex(int nListItemIndex) const;
+    int GetModelIndex(int nListItemIndex) const;
 
 protected:
     virtual wxString OnGetItemText(long item, long column) const;
@@ -40,7 +40,7 @@ private:
     int m_nSortColumn = -1;
     bool m_isSortAscending = false;
 
-	void __OnListColumnClick(wxListEvent &event);
+    void __OnListColumnClick(wxListEvent &event);
 
     DECLARE_EVENT_TABLE()
 };

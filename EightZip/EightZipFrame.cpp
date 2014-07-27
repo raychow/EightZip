@@ -35,7 +35,7 @@ void EightZipFrame::__CreateMenu()
     pMenuBar->Append(pMenuFile, _("&File"));
     SetMenuBar(pMenuBar);
 
-	pMenuFile->Bind(wxEVT_COMMAND_MENU_SELECTED, &EightZipFrame::__OnExitClick, this, ID_EXIT);
+    pMenuFile->Bind(wxEVT_COMMAND_MENU_SELECTED, &EightZipFrame::__OnExitClick, this, ID_EXIT);
 }
 
 void EightZipFrame::__CreateToolBar()

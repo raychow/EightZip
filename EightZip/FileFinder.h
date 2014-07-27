@@ -28,7 +28,7 @@ public:
 
 private:
 #ifdef __WXMSW__
-	class FinderCloser
+    class FinderCloser
     {
     public:
         void operator()(HANDLE handle)
@@ -42,10 +42,10 @@ private:
 #endif
 
     bool m_isDirectoryOnly;
-	bool m_isFirst = true;
+    bool m_isFirst = true;
 
 #ifdef __WXMSW__
-	std::unique_ptr<void, FinderCloser> m_upHandle;
+    std::unique_ptr<void, FinderCloser> m_upHandle;
     WIN32_FIND_DATA m_findData;
 #endif
 
