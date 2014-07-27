@@ -17,26 +17,27 @@ FileInfo::FileInfo(TString tstrPath)
 
 TString FileInfo::GetNormalizedPath() const
 {
-    if (IsOK())
+    if (!IsOK())
     {
-        if (m_tstrNormalizedPath.empty())
-        {
-#ifdef __WXMSW__
-            int nBufferSize = ::GetLongPathName(m_tstrPath.c_str(), nullptr, 0);
-            if (nBufferSize)
-            {
-                unique_ptr<wxChar[]> uptchBuffer(new wxChar[nBufferSize]);
-                if (::GetLongPathName(m_tstrPath.c_str(), uptchBuffer.get(), nBufferSize))
-                {
-                    m_tstrNormalizedPath = uptchBuffer.get();
-                    return uptchBuffer.get();
-                }
-            }
-#endif
-        }
-        return m_tstrNormalizedPath;
+        return wxEmptyString;
     }
-    return wxEmptyString;
+    if (m_tstrNormalizedPath.empty())
+    {
+#ifdef __WXMSW__
+        int nBufferSize = ::GetLongPathName(m_tstrPath.c_str(), nullptr, 0);
+        if (nBufferSize)
+        {
+            unique_ptr<wxChar[]> uptchBuffer(new wxChar[nBufferSize]);
+            if (::GetLongPathName(m_tstrPath.c_str(), uptchBuffer.get(), nBufferSize))
+            {
+                m_tstrNormalizedPath = uptchBuffer.get();
+                return m_tstrNormalizedPath;
+            }
+        }
+        m_tstrNormalizedPath.clear();
+#endif
+    }
+    return m_tstrNormalizedPath;
 }
 
 TString FileInfo::GetType(TString tstrFileName, bool isDirectory /*= false*/, bool isVirtual /*= true*/)

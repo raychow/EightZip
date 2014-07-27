@@ -20,9 +20,9 @@ public:
 
     void SetModel(std::shared_ptr<IModel> spModel);
 
-    static wxString GetColumnCaption(IModel::ItemType itemType);
-    static wxListColumnFormat GetColumnFormat(IModel::ItemType itemType);
-    static int GetColumnWidth(IModel::ItemType itemType);
+    static wxString GetColumnCaption(IEntry::ItemType itemType);
+    static wxListColumnFormat GetColumnFormat(IEntry::ItemType itemType);
+    static int GetColumnWidth(IEntry::ItemType itemType);
 
     void Sort(int nColumn, bool isAscending);
 

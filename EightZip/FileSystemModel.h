@@ -7,25 +7,33 @@
 
 #include "ModelBase.h"
 
+class FileSystemEntry
+    : public EntryBase
+{
+public:
+    FileSystemEntry(TString tstrPath
+        , TString tstrName
+        , bool isDirectory
+        , wxULongLong_t un64Size
+        , wxDateTime dtAccessed
+        , wxDateTime dtModified
+        , wxDateTime dtCreated
+        , TString tstrType);
+
+    virtual std::shared_ptr<IModel> GetModel() const;
+};
+
 class FileSystemModel
     : public ModelBase
 {
-    struct Private { };
-
 public:
     FileSystemModel(TString tstrFullPath);
-    FileSystemModel(Private) { }
 
     virtual std::shared_ptr<IModel> GetParent() const;
-    virtual const std::vector<ItemType> &GetChildrenSupportedItems() const;
-
-protected:
-    virtual void _UpdateChildren();
+    virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
 
 private:
-    static std::vector<ItemType> m_vType;
-
-    static std::shared_ptr<FileSystemModel> __MakeShared();
+    static std::vector<IEntry::ItemType> m_vType;
 
 };
 

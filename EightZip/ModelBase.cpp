@@ -5,7 +5,7 @@
 
 using namespace std;
 
-int ModelBase::GetIconIndex() const
+int EntryBase::GetIconIndex() const
 {
     if (-1 == m_nIconIndex)
     {
@@ -14,23 +14,27 @@ int ModelBase::GetIconIndex() const
     return m_nIconIndex;
 }
 
-TString ModelBase::GetItem(ItemType itemType) const
+TString EntryBase::GetItem(ItemType itemType) const
 {
     switch (itemType)
     {
-    case IModel::ItemType::Name:
+    case ItemType::Name:
         return m_tstrName;
-    case IModel::ItemType::Size:
+    case ItemType::Size:
         return IsDirectory() ? wxT("") : ToTString(m_un64Size);
-    case IModel::ItemType::Type:
+    case IEntry::ItemType::TotalSize:
+        return ToTString(m_un64TotalSize);
+    case IEntry::ItemType::FreeSpace:
+        return ToTString(m_un64FreeSpace);
+    case ItemType::Type:
         return m_tstrType;
-    case IModel::ItemType::Modified:
+    case ItemType::Modified:
         return m_dtModified.FormatISOCombined(' ').ToStdWstring();
-    case IModel::ItemType::Created:
+    case ItemType::Created:
         return m_dtCreated.FormatISOCombined(' ').ToStdWstring();
-    case IModel::ItemType::Accessed:
+    case ItemType::Accessed:
         return m_dtAccessed.FormatISOCombined(' ').ToStdWstring();
-    case IModel::ItemType::Attributes:
+    case ItemType::Attributes:
         break;
     default:
         break;
@@ -38,29 +42,29 @@ TString ModelBase::GetItem(ItemType itemType) const
     return wxT("");
 }
 
-bool ModelBase::Compare(const IModel &otherModel, ItemType itemType, bool isAscending) const
+bool EntryBase::Compare(const IEntry &otherEntry, ItemType itemType, bool isAscending) const
 {
-    const auto &otherModelBase = dynamic_cast<const ModelBase &>(otherModel);
+    const auto &otherEntryBase = dynamic_cast<const EntryBase &>(otherEntry);
 
     switch (itemType)
     {
     case ItemType::Name:
-        return _LocaleCompare(m_tstrName, otherModelBase.m_tstrName, isAscending);
+        return _LocaleCompare(m_tstrName, otherEntryBase.m_tstrName, isAscending);
     case ItemType::Size:
-        return COMPARE(m_un64Size, otherModelBase.m_un64Size, isAscending);
-    case IModel::ItemType::Type:
-        return _LocaleCompare(GetItem(itemType), otherModelBase.GetItem(itemType), isAscending);
-    case IModel::ItemType::Modified:
-        return COMPARE(m_dtModified, otherModelBase.m_dtModified, isAscending);
-    case IModel::ItemType::Created:
-        return COMPARE(m_dtCreated, otherModelBase.m_dtCreated, isAscending);
-    case IModel::ItemType::Accessed:
-        return COMPARE(m_dtAccessed, otherModelBase.m_dtAccessed, isAscending);
+        return COMPARE(m_un64Size, otherEntryBase.m_un64Size, isAscending);
+    case ItemType::Type:
+        return _LocaleCompare(GetItem(itemType), otherEntryBase.GetItem(itemType), isAscending);
+    case ItemType::Modified:
+        return COMPARE(m_dtModified, otherEntryBase.m_dtModified, isAscending);
+    case ItemType::Created:
+        return COMPARE(m_dtCreated, otherEntryBase.m_dtCreated, isAscending);
+    case ItemType::Accessed:
+        return COMPARE(m_dtAccessed, otherEntryBase.m_dtAccessed, isAscending);
     }
     return false;
 }
 
-bool ModelBase::_LocaleCompare(const TString &tstrLeft, const TString & tstrRight, bool isAscending)
+bool EntryBase::_LocaleCompare(const TString &tstrLeft, const TString & tstrRight, bool isAscending)
 {
     if (tstrLeft.empty() || tstrRight.empty())
     {

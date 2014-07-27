@@ -87,6 +87,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DriveModel.h" />
+    <ClInclude Include="Exception.h" />
     <ClInclude Include="FileFinder.h" />
     <ClInclude Include="EightZipFrame.h" />
     <ClInclude Include="EightZipApp.h" />

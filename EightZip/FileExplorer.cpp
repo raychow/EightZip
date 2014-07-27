@@ -1,6 +1,7 @@
 #include "stdwx.h"
 #include "FileExplorer.h"
 
+#include "Exception.h"
 #include "FileSystemModel.h"
 
 using namespace std;
@@ -38,6 +39,7 @@ void FileExplorer::__CreatePath(wxBoxSizer *pSizerMain)
 
 void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
 {
+    // TODO: Catch exception.
     m_spModel = make_shared<FileSystemModel>(wxT("C:"));
     m_pListCtrl = new FileListCtrl(this);
     m_pListCtrl->SetModel(m_spModel);
@@ -62,7 +64,15 @@ void FileExplorer::__OnParentFolderClick(wxCommandEvent &event)
 
 void FileExplorer::__OnListItemActivated(wxListEvent &event)
 {
-    m_spModel = m_spModel->GetChildren().at(m_pListCtrl->GetModelIndex(event.GetIndex()));
-    m_pListCtrl->SetModel(m_spModel);
-    m_pToolBar->EnableTool(ID_PARENT_FOLDER, true);
+    const auto &spEntry = m_spModel->GetEntries().at(m_pListCtrl->GetModelIndex(event.GetIndex()));
+    try
+    {
+        m_spModel = spEntry->GetModel();
+        m_pListCtrl->SetModel(m_spModel);
+        m_pToolBar->EnableTool(ID_PARENT_FOLDER, true);
+    }
+    catch (ModelException)
+    {
+        wxMessageBox(_("Cannot access \"" + spEntry->GetFullPath() + "\"."));
+    }
 }

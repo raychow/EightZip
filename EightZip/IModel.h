@@ -10,11 +10,11 @@
 
 #include "SevenZipCore/TString.h"
 
-class IModel
+class IModel;
+
+class IEntry
 {
 public:
-    typedef std::vector<std::shared_ptr<IModel>> ChildVector;
-
     enum class ItemType
     {
         Name,
@@ -39,16 +39,26 @@ public:
     virtual const TString &GetName() const PURE;
     virtual const TString &GetPath() const PURE;
     virtual TString GetFullPath() const PURE;
-    virtual bool HasParent() const PURE;
-    virtual std::shared_ptr<IModel> GetParent() const PURE;
-    virtual const ChildVector &GetChildren() PURE;
-    virtual const std::vector<ItemType> &GetChildrenSupportedItems() const PURE;
     virtual int GetIconIndex() const PURE;
     virtual TString GetItem(ItemType itemType) const PURE;
-    virtual bool IsDirectory() const PURE;
     virtual bool IsOpenInside() const PURE;
+    virtual bool IsDirectory() const PURE;
+    virtual std::shared_ptr<IModel> GetModel() const PURE;
 
-    virtual bool Compare(const IModel &otherModel, ItemType itemType, bool isAscending) const PURE;
+    virtual bool Compare(const IEntry &otherEntry, ItemType itemType, bool isAscending) const PURE;
+};
+
+class IModel
+{
+public:
+    typedef std::vector<std::shared_ptr<IEntry>> EntryVector;
+
+    virtual const TString &GetPath() const PURE;
+    virtual bool HasParent() const PURE;
+    virtual std::shared_ptr<IModel> GetParent() const PURE;
+    virtual const EntryVector &GetEntries() const PURE;
+    virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const PURE;
+
 };
 
 #endif // IMODEL_H

@@ -9,18 +9,30 @@
 
 #include "ModelBase.h"
 
+class DriveEntry
+    : public EntryBase
+{
+public:
+    DriveEntry(TString tstrName
+        , wxULongLong_t un64TotalSize
+        , wxULongLong_t un64FreeSpace
+        , TString tstrType);
+
+    virtual std::shared_ptr<IModel> GetModel() const;
+
+};
+
 class DriveModel
     : public ModelBase
 {
 public:
-    virtual std::shared_ptr<IModel> GetParent() const;
-    virtual const std::vector<ItemType> &GetChildrenSupportedItems() const;
+    DriveModel();
 
-protected:
-    virtual void _UpdateChildren();
+    virtual std::shared_ptr<IModel> GetParent() const;
+    virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
 
 private:
-    static std::vector<ItemType> m_vType;
+    static std::vector<IEntry::ItemType> m_vType;
 
 #ifdef __WXMSW__
     static std::vector<TString> __GetDrives();
