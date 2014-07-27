@@ -12,7 +12,7 @@ FileListCtrl::FileListCtrl(wxWindow *parent, wxWindowID id /*= wxID_ANY*/, const
     : wxListCtrl(parent, id, pos, size, style, validator, name)
     , m_imageList(true)
 {
-    Bind(wxEVT_LIST_COL_CLICK, &FileListCtrl::__OnListColClick, this);
+    Bind(wxEVT_LIST_COL_CLICK, &FileListCtrl::__OnListColumnClick, this);
 }
 
 void FileListCtrl::SetModel(shared_ptr<IModel> spModel)
@@ -33,6 +33,63 @@ void FileListCtrl::SetModel(shared_ptr<IModel> spModel)
     });
     SetItemCount(children.size());
     SetImageList(&m_imageList, wxIMAGE_LIST_SMALL);
+	m_nSortColumn = -1;
+	Sort(0, true);
+}
+
+void FileListCtrl::Sort(int nColumn, bool isAscending)
+{
+	auto itemType = m_spModel->GetChildrenSupportedItems()[nColumn];
+	bool isReverse = false;
+	if (m_nSortColumn == nColumn)
+	{
+		if (m_isSortAscending ^ isAscending)
+		{
+			isReverse = true;
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		m_nSortColumn = nColumn;
+	}
+	m_isSortAscending = isAscending;
+
+	if (isReverse)
+	{
+		reverse(m_vnChildrenMap.begin(), m_vnChildrenMap.end());
+	}
+	else
+	{
+		const auto &children = m_spModel->GetChildren();
+		sort(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [this, isAscending, itemType, &children](int nLeft, int nRight) {
+			const auto &leftChild = children[nLeft];
+			const auto &rightChild = children[nRight];
+			bool isLeftChildDiectory = leftChild->IsDirectory();
+			bool isRightChildDiectory = rightChild->IsDirectory();
+			bool result = false;
+			if (isLeftChildDiectory ^ isRightChildDiectory)
+			{
+				result = isLeftChildDiectory ^ !isAscending;
+			}
+			else
+			{
+				result = leftChild->Compare(*rightChild, itemType, isAscending);
+			}
+
+			return result;
+		});
+	}
+
+	Refresh(false);
+}
+
+int FileListCtrl::GetModelIndex(int nListItemIndex) const
+{
+	return m_vnChildrenMap.at(nListItemIndex);
 }
 
 wxString FileListCtrl::OnGetItemText(long item, long column) const
@@ -56,7 +113,7 @@ int FileListCtrl::OnGetItemImage(long item) const
     try
     {
         const auto spChild = children.at(m_vnChildrenMap[item]);
-        return FileTypeCache::GetInfo(spChild->IsDirectory(), spChild->GetFullPath()).GetIconIndex();
+        return spChild->GetIconIndex();
     }
     catch (out_of_range)
     {
@@ -154,46 +211,9 @@ int FileListCtrl::GetColumnWidth(IModel::ItemType itemType)
     }
 }
 
-void FileListCtrl::__OnListColClick(wxListEvent &event)
+void FileListCtrl::__OnListColumnClick(wxListEvent &event)
 {
-    int nColumn = event.GetColumn();
-    auto itemType =m_spModel->GetChildrenSupportedItems()[nColumn];
-    bool isReverse = false;
-    if (m_nSortColumn == nColumn)
-    {
-        m_isSortAscend = !m_isSortAscend;
-        isReverse = true;
-    }
-    else
-    {
-        m_nSortColumn = nColumn;
-    }
+	int nColumn = event.GetColumn();
 
-    if (isReverse)
-    {
-        reverse(m_vnChildrenMap.begin(), m_vnChildrenMap.end());
-    }
-    else
-    {
-        sort(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [this, itemType](int nLeft, int nRight) {
-            const auto &children = m_spModel->GetChildren();
-            const auto &leftChild = children[nLeft];
-            const auto &rightChild = children[nRight];
-            bool isLeftChildDiectory = leftChild->IsDirectory();
-            bool isRightChildDiectory = rightChild->IsDirectory();
-            bool result = false;
-            if (isLeftChildDiectory != isRightChildDiectory)
-            {
-                result = isLeftChildDiectory ^ !m_isSortAscend;
-            }
-            else
-            {
-                result = leftChild->Compare(*rightChild, itemType, m_isSortAscend);
-            }
-
-            return result;
-        });
-    }
-
-    Refresh(false);
+	Sort(nColumn, !m_isSortAscending);
 }

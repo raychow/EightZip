@@ -12,6 +12,11 @@ class FileExplorer
     : public wxPanel
 {
 public:
+	enum
+	{
+		ID_PARENT_FOLDER = wxID_HIGHEST + 1,
+	};
+
     FileExplorer(wxWindow *parent,
         wxWindowID winid = wxID_ANY,
         const wxPoint &pos = wxDefaultPosition,
@@ -29,7 +34,8 @@ private:
     void __CreatePath(wxBoxSizer *pMainSizer);
     void __CreateExplorer(wxBoxSizer *pSizerMain);
 
-    void __OnListCtrlActive(wxListEvent &event);
+	void __OnParentFolderClick(wxCommandEvent &WXUNUSED(event));
+	void __OnListItemActivated(wxListEvent &event);
 };
 
 #endif // FILEEXPLORER_H

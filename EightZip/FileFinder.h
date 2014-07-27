@@ -27,7 +27,8 @@ public:
     wxDateTime GetCreated() const { return GetTimeFromFileTime(&m_findData.ftCreationTime); }
 
 private:
-    class FinderCloser
+#ifdef __WXMSW__
+	class FinderCloser
     {
     public:
         void operator()(HANDLE handle)
@@ -38,11 +39,15 @@ private:
             }
         }
     };
+#endif
 
     bool m_isDirectoryOnly;
-    std::unique_ptr<void, FinderCloser> m_upHandle;
+	bool m_isFirst = true;
+
+#ifdef __WXMSW__
+	std::unique_ptr<void, FinderCloser> m_upHandle;
     WIN32_FIND_DATA m_findData;
-    bool m_isFirst = true;
+#endif
 
     bool __FindNext();
     bool __Check();

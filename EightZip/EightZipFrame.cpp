@@ -30,11 +30,12 @@ void EightZipFrame::__CreateMenu()
     pMenuFile->Append(ID_OPEN, _("&Open"));
     pMenuFile->AppendSeparator();
     pMenuFile->Append(ID_EXIT, _("E&xit"));
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &EightZipFrame::__OnExitClick, this, ID_EXIT);
     
     auto *pMenuBar = new wxMenuBar;
     pMenuBar->Append(pMenuFile, _("&File"));
     SetMenuBar(pMenuBar);
+
+	pMenuFile->Bind(wxEVT_COMMAND_MENU_SELECTED, &EightZipFrame::__OnExitClick, this, ID_EXIT);
 }
 
 void EightZipFrame::__CreateToolBar()

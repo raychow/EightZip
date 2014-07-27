@@ -17,18 +17,19 @@ public:
     FileSystemModel(Private) { }
 
     virtual const std::vector<ItemType> &GetChildrenSupportedItems() const;
-    virtual TString GetItem(ItemType itemType) const;
 
-    virtual bool Compare(const IModel &otherModel, ItemType itemType, bool isAscend) const;
+	virtual bool Compare(const IModel &otherModel, ItemType itemType, bool isAscending) const;
 
 protected:
-    virtual void _UpdateInfo() const;
-    virtual void _UpdateChildren() const;
+	virtual void _UpdateTypeInfo() const;
+	virtual void _UpdateChildren() const;
 
 private:
     static std::vector<ItemType> m_vType;
 
     static std::shared_ptr<FileSystemModel> __MakeShared();
+
+	static bool __LocaleCompare(const TString &tstrLeft, const TString & tstrRight, bool isAscending);
 
 };
 

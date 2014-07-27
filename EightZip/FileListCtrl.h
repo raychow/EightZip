@@ -23,6 +23,11 @@ public:
     static wxString GetColumnCaption(IModel::ItemType itemType);
     static wxListColumnFormat GetColumnFormat(IModel::ItemType itemType);
     static int GetColumnWidth(IModel::ItemType itemType);
+
+	void Sort(int nColumn, bool isAscending);
+
+	int GetModelIndex(int nListItemIndex) const;
+
 protected:
     virtual wxString OnGetItemText(long item, long column) const;
     virtual int OnGetItemImage(long item) const;
@@ -33,9 +38,9 @@ private:
     std::vector<int> m_vnChildrenMap;
 
     int m_nSortColumn = -1;
-    bool m_isSortAscend = false;
+    bool m_isSortAscending = false;
 
-    void __OnListColClick(wxListEvent &event);
+	void __OnListColumnClick(wxListEvent &event);
 
     DECLARE_EVENT_TABLE()
 };

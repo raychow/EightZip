@@ -39,12 +39,13 @@ public:
     virtual TString GetFullPath() const PURE;
     virtual const ChildVector &GetChildren() const PURE;
     virtual const std::vector<ItemType> &GetChildrenSupportedItems() const PURE;
+	virtual int GetIconIndex() const PURE;
     virtual TString GetItem(ItemType itemType) const PURE;
     virtual bool IsDirectory() const PURE;
     virtual bool IsOpenInside() const PURE;
     virtual void Invalid() const PURE;
 
-    virtual bool Compare(const IModel &otherModel, ItemType itemType, bool isAscend) const PURE;
+	virtual bool Compare(const IModel &otherModel, ItemType itemType, bool isAscending) const PURE;
 };
 
 #endif // IMODEL_H

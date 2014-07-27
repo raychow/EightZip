@@ -14,17 +14,23 @@ FileFinder::FileFinder(TString tstrDir, bool isDiretoryOnly /*= false*/)
     {
         tstrDir.append(wxT("\\*"));
     }
+#ifdef __WXMSW__
     m_upHandle.reset(::FindFirstFile(tstrDir.c_str(), &m_findData));
+#endif
 }
 
 void FileFinder::Close()
 {
-    m_upHandle.reset();
+#ifdef __WXMSW__
+	m_upHandle.reset();
+#endif
 }
 
-inline bool FileFinder::IsOpened() const
+bool FileFinder::IsOpened() const
 {
-    return m_upHandle && m_upHandle.get() != INVALID_HANDLE_VALUE;
+#ifdef __WXMSW__
+	return m_upHandle && m_upHandle.get() != INVALID_HANDLE_VALUE;
+#endif
 }
 
 bool FileFinder::FindNext()
@@ -57,7 +63,9 @@ bool FileFinder::FindNext()
 
 bool FileFinder::__FindNext()
 {
-    return FALSE != ::FindNextFile(m_upHandle.get(), &m_findData);
+#ifdef __WXMSW__
+	return FALSE != ::FindNextFile(m_upHandle.get(), &m_findData);
+#endif
 }
 
 bool FileFinder::__Check()

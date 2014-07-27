@@ -7,19 +7,29 @@
 
 using namespace std;
 
+#define COMPARE(left, right) isAscending ? (left < right) : (left > right)
+
 FileSystemModel::FileSystemModel(TString tstrFullPath)
 {
     FileInfo fileInfo(tstrFullPath);
     if (fileInfo.IsOK())
     {
-        while (wxEndsWithPathSeparator(tstrFullPath))
+		while (wxIsPathSeparator(tstrFullPath.back()))
         {
             tstrFullPath.pop_back();
         }
         wxFileName fileName(tstrFullPath);
         fileName.Normalize();
-        m_upPrivate->Path = fileName.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
-        m_upPrivate->Name = fileName.GetName();
+		m_upPrivate->Path = fileName.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR);
+		m_upPrivate->Name = fileName.GetFullName();
+		if (m_upPrivate->Name.empty())
+		{
+			m_upPrivate->Name = move(m_upPrivate->Path);
+			while (wxIsPathSeparator(m_upPrivate->Name.back()))
+			{
+				m_upPrivate->Name.pop_back();
+			}
+		}
         m_upPrivate->IsDirectory = fileInfo.IsDirectory();
         m_upPrivate->Size = fileInfo.GetSize();
         m_upPrivate->Accessed = fileInfo.GetAccessed();
@@ -33,52 +43,26 @@ const vector<IModel::ItemType> &FileSystemModel::GetChildrenSupportedItems() con
     return m_vType;
 }
 
-TString FileSystemModel::GetItem(ItemType itemType) const
+void FileSystemModel::_UpdateTypeInfo() const
 {
-    _UpdateInfo();
-    switch (itemType)
-    {
-    case IModel::ItemType::Name:
-        return m_upPrivate->Name;
-    case IModel::ItemType::Size:
-        return ToTString(m_upPrivate->Size);
-    case IModel::ItemType::Type:
-        return FileTypeCache::GetInfo(IsDirectory(), GetName()).GetName();
-    case IModel::ItemType::Modified:
-        return m_upPrivate->Modified.FormatISOCombined(' ').ToStdWstring();
-    case IModel::ItemType::Created:
-        return m_upPrivate->Created.FormatISOCombined(' ').ToStdWstring();
-    case IModel::ItemType::Accessed:
-        return m_upPrivate->Accessed.FormatISOCombined(' ').ToStdWstring();
-    case IModel::ItemType::Attributes:
-        break;
-    default:
-        break;
-    }
-    return wxT("");
-}
-
-void FileSystemModel::_UpdateInfo() const
-{
-    if (m_upPrivate->IsValid)
-    {
-        return;
-    }
-    //wxFileName info(m_upPrivate->FullPath);
-    //info.Normalize(wxPATH_NORM_ALL & ~wxPATH_NORM_ENV_VARS);
-    m_upPrivate->IsValid = true;
+	lock_guard<mutex> lockGuard(m_upPrivate->UpdateMutex);
+	if (-1 == m_upPrivate->IconIndex)
+	{
+		auto fileTypeInfo = FileTypeCache::GetInfo(IsDirectory(), GetFullPath());
+		m_upPrivate->IconIndex = fileTypeInfo.GetIconIndex();
+		m_upPrivate->Type = fileTypeInfo.GetName();
+	}
 }
 
 void FileSystemModel::_UpdateChildren() const
 {
-    _UpdateInfo();
     if (!m_upPrivate->IsChildrenValid)
     {
         m_upPrivate->Children.clear();
         if (IsDirectory())
         {
             wxFileName dir(GetPath());
-            TString tstrParentFolder = GetFullPath();
+			TString tstrParentFolder = GetFullPath() + wxFILE_SEP_PATH;
             FileFinder finder(tstrParentFolder);
 
             while (finder.FindNext())
@@ -91,6 +75,9 @@ void FileSystemModel::_UpdateChildren() const
                 spModel->m_upPrivate->Accessed = finder.GetAccessed();
                 spModel->m_upPrivate->Modified = finder.GetModified();
                 spModel->m_upPrivate->Created = finder.GetCreated();
+				auto fileTypeInfo = FileTypeCache::GetInfo(spModel->IsDirectory(), spModel->GetFullPath());
+				spModel->m_upPrivate->IconIndex = fileTypeInfo.GetIconIndex();
+				spModel->m_upPrivate->Type = fileTypeInfo.GetName();
                 m_upPrivate->Children.push_back(spModel);
             }
         }
@@ -116,75 +103,43 @@ std::shared_ptr<FileSystemModel> FileSystemModel::__MakeShared()
     return make_shared<FileSystemModel>(Private());
 }
 
-bool FileSystemModel::Compare(const IModel &otherModel, ItemType itemType, bool isAscend) const
+bool FileSystemModel::Compare(const IModel &otherModel, ItemType itemType, bool isAscending) const
 {
     const auto &otherFileSystemModel = dynamic_cast<const FileSystemModel &>(otherModel);
-
+	
     switch (itemType)
     {
     case ItemType::Name:
-        if (isAscend)
-        {
-            return m_upPrivate->Name < otherFileSystemModel.m_upPrivate->Name;
-        }
-        else
-        {
-            return m_upPrivate->Name > otherFileSystemModel.m_upPrivate->Name;
-        }
+		return __LocaleCompare(m_upPrivate->Name, otherFileSystemModel.m_upPrivate->Name, isAscending);
     case ItemType::Size:
-        if (isAscend)
-        {
-            return m_upPrivate->Size < otherFileSystemModel.m_upPrivate->Size;
-        }
-        else
-        {
-            return m_upPrivate->Size > otherFileSystemModel.m_upPrivate->Size;
-        }
-    case ItemType::PackedSize:
-        if (isAscend)
-        {
-            return m_upPrivate->PackedSize < otherFileSystemModel.m_upPrivate->PackedSize;
-        }
-        else
-        {
-            return m_upPrivate->PackedSize > otherFileSystemModel.m_upPrivate->PackedSize;
-        }
+		return COMPARE(m_upPrivate->Size, otherFileSystemModel.m_upPrivate->Size);
     case IModel::ItemType::Type:
-        if (isAscend)
-        {
-            return GetItem(itemType) < otherFileSystemModel.GetItem(itemType);
-        }
-        else
-        {
-            return GetItem(itemType) > otherFileSystemModel.GetItem(itemType);
-        }
+		return __LocaleCompare(GetItem(itemType), otherFileSystemModel.GetItem(itemType), isAscending);
     case IModel::ItemType::Modified:
-        if (isAscend)
-        {
-            return m_upPrivate->Modified < otherFileSystemModel.m_upPrivate->Modified;
-        }
-        else
-        {
-            return m_upPrivate->Modified > otherFileSystemModel.m_upPrivate->Modified;
-        }
+		return COMPARE(m_upPrivate->Modified, otherFileSystemModel.m_upPrivate->Modified);
     case IModel::ItemType::Created:
-        if (isAscend)
-        {
-            return m_upPrivate->Created < otherFileSystemModel.m_upPrivate->Created;
-        }
-        else
-        {
-            return m_upPrivate->Created > otherFileSystemModel.m_upPrivate->Created;
-        }
+		return COMPARE(m_upPrivate->Created, otherFileSystemModel.m_upPrivate->Created);
     case IModel::ItemType::Accessed:
-        if (isAscend)
-        {
-            return m_upPrivate->Accessed < otherFileSystemModel.m_upPrivate->Accessed;
-        }
-        else
-        {
-            return m_upPrivate->Accessed > otherFileSystemModel.m_upPrivate->Accessed;
-        }
+		return COMPARE(m_upPrivate->Accessed, otherFileSystemModel.m_upPrivate->Accessed);
     }
     return false;
+}
+
+bool FileSystemModel::__LocaleCompare(const TString &tstrLeft, const TString & tstrRight, bool isAscending)
+{
+	if (tstrLeft.empty() || tstrRight.empty())
+	{
+		return COMPARE(tstrLeft, tstrRight);
+	}
+
+#ifdef __WXMSW__
+	switch (::CompareString(GetUserDefaultLCID(), 0, tstrLeft.c_str(), tstrLeft.length(), tstrRight.c_str(), tstrRight.length())) {
+	case CSTR_LESS_THAN:
+		return isAscending;
+	case CSTR_GREATER_THAN:
+		return !isAscending;
+	default:
+		return false;
+	}
+#endif
 }
