@@ -42,7 +42,6 @@ private:
 
     void __OnListColumnClick(wxListEvent &event);
 
-    DECLARE_EVENT_TABLE()
 };
 
 #endif // FILELISTCTRL_H

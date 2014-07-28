@@ -25,8 +25,11 @@ public:
         const wxString &name = wxPanelNameStr);
     virtual ~FileExplorer() { }
 
+    void NavigateTo(TString tstrPath);
+
 private:
     wxToolBar *m_pToolBar = nullptr;
+    wxComboBox *m_pComboBox = nullptr;
     FileListCtrl *m_pListCtrl = nullptr;
 
     std::shared_ptr<IModel> m_spModel;
@@ -35,8 +38,12 @@ private:
     void __CreatePath(wxBoxSizer *pMainSizer);
     void __CreateExplorer(wxBoxSizer *pSizerMain);
 
+    void __SetModel(std::shared_ptr<IModel> spModel);
+
     void __OnParentFolderClick(wxCommandEvent &event);
+    void __OnPathComboBoxEnter(wxCommandEvent& event);
     void __OnListItemActivated(wxListEvent &event);
+
 };
 
 #endif // FILEEXPLORER_H
