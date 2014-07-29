@@ -1,7 +1,7 @@
 // OpenCallback.h
 
-#ifndef OPENCALLBACK_H
-#define OPENCALLBACK_H
+#ifndef SEVENZIPCORE_OPENCALLBACK_H
+#define SEVENZIPCORE_OPENCALLBACK_H
 
 #include <boost/optional.hpp>
 
@@ -35,4 +35,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // OPENCALLBACK_H
+#endif // SEVENZIPCORE_OPENCALLBACK_H

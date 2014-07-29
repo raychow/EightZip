@@ -32,11 +32,7 @@ public:
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
 
 private:
-    static std::vector<IEntry::ItemType> m_vType;
-
-#ifdef __WXMSW__
     static std::vector<TString> __GetDrives();
-#endif
 
 };
 

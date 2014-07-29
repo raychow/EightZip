@@ -1,7 +1,7 @@
 // IArchiveWrapeer.h
 
-#ifndef IARCHIVEWRAPEER_H
-#define IARCHIVEWRAPEER_H
+#ifndef SEVENZIPCORE_IARCHIVEWRAPEER_H
+#define SEVENZIPCORE_IARCHIVEWRAPEER_H
 
 #include <memory>
 #include <vector>
@@ -95,4 +95,4 @@ namespace SevenZipCore
     DECLARE_ADAPTER_CLASS1(IInArchive, DECLARE_IINARCHIVE_ADAPTER)
 }
 
-#endif // IARCHIVEWRAPEER_H
+#endif // SEVENZIPCORE_IARCHIVEWRAPEER_H

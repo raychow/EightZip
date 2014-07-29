@@ -1,7 +1,7 @@
 // Exception.h
 
-#ifndef EXCEPTION_H
-#define EXCEPTION_H
+#ifndef SEVENZIPCORE_EXCEPTION_H
+#define SEVENZIPCORE_EXCEPTION_H
 
 #include <exception>
 #include <memory>
@@ -45,4 +45,4 @@ namespace SevenZipCore
     SEVEN_ZIP_CORE_EXCEPTION(PropertyException);
 }
 
-#endif // EXCEPTION_H
+#endif // SEVENZIPCORE_EXCEPTION_H

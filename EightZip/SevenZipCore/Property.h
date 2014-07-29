@@ -1,7 +1,7 @@
-// PropId.h
+// Property.h
 
-#ifndef PROPID_H
-#define PROPID_H
+#ifndef SEVENZIPCORE_PROPERTY_H
+#define SEVENZIPCORE_PROPERTY_H
 
 #include <vector>
 
@@ -96,4 +96,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // PROPID_H
+#endif // SEVENZIPCORE_PROPERTY_H

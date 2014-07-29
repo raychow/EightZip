@@ -1,7 +1,7 @@
 // Archive.h
 
-#ifndef ARCHIVE_H
-#define ARCHIVE_H
+#ifndef SEVENZIPCORE_ARCHIVE_H
+#define SEVENZIPCORE_ARCHIVE_H
 
 #include <memory>
 #include <vector>
@@ -25,6 +25,7 @@ namespace SevenZipCore
         void Open(TString tstrPath, std::shared_ptr<IArchiveOpenCallback> cpCallback);
         void Close();
 
+        TString GetPath() const { return m_tstrPath; }
         std::shared_ptr<ArchiveFolder> GetRootFolder() const { return m_spRootFolder; }
 
     private:
@@ -39,4 +40,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // ARCHIVE_H
+#endif // SEVENZIPCORE_ARCHIVE_H

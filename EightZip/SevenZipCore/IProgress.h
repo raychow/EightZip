@@ -1,5 +1,5 @@
-#ifndef __IPROGRESS_H
-#define __IPROGRESS_H
+#ifndef SEVENZIPCORE_IPROGRESS_H
+#define SEVENZIPCORE_IPROGRESS_H
 
 #include <Windows.h>
 
@@ -30,4 +30,4 @@ namespace SevenZipCore
     */
 }
 
-#endif // __IPROGRESS_H
+#endif // SEVENZIPCORE_IPROGRESS_H

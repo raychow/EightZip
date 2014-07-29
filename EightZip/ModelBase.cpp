@@ -16,28 +16,34 @@ int EntryBase::GetIconIndex() const
 
 TString EntryBase::GetItem(ItemType itemType) const
 {
-    switch (itemType)
+    try
     {
-    case ItemType::Name:
-        return m_tstrName;
-    case ItemType::Size:
-        return IsDirectory() ? wxT("") : ToTString(m_un64Size);
-    case IEntry::ItemType::TotalSize:
-        return ToTString(m_un64TotalSize);
-    case IEntry::ItemType::FreeSpace:
-        return ToTString(m_un64FreeSpace);
-    case ItemType::Type:
-        return m_tstrType;
-    case ItemType::Modified:
-        return m_dtModified.FormatISOCombined(' ').ToStdWstring();
-    case ItemType::Created:
-        return m_dtCreated.FormatISOCombined(' ').ToStdWstring();
-    case ItemType::Accessed:
-        return m_dtAccessed.FormatISOCombined(' ').ToStdWstring();
-    case ItemType::Attributes:
-        break;
-    default:
-        break;
+        switch (itemType)
+        {
+        case ItemType::Name:
+            return m_tstrName;
+        case ItemType::Size:
+            return IsDirectory() ? wxT("") : ToTString(m_un64Size);
+        case IEntry::ItemType::TotalSize:
+            return ToTString(m_un64TotalSize);
+        case IEntry::ItemType::FreeSpace:
+            return ToTString(m_un64FreeSpace);
+        case ItemType::Type:
+            return m_tstrType;
+        case ItemType::Modified:
+            return m_dtModified.FormatISOCombined(' ').ToStdWstring();
+        case ItemType::Created:
+            return m_dtCreated.FormatISOCombined(' ').ToStdWstring();
+        case ItemType::Accessed:
+            return m_dtAccessed.FormatISOCombined(' ').ToStdWstring();
+        case ItemType::Attributes:
+            break;
+        default:
+            break;
+        }
+    }
+    catch (std::exception)
+    {
     }
     return wxT("");
 }

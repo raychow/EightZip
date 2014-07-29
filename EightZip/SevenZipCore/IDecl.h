@@ -1,5 +1,5 @@
-#ifndef __IDECL_H
-#define __IDECL_H
+#ifndef SEVENZIPCORE_IDECL_H
+#define SEVENZIPCORE_IDECL_H
 
 #include <initguid.h>
 
@@ -10,4 +10,4 @@
 
 #define DECL_INTERFACE(i, groupId, subId) DECL_INTERFACE_SUB(i, IUnknown, groupId, subId)
 
-#endif // __IDECL_H
+#endif // SEVENZIPCORE_IDECL_H

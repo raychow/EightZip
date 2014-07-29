@@ -1,7 +1,7 @@
 // Library.h
 
-#ifndef LIBRARY_H
-#define LIBRARY_H
+#ifndef SEVENZIPCORE_LIBRARY_H
+#define SEVENZIPCORE_LIBRARY_H
 
 #include <memory>
 
@@ -87,4 +87,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // LIBRARY_H
+#endif // SEVENZIPCORE_LIBRARY_H

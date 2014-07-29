@@ -1,7 +1,7 @@
 // Common.h
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef SEVENZIPCORE_COMMON_H
+#define SEVENZIPCORE_COMMON_H
 
 #include <vector>
 
@@ -27,4 +27,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // COMMON_H
+#endif // SEVENZIPCORE_COMMON_H

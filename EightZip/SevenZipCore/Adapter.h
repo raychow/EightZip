@@ -1,7 +1,7 @@
 // Adapter.h
 
-#ifndef ADAPTER_H
-#define ADAPTER_H
+#ifndef SEVENZIPCORE_ADAPTER_H
+#define SEVENZIPCORE_ADAPTER_H
 
 #define BEGIN_DECLARE_ADAPTER_CLASS(target_name) \
     class target_name##Adapter \
@@ -73,4 +73,4 @@
         throw exception_class(message); \
     } \
 
-#endif // ADAPTER_H
+#endif // SEVENZIPCORE_ADAPTER_H

@@ -1,7 +1,7 @@
 // ComPtr.h
 
-#ifndef COMPTR_H
-#define COMPTR_H
+#ifndef SEVENZIPCORE_COMPTR_H
+#define SEVENZIPCORE_COMPTR_H
 
 #define BOOST_MEM_FN_ENABLE_STDCALL
 
@@ -47,4 +47,4 @@ namespace SevenZipCore
 #endif
 }
 
-#endif // COMPTR_H
+#endif // SEVENZIPCORE_COMPTR_H

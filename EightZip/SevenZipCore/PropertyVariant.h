@@ -1,7 +1,7 @@
-// PropVariant.h
+// PropertyVariant.h
 
-#ifndef __WINDOWS_PROPVARIANT_H
-#define __WINDOWS_PROPVARIANT_H
+#ifndef SEVENZIPCORE_PROPERTYVARIANT_H
+#define SEVENZIPCORE_PROPERTYVARIANT_H
 
 #include <Windows.h>
 
@@ -51,4 +51,4 @@ namespace SevenZipCore
     };
 }
 
-#endif
+#endif // SEVENZIPCORE_PROPERTYVARIANT_H

@@ -86,6 +86,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ArchiveModel.h" />
     <ClInclude Include="DriveModel.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="FileFinder.h" />
@@ -94,7 +95,7 @@
     <ClInclude Include="FileExplorer.h" />
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="FileListCtrl.h" />
-    <ClInclude Include="FileSystemModel.h" />
+    <ClInclude Include="FolderModel.h" />
     <ClInclude Include="IModel.h" />
     <ClInclude Include="ModelBase.h" />
     <ClInclude Include="SevenZipCore\Adapter.h" />
@@ -126,6 +127,7 @@
     <ClInclude Include="SystemImageList.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ArchiveModel.cpp" />
     <ClCompile Include="DriveModel.cpp" />
     <ClCompile Include="FileFinder.cpp" />
     <ClCompile Include="EightZipFrame.cpp" />
@@ -133,7 +135,7 @@
     <ClCompile Include="FileExplorer.cpp" />
     <ClCompile Include="FileInfo.cpp" />
     <ClCompile Include="FileListCtrl.cpp" />
-    <ClCompile Include="FileSystemModel.cpp" />
+    <ClCompile Include="FolderModel.cpp" />
     <ClCompile Include="ModelBase.cpp" />
     <ClCompile Include="SevenZipCore\Archive.cpp" />
     <ClCompile Include="SevenZipCore\ArchiveEntry.cpp" />

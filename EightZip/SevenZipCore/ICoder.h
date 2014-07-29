@@ -1,7 +1,7 @@
 // ICoder.h
 
-#ifndef __ICODER_H
-#define __ICODER_H
+#ifndef SEVENZIPCORE_ICODER_H
+#define SEVENZIPCORE_ICODER_H
 
 #include "IStream.h"
 
@@ -183,4 +183,4 @@ namespace SevenZipCore
     };
 }
 
-#endif
+#endif // SEVENZIPCORE_ICODER_H

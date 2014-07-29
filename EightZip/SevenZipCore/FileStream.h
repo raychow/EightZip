@@ -1,7 +1,7 @@
 // FileStream.h
 
-#ifndef FILESTREAM_H
-#define FILESTREAM_H
+#ifndef SEVENZIPCORE_FILESTREAM_H
+#define SEVENZIPCORE_FILESTREAM_H
 
 #include <fstream>
 
@@ -25,7 +25,7 @@ namespace SevenZipCore
         , public IStreamGetSize
     {
     public:
-        InFileStream() { };
+        InFileStream() {};
         InFileStream(const TString &tstrPath);
         virtual ~InFileStream();
 
@@ -44,4 +44,4 @@ namespace SevenZipCore
     DECLARE_ADAPTER_CLASS2(InFileStream, DECLARE_IINSTREAM_ADAPTER, DECLARE_ISTREAMGETSIZE_ADAPTER)
 }
 
-#endif // FILESTREAM_H
+#endif // SEVENZIPCORE_FILESTREAM_H

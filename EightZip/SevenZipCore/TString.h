@@ -1,7 +1,7 @@
-// String.h
+// TString.h
 
-#ifndef STRING_H
-#define STRING_H
+#ifndef SEVENZIPCORE_TSTRING_H
+#define SEVENZIPCORE_TSTRING_H
 
 #include <locale>
 #include <string>
@@ -48,4 +48,4 @@ private:
     std::string m_strOldLocale;
 };
 
-#endif // STRING_H
+#endif // SEVENZIPCORE_TSTRING_H

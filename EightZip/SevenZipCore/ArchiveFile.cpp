@@ -12,10 +12,10 @@ using namespace std;
 
 namespace SevenZipCore
 {
-    ArchiveFile::ArchiveFile(optional<UINT> ounIndex, TString tstrName, weak_ptr<IInArchive> wpArchive, std::weak_ptr<ArchiveFolder> wpParent)
+    ArchiveFile::ArchiveFile(optional<UINT> ounIndex, TString tstrName, shared_ptr<IInArchive> spArchive, std::weak_ptr<ArchiveFolder> wpParent)
         : m_ounIndex(ounIndex)
         , m_tstrName(move(tstrName))
-        , m_wpArchive(move(wpArchive))
+        , m_spArchive(move(spArchive))
         , m_wpParent(move(wpParent))
         , m_upInformation(new ArchiveInformation())
     {
@@ -51,35 +51,28 @@ namespace SevenZipCore
         {
             return;
         }
-        if (auto spArchive = m_wpArchive.lock())
+        IInArchiveAdapter archiveAdapter(m_spArchive);
+        m_upInformation->Size = PropertyHelper::GetConvertedUInt64(archiveAdapter.GetProperty(*m_ounIndex, PropId::Size));
+        m_upInformation->PackedSize = PropertyHelper::GetConvertedUInt64(archiveAdapter.GetProperty(*m_ounIndex, PropId::PackSize));
+        auto property = archiveAdapter.GetProperty(*m_ounIndex, PropId::CRC);
+        if (property.vt == VT_UI4)
         {
-            IInArchiveAdapter archiveAdapter(move(spArchive));
-            m_upInformation->Size = PropertyHelper::GetConvertedUInt64(archiveAdapter.GetProperty(*m_ounIndex, PropId::Size));
-            m_upInformation->PackedSize = PropertyHelper::GetConvertedUInt64(archiveAdapter.GetProperty(*m_ounIndex, PropId::PackSize));
-            auto property = archiveAdapter.GetProperty(*m_ounIndex, PropId::CRC);
-            if (property.vt == VT_UI4)
-            {
-                m_upInformation->CRC = PropertyHelper::GetUInt32(property);
-            }
-            else
-            {
-                m_upInformation->CRC = none;
-            }
+            m_upInformation->CRC = PropertyHelper::GetUInt32(property);
+        }
+        else
+        {
+            m_upInformation->CRC = none;
         }
         m_upInformation->IsValid = true;
     }
 
-    ArchiveFolder::ArchiveFolder()
-        : ArchiveFolder(0u, TEXT(""), std::weak_ptr<IInArchive>())
+    ArchiveFolder::ArchiveFolder(TString tstrName, std::shared_ptr<IInArchive> spArchive, std::weak_ptr<ArchiveFolder> wpParent /*= nullptr*/)
+        : ArchiveFolder(none, tstrName, spArchive, wpParent)
     {
     }
 
-    ArchiveFolder::ArchiveFolder(TString tstrName, std::weak_ptr<IInArchive> wpArchive, std::weak_ptr<ArchiveFolder> wpParent /*= nullptr*/)
-        : ArchiveFolder(none, tstrName, wpArchive, wpParent)
-    {
-    }
-    ArchiveFolder::ArchiveFolder(boost::optional<UINT> ounIndex, TString tstrName, std::weak_ptr<IInArchive> wpArchive, std::weak_ptr<ArchiveFolder> wpParent /*= nullptr*/)
-        : ArchiveFile(ounIndex, tstrName, wpArchive, wpParent)
+    ArchiveFolder::ArchiveFolder(boost::optional<UINT> ounIndex, TString tstrName, std::shared_ptr<IInArchive> spArchive, std::weak_ptr<ArchiveFolder> wpParent /*= nullptr*/)
+        : ArchiveFile(ounIndex, tstrName, spArchive, wpParent)
     {
     }
 
@@ -96,7 +89,7 @@ namespace SevenZipCore
     std::shared_ptr<ArchiveFile> ArchiveFolder::AddFile(UINT unIndex, TString tstrName, std::weak_ptr<ArchiveFolder> wpParent)
     {
         m_isInformationValid = false;
-        auto spFile = make_shared<ArchiveFile>(unIndex, move(tstrName), m_wpArchive, move(wpParent));
+        auto spFile = make_shared<ArchiveFile>(unIndex, move(tstrName), m_spArchive, move(wpParent));
         m_vspFile.push_back(move(spFile));
         return spFile;
     }
@@ -159,7 +152,7 @@ namespace SevenZipCore
         });
         if (iter == m_vspFolder.end() || (*iter)->GetName() != tstrName)
         {
-            auto spFolder = make_shared<ArchiveFolder>(ounIndex, move(tstrName), m_wpArchive, move(wpParent));
+            auto spFolder = make_shared<ArchiveFolder>(ounIndex, move(tstrName), m_spArchive, move(wpParent));
             iter = m_vspFolder.insert(iter, move(spFolder));
         }
         if (ounIndex)

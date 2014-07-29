@@ -33,9 +33,6 @@
     <ClInclude Include="FileExplorer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FileSystemModel.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="SevenZipCore\Adapter.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
@@ -135,6 +132,12 @@
     <ClInclude Include="Exception.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ArchiveModel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FolderModel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -147,9 +150,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="FileExplorer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FileSystemModel.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SevenZipCore\Archive.cpp">
@@ -213,6 +213,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DriveModel.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FolderModel.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchiveModel.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

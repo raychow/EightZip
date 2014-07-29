@@ -1,5 +1,5 @@
-#ifndef __IARCHIVE_H
-#define __IARCHIVE_H
+#ifndef SEVENZIPCORE_IARCHIVE_H
+#define SEVENZIPCORE_IARCHIVE_H
 
 #include <Unknwn.h>
 
@@ -232,4 +232,4 @@ namespace SevenZipCore
 
 }
 
-#endif // __IARCHIVE_H
+#endif // SEVENZIPCORE_IARCHIVE_H

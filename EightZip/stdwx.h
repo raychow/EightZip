@@ -21,6 +21,7 @@
 #include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/listctrl.h>
+#include <wx/stdpaths.h>
 
 #ifdef __WINDOWS__
 // Load from a resource

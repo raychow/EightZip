@@ -1,5 +1,5 @@
-#ifndef ARCHIVEENTRY_H
-#define ARCHIVEENTRY_H
+#ifndef SEVENZIPCORE_ARCHIVEENTRY_H
+#define SEVENZIPCORE_ARCHIVEENTRY_H
 
 #include <memory>
 

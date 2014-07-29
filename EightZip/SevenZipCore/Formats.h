@@ -1,7 +1,7 @@
 // Formats.h
 
-#ifndef FORMATS_H
-#define FORMATS_H
+#ifndef SEVENZIPCORE_FORMATS_H
+#define SEVENZIPCORE_FORMATS_H
 
 namespace SevenZipCore
 {
@@ -43,4 +43,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // FORMATS_H
+#endif // SEVENZIPCORE_FORMATS_H

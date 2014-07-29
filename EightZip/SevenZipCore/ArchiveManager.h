@@ -1,7 +1,7 @@
 // ArchiveManager.h
 
-#ifndef ARCHIVEMANAGER_H
-#define ARCHIVEMANAGER_H
+#ifndef SEVENZIPCORE_ARCHIVEMANAGER_H
+#define SEVENZIPCORE_ARCHIVEMANAGER_H
 
 #include <memory>
 
@@ -28,4 +28,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // ARCHIVEMANAGER_H
+#endif // SEVENZIPCORE_ARCHIVEMANAGER_H

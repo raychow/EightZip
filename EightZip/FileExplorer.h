@@ -23,7 +23,7 @@ public:
         const wxSize &size = wxDefaultSize,
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
         const wxString &name = wxPanelNameStr);
-    virtual ~FileExplorer() { }
+    virtual ~FileExplorer() {}
 
     void NavigateTo(TString tstrPath);
 

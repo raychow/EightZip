@@ -1,4 +1,4 @@
-// FileSystemModel.h
+// FolderModel.h
 
 #ifndef FILESYSTEMMODEL_H
 #define FILESYSTEMMODEL_H
@@ -7,33 +7,30 @@
 
 #include "ModelBase.h"
 
-class FileSystemEntry
+class FolderEntry
     : public EntryBase
 {
 public:
-    FileSystemEntry(TString tstrPath
+    FolderEntry(TString tstrPath
         , TString tstrName
         , bool isDirectory
         , wxULongLong_t un64Size
         , wxDateTime dtAccessed
         , wxDateTime dtModified
-        , wxDateTime dtCreated
-        , TString tstrType);
+        , wxDateTime dtCreated);
 
     virtual std::shared_ptr<IModel> GetModel() const;
+
 };
 
-class FileSystemModel
+class FolderModel
     : public ModelBase
 {
 public:
-    FileSystemModel(TString tstrFullPath);
+    FolderModel(TString tstrFullPath);
 
     virtual std::shared_ptr<IModel> GetParent() const;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
-
-private:
-    static std::vector<IEntry::ItemType> m_vType;
 
 };
 

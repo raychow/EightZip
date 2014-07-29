@@ -1,14 +1,12 @@
 // ArchiveFile.h
 
-#ifndef ARCHIVEFILE_H
-#define ARCHIVEFILE_H
+#ifndef SEVENZIPCORE_ARCHIVEFILE_H
+#define SEVENZIPCORE_ARCHIVEFILE_H
 
 #include <memory>
 #include <vector>
 
 #include <boost/optional.hpp>
-
-#include <Windows.h>
 
 #include "IArchive.h"
 #include "Property.h"
@@ -31,16 +29,14 @@ namespace SevenZipCore
     class ArchiveFile
     {
     public:
-        ArchiveFile() { };
-        ArchiveFile(boost::optional<UINT> ounIndex, TString tstrName, std::weak_ptr<IInArchive> wpArchive, std::weak_ptr<ArchiveFolder> wpParent);
+        ArchiveFile() {};
+        ArchiveFile(boost::optional<UINT> ounIndex, TString tstrName, std::shared_ptr<IInArchive> wpArchive, std::weak_ptr<ArchiveFolder> wpParent);
 
         boost::optional<UINT> GetIndex() const { return m_ounIndex; }
         void SetIndex(boost::optional<UINT> value) { m_ounIndex = value; }
 
         const TString &GetName() const { return m_tstrName; }
         void SetName(TString value) { m_tstrName = move(value); }
-
-        void SetArchive(std::weak_ptr<IInArchive> value) { m_wpArchive = move(value); }
 
         std::weak_ptr<ArchiveFolder> GetParent() const { return m_wpParent; }
         void SetParent(std::weak_ptr<ArchiveFolder> value) { m_wpParent = move(value); }
@@ -53,7 +49,7 @@ namespace SevenZipCore
     protected:
         boost::optional<UINT> m_ounIndex;
         TString m_tstrName;
-        std::weak_ptr<IInArchive> m_wpArchive;
+        std::shared_ptr<IInArchive> m_spArchive;
         std::weak_ptr<ArchiveFolder> m_wpParent;
 
         std::unique_ptr<ArchiveInformation> m_upInformation = std::unique_ptr<ArchiveInformation>(new ArchiveInformation());
@@ -65,9 +61,8 @@ namespace SevenZipCore
         : public ArchiveFile
     {
     public:
-        ArchiveFolder();
-        ArchiveFolder(TString tstrName, std::weak_ptr<IInArchive> wpArchive, std::weak_ptr<ArchiveFolder> wpParent = std::weak_ptr<ArchiveFolder>());
-        ArchiveFolder(boost::optional<UINT> ounIndex, TString tstrName, std::weak_ptr<IInArchive> wpArchive, std::weak_ptr<ArchiveFolder> wpParent = std::weak_ptr<ArchiveFolder>());
+        ArchiveFolder(TString tstrName, std::shared_ptr<IInArchive> spArchive, std::weak_ptr<ArchiveFolder> wpParent = std::weak_ptr<ArchiveFolder>());
+        ArchiveFolder(boost::optional<UINT> ounIndex, TString tstrName, std::shared_ptr<IInArchive> spArchive, std::weak_ptr<ArchiveFolder> wpParent = std::weak_ptr<ArchiveFolder>());
 
         std::shared_ptr<ArchiveFolder> AddFolder(TString tstrName, std::weak_ptr<ArchiveFolder> wpParent = std::weak_ptr<ArchiveFolder>());
         std::shared_ptr<ArchiveFolder> AddFolder(UINT unIndex, TString tstrName, std::weak_ptr<ArchiveFolder> wpParent = std::weak_ptr<ArchiveFolder>());
@@ -96,4 +91,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // ARCHIVEFILE_H
+#endif // SEVENZIPCORE_ARCHIVEFILE_H

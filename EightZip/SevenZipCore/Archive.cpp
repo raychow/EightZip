@@ -9,10 +9,7 @@ namespace SevenZipCore
 {
     Archive::Archive(std::shared_ptr<Codecs> cpCodecs)
         : m_cpCodecs(cpCodecs)
-        , m_tstrPath()
-        , m_vupArchiveEntry()
     {
-        m_spRootFolder = make_shared<ArchiveFolder>();
     }
 
     Archive::Archive(std::shared_ptr<Codecs> cpCodecs, TString tstrPath, shared_ptr<IArchiveOpenCallback> cpCallback)
@@ -30,7 +27,7 @@ namespace SevenZipCore
     {
         if (!m_vupArchiveEntry.empty())
         {
-            throw new ArchiveException("The archive class is already associated with a file.");
+            throw ArchiveException("The archive class is already associated with a file.");
         }
         m_vupArchiveEntry.clear();
 

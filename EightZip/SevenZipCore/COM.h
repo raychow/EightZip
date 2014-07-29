@@ -1,7 +1,7 @@
 // COM.h
 
-#ifndef COM_H
-#define COM_H
+#ifndef SEVENZIPCORE_COM_H
+#define SEVENZIPCORE_COM_H
 
 #include <Windows.h>
 
@@ -88,4 +88,4 @@
         QUERYINTERFACE_ENTRY(i5) \
     )
 
-#endif // COM_H
+#endif // SEVENZIPCORE_COM_H

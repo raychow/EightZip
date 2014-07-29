@@ -1,7 +1,7 @@
 // IStreamAdapter.h
 
-#ifndef ISTREAMADAPTER_H
-#define ISTREAMADAPTER_H
+#ifndef SEVENZIPCORE_ISTREAMADAPTER_H
+#define SEVENZIPCORE_ISTREAMADAPTER_H
 
 #include <memory>
 #include <vector>
@@ -46,4 +46,4 @@ namespace SevenZipCore
     DECLARE_ADAPTER_CLASS1(IStreamGetSize, DECLARE_ISTREAMGETSIZE_ADAPTER)
 }
 
-#endif // ISTREAMADAPTER_H
+#endif // SEVENZIPCORE_ISTREAMADAPTER_H

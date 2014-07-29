@@ -1,7 +1,7 @@
 // Codecs.h
 
-#ifndef CODECS_H
-#define CODECS_H
+#ifndef SEVENZIPCORE_CODECS_H
+#define SEVENZIPCORE_CODECS_H
 
 #include <memory>
 #include <string>
@@ -128,4 +128,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // CODECS_H
+#endif // SEVENZIPCORE_CODECS_H

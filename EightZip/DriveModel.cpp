@@ -2,28 +2,21 @@
 #include "DriveModel.h"
 
 #include "FileInfo.h"
-#include "FileSystemModel.h"
+#include "FolderModel.h"
 
 using namespace std;
 
-std::vector<IEntry::ItemType> DriveModel::m_vType = {
-    IEntry::ItemType::Name,
-    IEntry::ItemType::Type,
-    IEntry::ItemType::TotalSize,
-    IEntry::ItemType::FreeSpace,
-};
-
 DriveEntry::DriveEntry(TString tstrName, wxULongLong_t un64TotalSize, wxULongLong_t un64FreeSpace, TString tstrType)
 {
-    m_tstrName = tstrName;
+    m_tstrName = move(tstrName);
     m_un64TotalSize = un64TotalSize;
     m_un64FreeSpace = un64FreeSpace;
-    m_tstrType = tstrType;
+    m_tstrType = move(tstrType);
 }
 
 std::shared_ptr<IModel> DriveEntry::GetModel() const
 {
-    return make_shared<FileSystemModel>(GetFullPath());
+    return make_shared<FolderModel>(GetFullPath());
 }
 
 DriveModel::DriveModel()
@@ -51,7 +44,13 @@ std::shared_ptr<IModel> DriveModel::GetParent() const
 
 const vector<IEntry::ItemType> &DriveModel::GetSupportedItems() const
 {
-    return m_vType;
+    static vector<IEntry::ItemType> vType = {
+        IEntry::ItemType::Name,
+        IEntry::ItemType::Type,
+        IEntry::ItemType::TotalSize,
+        IEntry::ItemType::FreeSpace,
+    };
+    return vType;
 }
 
 #ifdef __WXMSW__

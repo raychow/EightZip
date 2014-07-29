@@ -1,7 +1,7 @@
 // IStream.h
 
-#ifndef __ISTREAM_H
-#define __ISTREAM_H
+#ifndef SEVENZIPCORE_ISTREAM_H
+#define SEVENZIPCORE_ISTREAM_H
 
 #include <Windows.h>
 
@@ -57,4 +57,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // __ISTREAM_H
+#endif // SEVENZIPCORE_ISTREAM_H

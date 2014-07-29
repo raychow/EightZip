@@ -2,7 +2,7 @@
 #include "FileExplorer.h"
 
 #include "Exception.h"
-#include "FileSystemModel.h"
+#include "FolderModel.h"
 
 using namespace std;
 
@@ -48,7 +48,7 @@ void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
 {
     // TODO: Catch exception.
     m_pListCtrl = new FileListCtrl(this);
-    __SetModel(make_shared<FileSystemModel>(wxT("C:")));
+    __SetModel(make_shared<FolderModel>(wxT("C:")));
     
     pSizerMain->Add(m_pListCtrl, wxSizerFlags().Expand().Proportion(1));
 
