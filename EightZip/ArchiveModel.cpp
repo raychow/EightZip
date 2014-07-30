@@ -6,31 +6,17 @@
 
 using namespace std;
 
-ArchiveEntry::ArchiveEntry(shared_ptr<IModel> spParent, shared_ptr<SevenZipCore::ArchiveFile> spArchiveFile, TString tstrPath, bool isDirectory)
-    : m_spParent(spParent)
-    , m_spArchiveFile(spArchiveFile)
+ArchiveEntry::ArchiveEntry(weak_ptr<IModel> wpParent, shared_ptr<SevenZipCore::ArchiveFile> spArchiveFile, TString tstrPath, bool isDirectory)
+    : m_wpParent(move(wpParent))
+    , m_spArchiveFile(move(spArchiveFile))
 {
     m_tstrPath = move(tstrPath);
-    m_tstrName = spArchiveFile->GetName();
+    m_tstrName = m_spArchiveFile->GetName();
     m_isDirectory = isDirectory;
-    m_un64Size = spArchiveFile->GetSize();
-    m_un64PackedSize = spArchiveFile->GetPackedSize();
+    m_un64Size = m_spArchiveFile->GetSize();
+    m_un64PackedSize = m_spArchiveFile->GetPackedSize();
     m_tstrType = FileInfo::GetType(m_tstrName, IsDirectory());
-    m_oun32CRC = spArchiveFile->GetCRC();
-}
-
-std::shared_ptr<IModel> ArchiveEntry::GetModel() const
-{
-    if (IsDirectory())
-    {
-        auto result = make_shared<ArchiveModel>(m_spParent, GetFullPath(), dynamic_pointer_cast<SevenZipCore::ArchiveFolder>(m_spArchiveFile));
-        result->LoadChildren();
-        return result;
-    }
-    else
-    {
-        throw "Not implement yet.";
-    }
+    m_oun32CRC = m_spArchiveFile->GetCRC();
 }
 
 int ArchiveEntry::GetIconIndex() const
@@ -42,10 +28,46 @@ int ArchiveEntry::GetIconIndex() const
     return m_nIconIndex;
 }
 
-ArchiveModel::ArchiveModel(std::shared_ptr<IModel> spParent, TString tstrPath, shared_ptr<SevenZipCore::Codecs> cpCodecs, TString tstrTempFullPath, std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
-    : ArchiveModel(spParent, tstrPath, SevenZipCore::Archive(move(cpCodecs), tstrTempFullPath, move(cpCallback)).GetRootFolder())
+TString ArchiveEntry::GetItem(ItemType itemType) const
 {
+    try
+    {
+        switch (itemType)
+        {
+        case ItemType::Size:
+            return ToTString(m_un64Size);
+        case ItemType::PackedSize:
+            return ToTString(m_un64PackedSize);
+        default:
+            return EntryBase::GetItem(itemType);
+        }
+    }
+    catch (std::exception)
+    {
+    }
+    return wxT("");
+}
 
+std::shared_ptr<IModel> ArchiveEntry::GetModel() const
+{
+    if (IsDirectory())
+    {
+        auto result = make_shared<ArchiveModel>(m_wpParent.lock(), GetFullPath() + wxFILE_SEP_PATH, dynamic_pointer_cast<SevenZipCore::ArchiveFolder>(m_spArchiveFile));
+        result->LoadChildren();
+        return result;
+    }
+    else
+    {
+        throw "Not implement yet.";
+    }
+}
+
+ArchiveModel::ArchiveModel(std::shared_ptr<IModel> spParent, TString tstrPath, shared_ptr<SevenZipCore::Codecs> cpCodecs, TString tstrTempFullPath, std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
+    : m_upArchive(new SevenZipCore::Archive(move(cpCodecs), move(tstrTempFullPath), move(cpCallback)))
+    , m_spParent(move(spParent))
+{
+    m_spArchiveFolder = m_upArchive->GetRootFolder();
+    m_tstrPath = tstrPath;
 }
 
 ArchiveModel::ArchiveModel(std::shared_ptr<IModel> spParent, TString tstrPath, shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder)

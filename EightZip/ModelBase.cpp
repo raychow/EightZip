@@ -23,7 +23,15 @@ TString EntryBase::GetItem(ItemType itemType) const
         case ItemType::Name:
             return m_tstrName;
         case ItemType::Size:
-            return IsDirectory() ? wxT("") : ToTString(m_un64Size);
+            if (!IsDirectory())
+            {
+                return ToTString(m_un64Size);
+            }
+        case ItemType::PackedSize:
+            if (!IsDirectory())
+            {
+                return ToTString(m_un64PackedSize);
+            }
         case IEntry::ItemType::TotalSize:
             return ToTString(m_un64TotalSize);
         case IEntry::ItemType::FreeSpace:
@@ -38,6 +46,13 @@ TString EntryBase::GetItem(ItemType itemType) const
             return m_dtAccessed.FormatISOCombined(' ').ToStdWstring();
         case ItemType::Attributes:
             break;
+        case ItemType::CRC:
+            if (m_oun32CRC)
+            {
+                TStringStream tss;
+                tss << hex << setw(8) << setfill(wxT('0')) << uppercase << *m_oun32CRC;
+                return tss.str();
+            }
         default:
             break;
         }
@@ -45,7 +60,7 @@ TString EntryBase::GetItem(ItemType itemType) const
     catch (std::exception)
     {
     }
-    return wxT("");
+    return wxEmptyString;
 }
 
 bool EntryBase::Compare(const IEntry &otherEntry, ItemType itemType, bool isAscending) const
@@ -58,6 +73,8 @@ bool EntryBase::Compare(const IEntry &otherEntry, ItemType itemType, bool isAsce
         return _LocaleCompare(m_tstrName, otherEntryBase.m_tstrName, isAscending);
     case ItemType::Size:
         return COMPARE(m_un64Size, otherEntryBase.m_un64Size, isAscending);
+    case ItemType::PackedSize:
+        return COMPARE(m_un64PackedSize, otherEntryBase.m_un64PackedSize, isAscending);
     case ItemType::Type:
         return _LocaleCompare(GetItem(itemType), otherEntryBase.GetItem(itemType), isAscending);
     case ItemType::Modified:

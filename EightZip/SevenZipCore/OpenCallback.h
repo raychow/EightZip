@@ -8,6 +8,9 @@
 #include "COM.h"
 #include "IArchive.h"
 #include "IProgress.h"
+#ifdef _DEBUG
+#include "TString.h"
+#endif
 
 namespace SevenZipCore
 {

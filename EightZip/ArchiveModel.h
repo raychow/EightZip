@@ -13,17 +13,18 @@ class ArchiveEntry
     : public EntryBase
 {
 public:
-    ArchiveEntry(std::shared_ptr<IModel> spParent
+    ArchiveEntry(std::weak_ptr<IModel> wpParent
         , std::shared_ptr<SevenZipCore::ArchiveFile> spArchiveFile
         , TString tstrPath
         , bool isDirectory);
-
-    virtual std::shared_ptr<IModel> GetModel() const;
+    virtual ~ArchiveEntry() {}
 
     virtual int GetIconIndex() const;
+    virtual TString GetItem(ItemType itemType) const;
+    virtual std::shared_ptr<IModel> GetModel() const;
 
 private:
-    std::shared_ptr<IModel> m_spParent;
+    std::weak_ptr<IModel> m_wpParent;
     std::shared_ptr<SevenZipCore::ArchiveFile> m_spArchiveFile;
 
 };
@@ -52,6 +53,7 @@ public:
 private:
     std::shared_ptr<IModel> m_spParent;
     std::shared_ptr<SevenZipCore::ArchiveFolder> m_spArchiveFolder;
+    std::unique_ptr<SevenZipCore::Archive> m_upArchive;
 
 };
 

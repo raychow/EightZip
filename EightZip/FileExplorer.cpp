@@ -108,7 +108,7 @@ void FileExplorer::__OpenFileExternal(const TString &tstrPath)
 #ifdef __WXMSW__
     if ((int)::ShellExecute(nullptr, nullptr, tstrPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL) <= 32)
     {
-        wxMessageBox(_("Cannot open the specified file."));
+        wxMessageBox(wxString::Format(_("Cannot open \"%s\"."), tstrPath));
     }
 #else
 #endif

@@ -59,6 +59,8 @@ namespace SevenZipCore
             shared_ptr<ArchiveFolder> spCurrentFolder = m_spRootFolder;
             TString tstrItemPath = archiveAdapter.GetItemPath(i, tstrArchiveFileName);
             auto vtstrFolder = Helper::SplitString(tstrItemPath, FOLDER_SEPARATOR, true);
+            const auto tstrBack = vtstrFolder.back();
+            vtstrFolder.pop_back();
             for (const auto &strFolder : vtstrFolder)
             {
                 if (strFolder.empty())
@@ -67,7 +69,6 @@ namespace SevenZipCore
                 }
                 spCurrentFolder = spCurrentFolder->AddFolder(strFolder, spCurrentFolder);
             }
-            const auto &tstrBack = vtstrFolder.back();
             if (tstrBack.empty())
             {
                 continue;
