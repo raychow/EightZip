@@ -1,6 +1,8 @@
 #include "stdwx.h"
 #include "FileExplorer.h"
 
+#include "SevenZipCore/Exception.h"
+
 #include "Exception.h"
 #include "FolderModel.h"
 
@@ -48,7 +50,7 @@ void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
 {
     // TODO: Catch exception.
     m_pListCtrl = new FileListCtrl(this);
-    __SetModel(make_shared<FolderModel>(wxT("C:")));
+    __SetModel(make_shared<FolderModel>(wxT("D:\\Test\\")));
     
     pSizerMain->Add(m_pListCtrl, wxSizerFlags().Expand().Proportion(1));
 
@@ -91,8 +93,23 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
         __SetModel(spEntry->GetModel());
         m_pToolBar->EnableTool(ID_PARENT_FOLDER, true);
     }
+    catch (SevenZipCore::ArchiveException)
+    {
+        __OpenFileExternal(spEntry->GetFullPath());
+    }
     catch (ModelException)
     {
         wxMessageBox(_("Cannot access \"" + spEntry->GetFullPath() + "\"."));
     }
+}
+
+void FileExplorer::__OpenFileExternal(const TString &tstrPath)
+{
+#ifdef __WXMSW__
+    if ((int)::ShellExecute(nullptr, nullptr, tstrPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL) <= 32)
+    {
+        wxMessageBox(_("Cannot open the specified file."));
+    }
+#else
+#endif
 }

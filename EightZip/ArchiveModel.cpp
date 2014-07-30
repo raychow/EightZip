@@ -15,7 +15,7 @@ ArchiveEntry::ArchiveEntry(shared_ptr<IModel> spParent, shared_ptr<SevenZipCore:
     m_isDirectory = isDirectory;
     m_un64Size = spArchiveFile->GetSize();
     m_un64PackedSize = spArchiveFile->GetPackedSize();
-    m_tstrType = FileInfo::GetType(m_tstrName, false);
+    m_tstrType = FileInfo::GetType(m_tstrName, IsDirectory());
     m_oun32CRC = spArchiveFile->GetCRC();
 }
 
@@ -23,12 +23,23 @@ std::shared_ptr<IModel> ArchiveEntry::GetModel() const
 {
     if (IsDirectory())
     {
-        return make_shared<ArchiveModel>(m_spParent, GetFullPath(), dynamic_pointer_cast<SevenZipCore::ArchiveFolder>(m_spArchiveFile));
+        auto result = make_shared<ArchiveModel>(m_spParent, GetFullPath(), dynamic_pointer_cast<SevenZipCore::ArchiveFolder>(m_spArchiveFile));
+        result->LoadChildren();
+        return result;
     }
     else
     {
         throw "Not implement yet.";
     }
+}
+
+int ArchiveEntry::GetIconIndex() const
+{
+    if (-1 == m_nIconIndex)
+    {
+        m_nIconIndex = FileInfo::GetIconIndex(GetFullPath(), IsDirectory(), true);
+    }
+    return m_nIconIndex;
 }
 
 ArchiveModel::ArchiveModel(std::shared_ptr<IModel> spParent, TString tstrPath, shared_ptr<SevenZipCore::Codecs> cpCodecs, TString tstrTempFullPath, std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
@@ -38,24 +49,10 @@ ArchiveModel::ArchiveModel(std::shared_ptr<IModel> spParent, TString tstrPath, s
 }
 
 ArchiveModel::ArchiveModel(std::shared_ptr<IModel> spParent, TString tstrPath, shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder)
-    : m_spParent(spParent)
-    , m_spArchiveFolder(spArchiveFolder)
+    : m_spParent(move(spParent))
+    , m_spArchiveFolder(move(spArchiveFolder))
 {
     m_tstrPath = tstrPath;
-    for (const auto &folder : m_spArchiveFolder->GetFolders())
-    {
-        m_vspEntry.push_back(make_shared<ArchiveEntry>(spParent
-            , folder
-            , tstrPath
-            , true));
-    }
-    for (const auto &file : m_spArchiveFolder->GetFiles())
-    {
-        m_vspEntry.push_back(make_shared<ArchiveEntry>(spParent
-            , file
-            , tstrPath
-            , false));
-    }
 }
 
 std::shared_ptr<IModel> ArchiveModel::GetParent() const
@@ -66,7 +63,9 @@ std::shared_ptr<IModel> ArchiveModel::GetParent() const
     }
     else
     {
-        return make_shared<FolderModel>(m_tstrPath.substr(0, m_tstrPath.find_last_of(wxFILE_SEP_PATH) + 1));
+        auto tstrParent = m_tstrPath;
+        tstrParent.pop_back();
+        return make_shared<FolderModel>(tstrParent.substr(0, tstrParent.rfind(wxFILE_SEP_PATH) + 1));
     }
 }
 
@@ -81,4 +80,23 @@ const std::vector<IEntry::ItemType> & ArchiveModel::GetSupportedItems() const
         IEntry::ItemType::CRC
     };
     return vType;
+}
+
+void ArchiveModel::LoadChildren()
+{
+    m_vspEntry.clear();
+    for (const auto &folder : m_spArchiveFolder->GetFolders())
+    {
+        m_vspEntry.push_back(make_shared<ArchiveEntry>(shared_from_this()
+            , folder
+            , m_tstrPath
+            , true));
+    }
+    for (const auto &file : m_spArchiveFolder->GetFiles())
+    {
+        m_vspEntry.push_back(make_shared<ArchiveEntry>(shared_from_this()
+            , file
+            , m_tstrPath
+            , false));
+    }
 }

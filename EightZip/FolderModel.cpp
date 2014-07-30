@@ -23,19 +23,22 @@ FolderEntry::FolderEntry(TString tstrPath, TString tstrName, bool isDirectory, w
 
 std::shared_ptr<IModel> FolderEntry::GetModel() const
 {
+    auto tstrFullPath = GetFullPath();
     if (IsDirectory())
     {
-        return make_shared<FolderModel>(GetFullPath());
+        return make_shared<FolderModel>(tstrFullPath);
     }
     else
     {
         TString tstrExecutablePath = wxStandardPaths::Get().GetExecutablePath();
         tstrExecutablePath = tstrExecutablePath.substr(0, tstrExecutablePath.find_last_of(wxFILE_SEP_PATH) + 1);
-        return make_shared<ArchiveModel>(nullptr
-            , GetFullPath()
+        auto result = make_shared<ArchiveModel>(nullptr
+            , tstrFullPath + wxFILE_SEP_PATH
             , SevenZipCore::MakeComPtr(new SevenZipCore::Codecs(tstrExecutablePath))
-            , GetFullPath()
+            , tstrFullPath
             , nullptr);
+        result->LoadChildren();
+        return result;
     }
 }
 
@@ -50,31 +53,16 @@ FolderModel::FolderModel(TString tstrPath)
             tstrPath.pop_back();
         }
         m_tstrPath = tstrPath;
-        if (fileInfo.IsDirectory())
+        FileFinder finder(tstrPath);
+        while (finder.FindNext())
         {
-            // It is a folder, just list all files.
-            FileFinder finder(tstrPath);
-            while (finder.FindNext())
-            {
-                m_vspEntry.push_back(make_shared<FolderEntry>(tstrPath + wxFILE_SEP_PATH
-                    , finder.GetFileName()
-                    , finder.IsDirectory()
-                    , finder.GetSize()
-                    , finder.GetAccessed()
-                    , finder.GetModified()
-                    , finder.GetCreated()));
-            }
-        }
-        else
-        {
-            // It is a file, try to open it.
-            try
-            {
-
-            }
-            catch (SevenZipCore::ArchiveFolder)
-            {
-            }
+            m_vspEntry.push_back(make_shared<FolderEntry>(tstrPath + wxFILE_SEP_PATH
+                , finder.GetFileName()
+                , finder.IsDirectory()
+                , finder.GetSize()
+                , finder.GetAccessed()
+                , finder.GetModified()
+                , finder.GetCreated()));
         }
     }
     else

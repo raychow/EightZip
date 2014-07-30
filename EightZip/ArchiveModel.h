@@ -20,6 +20,8 @@ public:
 
     virtual std::shared_ptr<IModel> GetModel() const;
 
+    virtual int GetIconIndex() const;
+
 private:
     std::shared_ptr<IModel> m_spParent;
     std::shared_ptr<SevenZipCore::ArchiveFile> m_spArchiveFile;
@@ -28,6 +30,7 @@ private:
 
 class ArchiveModel
     : public ModelBase
+    , public std::enable_shared_from_this<ArchiveModel>
 {
 public:
     ArchiveModel(std::shared_ptr<IModel> spParent
@@ -42,6 +45,9 @@ public:
 
     virtual std::shared_ptr<IModel> GetParent() const;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
+
+    // Should call LoadChildren() manually since shared_from_this() is not avaliable in constructor.
+    void LoadChildren();
 
 private:
     std::shared_ptr<IModel> m_spParent;

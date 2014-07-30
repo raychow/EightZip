@@ -44,6 +44,8 @@ private:
     void __OnPathComboBoxEnter(wxCommandEvent& event);
     void __OnListItemActivated(wxListEvent &event);
 
+    static void __OpenFileExternal(const TString &tstrPath);
+
 };
 
 #endif // FILEEXPLORER_H
