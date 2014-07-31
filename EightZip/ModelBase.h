@@ -21,8 +21,9 @@ public:
     virtual TString GetFullPath() const { return GetPath() + GetName(); }
     virtual int GetIconIndex() const;
     TString GetItem(ItemType itemType) const;
-    virtual bool IsOpenInside() const { return m_isOpenInside; }
     virtual bool IsDirectory() const { return m_isDirectory; }
+    virtual bool IsOpenExternal() const;
+    virtual void OpenExternal() const;
 
     virtual bool Compare(const IEntry &otherEntry, ItemType itemType, bool isAscending) const;
 
@@ -42,7 +43,6 @@ protected:
     wxDateTime m_dtAccessed;
     boost::optional<UINT32> m_oun32CRC;
     bool m_isDirectory = false;
-    bool m_isOpenInside = false;
 
     static bool _LocaleCompare(const TString &tstrLeft, const TString & tstrRight, bool isAscending);
 

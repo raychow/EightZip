@@ -41,9 +41,10 @@ public:
     virtual TString GetFullPath() const PURE;
     virtual int GetIconIndex() const PURE;
     virtual TString GetItem(ItemType itemType) const PURE;
-    virtual bool IsOpenInside() const PURE;
     virtual bool IsDirectory() const PURE;
     virtual std::shared_ptr<IModel> GetModel() const PURE;
+    virtual bool IsOpenExternal() const PURE;
+    virtual void OpenExternal() const PURE;
 
     virtual bool Compare(const IEntry &otherEntry, ItemType itemType, bool isAscending) const PURE;
 };

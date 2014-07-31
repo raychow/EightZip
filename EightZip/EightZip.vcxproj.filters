@@ -138,6 +138,9 @@
     <ClInclude Include="FolderModel.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Helper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -219,6 +222,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ArchiveModel.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -62,6 +62,11 @@ std::shared_ptr<IModel> ArchiveEntry::GetModel() const
     }
 }
 
+void ArchiveEntry::OpenExternal() const
+{
+
+}
+
 ArchiveModel::ArchiveModel(std::shared_ptr<IModel> spParent, TString tstrPath, shared_ptr<SevenZipCore::Codecs> cpCodecs, TString tstrTempFullPath, std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
     : m_upArchive(new SevenZipCore::Archive(move(cpCodecs), move(tstrTempFullPath), move(cpCallback)))
     , m_spParent(move(spParent))

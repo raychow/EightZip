@@ -19,6 +19,7 @@ public:
         , TString tstrType);
 
     virtual std::shared_ptr<IModel> GetModel() const;
+    virtual bool IsOpenExternal() { return false; }
 
 };
 

@@ -19,6 +19,7 @@ public:
         , wxDateTime dtModified
         , wxDateTime dtCreated);
 
+    virtual bool IsOpenDirectly() const;
     virtual std::shared_ptr<IModel> GetModel() const;
 
 };

@@ -22,10 +22,13 @@ public:
     virtual int GetIconIndex() const;
     virtual TString GetItem(ItemType itemType) const;
     virtual std::shared_ptr<IModel> GetModel() const;
+    virtual void OpenExternal() const;
 
 private:
     std::weak_ptr<IModel> m_wpParent;
     std::shared_ptr<SevenZipCore::ArchiveFile> m_spArchiveFile;
+
+    bool m_canOpenInternal = false;
 
 };
 

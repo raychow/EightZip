@@ -88,28 +88,31 @@ void FileExplorer::__OnPathComboBoxEnter(wxCommandEvent &event)
 void FileExplorer::__OnListItemActivated(wxListEvent &event)
 {
     const auto &spEntry = m_spModel->GetEntries().at(m_pListCtrl->GetModelIndex(event.GetIndex()));
+    if (!spEntry->IsOpenExternal())
+    {
+        try
+        {
+            __SetModel(spEntry->GetModel());
+            m_pToolBar->EnableTool(ID_PARENT_FOLDER, true);
+            return;
+        }
+        catch (SevenZipCore::ArchiveException)
+        {
+            // Open external.
+        }
+        catch (ModelException)
+        {
+            wxMessageBox(wxString::Format(_("Cannot access \"%s\"."), spEntry->GetFullPath()));
+            return;
+        }
+    }
+    // else
     try
     {
-        __SetModel(spEntry->GetModel());
-        m_pToolBar->EnableTool(ID_PARENT_FOLDER, true);
+        spEntry->OpenExternal();
     }
-    catch (SevenZipCore::ArchiveException)
+    catch (SystemException)
     {
-        __OpenFileExternal(spEntry->GetFullPath());
+        wxMessageBox(wxString::Format(_("Cannot open \"%s\"."), spEntry->GetFullPath()));
     }
-    catch (ModelException)
-    {
-        wxMessageBox(_("Cannot access \"" + spEntry->GetFullPath() + "\"."));
-    }
-}
-
-void FileExplorer::__OpenFileExternal(const TString &tstrPath)
-{
-#ifdef __WXMSW__
-    if ((int)::ShellExecute(nullptr, nullptr, tstrPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL) <= 32)
-    {
-        wxMessageBox(wxString::Format(_("Cannot open \"%s\"."), tstrPath));
-    }
-#else
-#endif
 }

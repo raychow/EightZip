@@ -21,6 +21,11 @@ FolderEntry::FolderEntry(TString tstrPath, TString tstrName, bool isDirectory, w
     m_tstrType = FileInfo::GetType(GetFullPath(), IsDirectory());
 }
 
+bool FolderEntry::IsOpenDirectly() const
+{
+    return false;
+}
+
 std::shared_ptr<IModel> FolderEntry::GetModel() const
 {
     auto tstrFullPath = GetFullPath();

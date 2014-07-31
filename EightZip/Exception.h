@@ -37,5 +37,6 @@ protected:
 };
 
 EIGHT_ZIP_EXCEPTION(ModelException);
+EIGHT_ZIP_EXCEPTION(SystemException);
 
 #endif // EXCEPTION_H

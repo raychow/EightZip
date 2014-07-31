@@ -2,6 +2,7 @@
 #include "ModelBase.h"
 
 #include "FileInfo.h"
+#include "Helper.h"
 
 using namespace std;
 
@@ -61,6 +62,73 @@ TString EntryBase::GetItem(ItemType itemType) const
     {
     }
     return wxEmptyString;
+}
+
+bool EntryBase::IsOpenExternal() const
+{
+#ifdef __WXMSW__
+    static array<TString, 44> atstrDirectExtension = {
+        wxT("bat"),
+        wxT("chm"),
+        wxT("com"),
+        wxT("doc"),
+        wxT("docm"),
+        wxT("docx"),
+        wxT("dotm"),
+        wxT("dotx"),
+        wxT("dwf"),
+        wxT("exe"),
+        wxT("flv"),
+        wxT("mpp"),
+        wxT("msg"),
+        wxT("msi"),
+        wxT("ods"),
+        wxT("odt"),
+        wxT("pdf"),
+        wxT("potm"),
+        wxT("potx"),
+        wxT("ppam"),
+        wxT("pps"),
+        wxT("ppsm"),
+        wxT("ppsx"),
+        wxT("ppt"),
+        wxT("pptm"),
+        wxT("pptx"),
+        wxT("pub"),
+        wxT("swf"),
+        wxT("vsd"),
+        wxT("wb3"),
+        wxT("wdb"),
+        wxT("wks"),
+        wxT("wps"),
+        wxT("wpt"),
+        wxT("xlam"),
+        wxT("xlr"),
+        wxT("xls"),
+        wxT("xlsb"),
+        wxT("xlsm"),
+        wxT("xlsx"),
+        wxT("xltm"),
+        wxT("xltx"),
+        wxT("xps"),
+        wxT("xsn")
+    };
+#else
+#endif
+    auto szPointLocation = m_tstrName.rfind(wxT('.'));
+    if (m_tstrName.npos == szPointLocation)
+    {
+        return false;
+    }
+    auto tstrExtension = m_tstrName.substr(szPointLocation + 1);
+    return binary_search(atstrDirectExtension.cbegin()
+        , atstrDirectExtension.cend()
+        , tstrExtension);
+}
+
+void EntryBase::OpenExternal() const
+{
+    Helper::OpenFileExternal(GetFullPath());
 }
 
 bool EntryBase::Compare(const IEntry &otherEntry, ItemType itemType, bool isAscending) const
