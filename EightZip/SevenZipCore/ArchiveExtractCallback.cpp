@@ -1,0 +1,163 @@
+#include "stdwx.h"
+#include "ArchiveExtractCallback.h"
+
+#include "Common.h"
+
+namespace SevenZipCore
+{
+    ArchiveExtractCallback::ArchiveExtractCallback(std::shared_ptr<ArchiveEntry> spArchiveEntry, bool isStandardOutMode, bool isTestMode, bool isCRCMode, TString tstrExtractPath, TString tstrInternalPath, PathMode pathMode, OverwriteMode overwriteMode)
+        : m_spArchiveEntry(move(spArchiveEntry))
+        , m_isStandardOutMode(isStandardOutMode)
+        , m_isTestMode(isTestMode)
+        , m_isCRCMode(isCRCMode)
+        , m_tstrExtractPath(move(tstrExtractPath))
+        , m_vtstrInternalPathPart(Helper::SplitString(move(tstrInternalPath), FOLDER_SEPARATOR, true))
+        , m_pathMode(pathMode)
+        , m_overwriteMode(overwriteMode)
+    {
+    }
+
+    STDMETHODIMP ArchiveExtractCallback::SetTotal(UINT64 total)
+    {
+        m_un64Total = total;
+        return S_OK;
+    }
+
+    STDMETHODIMP ArchiveExtractCallback::SetCompleted(const UINT64 *completeValue)
+    {
+        return S_OK;
+    }
+
+    STDMETHODIMP ArchiveExtractCallback::GetStream(UINT32 index, ISequentialOutStream **outStream, INT32 askExtractMode)
+    {
+        try
+        {
+            *outStream = nullptr;
+            m_nindex = index;
+
+            IInArchiveAdapter archiveAdapter(m_spArchiveEntry->GetArchive());
+            m_tstrInternalPath = archiveAdapter.GetItemPath(index);
+            m_isDir = PropertyHelper::GetBool(archiveAdapter.GetProperty(index, PropertyId::IsDir), false);
+
+            try
+            {
+                m_oun64Position.reset(PropertyHelper::GetUInt64(archiveAdapter.GetProperty(index, PropertyId::Position)));
+            }
+            catch (const PropertyException &ex)
+            {
+                if (PropertyErrorCode::EMPTY_VALUE == ex.GetErrorCode())
+                {
+                    m_oun64Position.reset();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            m_isEncrypted = PropertyHelper::GetBool(archiveAdapter.GetProperty(index, PropertyId::Encrypted), false);
+            try
+            {
+                m_oun64Size.reset(PropertyHelper::GetConvertedUInt64(archiveAdapter.GetProperty(index, PropertyId::Size)));
+            }
+            catch (const PropertyException &ex)
+            {
+                if (PropertyErrorCode::EMPTY_VALUE == ex.GetErrorCode())
+                {
+                    m_oun64Size.reset();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            if (static_cast<INT32>(ExtractAskMode::Extract) == askExtractMode && !m_isTestMode)
+            {
+                if (m_isStandardOutMode)
+                {
+                    // CMyComPtr<ISequentialOutStream> outStreamLoc = new CStdOutFileStream;
+                    return S_OK;
+                }
+                try
+                {
+                    m_ounAttribute.reset(PropertyHelper::GetUInt32(archiveAdapter.GetProperty(index, PropertyId::Attribute)));
+                }
+                catch (const PropertyException &ex)
+                {
+                    if (PropertyErrorCode::EMPTY_VALUE == ex.GetErrorCode())
+                    {
+                        m_ounAttribute.reset();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                m_oftCreated = __GetTime(archiveAdapter, index, PropertyId::Created);
+                m_oftAccessed = __GetTime(archiveAdapter, index, PropertyId::Accessed);
+                m_oftModified = __GetTime(archiveAdapter, index, PropertyId::Modified);
+
+                bool isAnti = PropertyHelper::GetBool(archiveAdapter.GetProperty(index, PropertyId::IsAnti), false);
+                auto vtstrPathPart = Helper::SplitString(m_tstrInternalPath, FOLDER_SEPARATOR, true);
+                if (vtstrPathPart.empty())
+                {
+                    return E_FAIL;
+                }
+                switch (m_pathMode)
+                {
+                case PathMode::FullPathNames:
+                    break;
+                case PathMode::CurrentPathNames:
+                    if (m_vtstrInternalPathPart.size() >= vtstrPathPart.size()
+                        || !equal(m_vtstrInternalPathPart.cbegin()
+                        , m_vtstrInternalPathPart.cend()
+                        , vtstrPathPart.cbegin()))
+                    {
+                        return E_FAIL;
+                    }
+                    vtstrPathPart.erase(vtstrPathPart.begin(), vtstrPathPart.begin() + m_vtstrInternalPathPart.size());
+                    break;
+                case PathMode::NoPathNames:
+                    vtstrPathPart.clear();
+                }
+                vtstrPathPart = Helper::GetFilteredPath(move(vtstrPathPart));
+            }
+            return S_OK;
+        }
+        catch (...)
+        {
+            return E_FAIL;
+        }
+    }
+
+    STDMETHODIMP ArchiveExtractCallback::PrepareOperation(INT32 askExtractMode)
+    {
+        return S_OK;
+    }
+
+    STDMETHODIMP ArchiveExtractCallback::SetOperationResult(INT32 resultEOperationResult)
+    {
+        return S_OK;
+    }
+
+    boost::optional<FILETIME> ArchiveExtractCallback::__GetTime(IInArchiveAdapter &archiveAdapter, UINT32 index, PropertyId propertyId)
+    {
+        try
+        {
+            return PropertyHelper::GetFileTime(archiveAdapter.GetProperty(index, propertyId));
+        }
+        catch (const PropertyException &ex)
+        {
+            if (PropertyErrorCode::EMPTY_VALUE == ex.GetErrorCode())
+            {
+                return boost::none;
+            }
+            else
+            {
+                throw;
+            }
+        }
+    }
+
+}

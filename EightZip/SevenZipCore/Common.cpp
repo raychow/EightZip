@@ -58,4 +58,27 @@ namespace SevenZipCore
         return vtstrResult;
     }
 
+    vector<TString> Helper::GetFilteredPath(vector<TString> vtstrPathPart)
+    {
+        for (auto &tstrPathPart : vtstrPathPart)
+        {
+            tstrPathPart = GetFilteredFileName(move(tstrPathPart));
+        }
+    }
+
+    TString Helper::GetFilteredFileName(TString tstrPathPart)
+    {
+        static const TCHAR *pchSepical = TEXT("*?<>|:\"");
+        if (all_of(tstrPathPart.cbegin()
+            , tstrPathPart.cend()
+            , [](TCHAR value) { return value == TEXT('.'); }))
+        {
+            return TString();
+        }
+        for (auto value : tstrPathPart)
+        {
+
+        }
+    }
+
 }
