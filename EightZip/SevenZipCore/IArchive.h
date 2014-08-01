@@ -19,7 +19,6 @@ namespace SevenZipCore
         DOS
     };
 
-    // TODO: Modify to enum struct.
     enum struct FormatInfo
     {
         Name = 0,
@@ -32,42 +31,40 @@ namespace SevenZipCore
         FinishSignature,
         Associate
     };
-    namespace NArchive
+
+    // NArchive.NExtract.NAskMode 
+    enum struct ExtractAskMode
     {
-        namespace NExtract
-        {
-            namespace NAskMode
-            {
-                enum
-                {
-                    Extract = 0,
-                    Test,
-                    Skip
-                };
-            }
-            namespace NOperationResult
-            {
-                enum
-                {
-                    OK = 0,
-                    UnSupportedMethod,
-                    DataError,
-                    CRCError
-                };
-            }
-        }
-        namespace NUpdate
-        {
-            namespace NOperationResult
-            {
-                enum
-                {
-                    OK = 0,
-                    Error
-                };
-            }
-        }
-    }
+        Extract = 0,
+        Test,
+        Skip
+    };
+
+    // NArchive.NExtract.NOperationResult 
+    enum struct ExtractResult
+    {
+        OK = 0,
+        UnSupportedMethod,
+        DataError,
+        CRCError
+
+    };
+
+    enum struct PathMode
+    {
+        FullPathNames,
+        CurrentPathNames,
+        NoPathNames
+    };
+
+    enum struct OverwriteMode
+    {
+        AskBefore,
+        WithoutPrompt,
+        SkipExisting,
+        AutoRename,
+        AutoRenameExisting
+    };
 
 #define INTERFACE_IArchiveOpenCallback(x) \
     STDMETHOD(SetTotal)(const UINT64 *files, const UINT64 *bytes) x; \

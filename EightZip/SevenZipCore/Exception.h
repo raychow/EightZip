@@ -7,42 +7,74 @@
 #include <memory>
 #include <string>
 
-#define SEVEN_ZIP_CORE_EXCEPTION(e) \
-    class e \
-        : public SevenZipCoreException \
+#define DECLARE_EXCEPTION(exception, base) \
+    class exception \
+        : public base \
     { \
     public: \
-        e(const std::string& _Message) \
-        : SevenZipCoreException(_Message) \
+        exception(const char *pchMessage) \
+            : base(pchMessage) \
         {} \
-        e(const char *_Message) \
-        : SevenZipCoreException(_Message) \
+        \
+    };
+
+#define DECLARE_EXCEPTION_WITH_ERROR_CODE(exception, base, error_code_type) \
+    class exception \
+        : public base \
+    { \
+    public: \
+        exception(error_code_type errorCode, const char *pchMessage) \
+            : base(pchMessage) \
+            , m_errorCode(errorCode) \
         {} \
+        \
+        error_code_type GetErrorCode() const { return m_errorCode; } \
+        \
+    private: \
+        error_code_type m_errorCode; \
+        \
     };
 
 namespace SevenZipCore
 {
+    enum PropertyErrorCode
+    {
+        INVALID_VALUE_TYPE,
+        EMPTY_VALUE,
+    };
+
     class SevenZipCoreException
         : public std::runtime_error
     {
     public:
-        SevenZipCoreException(const std::string& _Message)
-            : runtime_error(_Message)
-        {}
+        SevenZipCoreException(const char *pchMessage)
+            : runtime_error(pchMessage)
+        {
+        }
 
-        SevenZipCoreException(const char *_Message)
-            : runtime_error(_Message)
-        {}
-
-    protected:
-        std::exception m_innerException;
     };
 
-    SEVEN_ZIP_CORE_EXCEPTION(LibraryException);
-    SEVEN_ZIP_CORE_EXCEPTION(CodecException);
-    SEVEN_ZIP_CORE_EXCEPTION(StreamException);
-    SEVEN_ZIP_CORE_EXCEPTION(ArchiveException);
-    SEVEN_ZIP_CORE_EXCEPTION(PropertyException);
+    class SystemException
+        : public SevenZipCoreException
+    {
+    public:
+        SystemException(const char *pchMessage)
+            : SevenZipCoreException(pchMessage)
+            , m_nErrorCode(::GetLastError())
+        {
+        }
+
+        int GetErrorCode() const { return m_nErrorCode; }
+
+    private:
+       int m_nErrorCode;
+
+    };
+
+    DECLARE_EXCEPTION(LibraryException, SevenZipCoreException);
+    DECLARE_EXCEPTION(StreamException, SevenZipCoreException);
+    DECLARE_EXCEPTION(ArchiveException, SevenZipCoreException);
+    DECLARE_EXCEPTION_WITH_ERROR_CODE(PropertyException, SevenZipCoreException, PropertyErrorCode);
 }
 
 #endif // SEVENZIPCORE_EXCEPTION_H

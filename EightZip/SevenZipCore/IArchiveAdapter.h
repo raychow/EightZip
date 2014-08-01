@@ -15,14 +15,14 @@
     void Open(IInStream *stream, UINT64 maxCheckStartPosition, IArchiveOpenCallback *openArchiveCallback); \
     void Close(); \
     UINT32 GetNumberOfItems(); \
-    PROPVARIANT GetProperty(UINT32 index, PropId propID); \
+    PROPVARIANT GetProperty(UINT32 index, PropertyId propID); \
     void Extract(const std::vector<UINT32> &indices, INT32 testMode, IArchiveExtractCallback *extractCallback); \
-    PROPVARIANT GetArchiveProperty(PropId propID); \
+    PROPVARIANT GetArchiveProperty(PropertyId propID); \
     UINT32 GetNumberOfProperties(); \
     void GetPropertyInfo(UINT32 index, BSTR *name, PROPID *propID, VARTYPE *varType); \
     UINT32 GetNumberOfArchiveProperties(); \
     void GetArchivePropertyInfo(UINT32 index, BSTR *name, PROPID *propID, VARTYPE *varType); \
-    TString GetItemPath(UINT32 index, TString tstrFileName);
+    TString GetItemPath(UINT32 index);
 
 #define IMPLEMENT_IINARCHIVE_ADAPTER(target_name) \
     void target_name##Adapter::Open(IInStream *stream, UINT64 maxCheckStartPosition, IArchiveOpenCallback *openArchiveCallback) \
@@ -40,20 +40,20 @@
         CHECK_OK(m_spTarget->GetNumberOfItems(&result), ArchiveException, "Cannot get number of archive items"); \
         return result; \
     } \
-    PROPVARIANT target_name##Adapter::GetProperty(UINT32 index, PropId propID) \
+    PROPVARIANT target_name##Adapter::GetProperty(UINT32 index, PropertyId propertyID) \
     { \
         PROPVARIANT result = {}; \
-        CHECK_OK(m_spTarget->GetProperty(index, static_cast<PROPID>(propID), &result), ArchiveException, "Cannot get property of the file in archive."); \
+        CHECK_OK(m_spTarget->GetProperty(index, static_cast<PROPID>(propertyID), &result), ArchiveException, "Cannot get property of the file in archive."); \
         return result; \
     } \
     void target_name##Adapter::Extract(const std::vector<UINT32> &indices, INT32 testMode, IArchiveExtractCallback *extractCallback) \
     { \
         CHECK_OK(m_spTarget->Extract(indices.data(), indices.size(), testMode, extractCallback), ArchiveException, "Can not extract files from the archive."); \
     } \
-    PROPVARIANT target_name##Adapter::GetArchiveProperty(PropId propID) \
+    PROPVARIANT target_name##Adapter::GetArchiveProperty(PropertyId propertyID) \
     { \
         PROPVARIANT result = {}; \
-        CHECK_OK(m_spTarget->GetArchiveProperty(static_cast<PROPID>(propID), &result), ArchiveException, "Cannot get property of the archive."); \
+        CHECK_OK(m_spTarget->GetArchiveProperty(static_cast<PROPID>(propertyID), &result), ArchiveException, "Cannot get property of the archive."); \
         return result; \
     } \
     UINT32 target_name##Adapter::GetNumberOfProperties() \
@@ -76,15 +76,15 @@
     { \
         CHECK_OK(m_spTarget->GetArchivePropertyInfo(index, name, propID, varType), ArchiveException, "Cannot get property info of the file in archive."); \
     } \
-    TString target_name##Adapter::GetItemPath(UINT32 index, TString tstrFileName) \
+    TString target_name##Adapter::GetItemPath(UINT32 index) \
     { \
-        auto tstrPath = PropertyHelper::GetString(GetProperty(index, PropId::Path)); \
+        auto tstrPath = PropertyHelper::GetString(GetProperty(index, PropertyId::Path), TString()); \
         if (tstrPath.empty()) \
         { \
-            auto tstrExtension = PropertyHelper::GetString(GetProperty(index, PropId::Extension)); \
+            auto tstrExtension = PropertyHelper::GetString(GetProperty(index, PropertyId::Extension), TString()); \
             if (!tstrExtension.empty()) \
             { \
-                tstrPath = tstrFileName + TEXT(".") + tstrExtension; \
+                tstrPath = TEXT(".") + tstrExtension; \
             } \
         } \
         return tstrPath; \

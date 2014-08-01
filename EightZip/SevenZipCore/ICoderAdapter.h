@@ -15,7 +15,7 @@
     void target_name##Adapter::SetCompressCodecsInfo(ICompressCodecsInfo &compressCodecsInfo) \
     { \
         if (S_OK != m_spTarget->SetCompressCodecsInfo(&compressCodecsInfo)) \
-            throw CodecException("Cannot set compress codecs info."); \
+            throw LibraryException("Cannot set compress codecs info."); \
     } \
 
 namespace SevenZipCore

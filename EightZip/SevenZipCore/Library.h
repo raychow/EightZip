@@ -27,8 +27,6 @@ namespace SevenZipCore
     protected:
         std::shared_ptr<HINSTANCE__> m_sphModule;
 
-        Library(HMODULE hModule);
-
         HMODULE _CheckLibrary(HMODULE hModule);
     };
 
@@ -54,7 +52,7 @@ namespace SevenZipCore
         auto result = ::GetProcAddress(m_sphModule.get(), strProcName.c_str());
         if (!isSuppresseException && !result)
         {
-            throw LibraryException(std::string("Cannot get function \"") + strProcName + "\".");
+            throw LibraryException((std::string("Cannot get function \"") + strProcName + "\".").c_str());
         }
         return reinterpret_cast<T>(result);
     }

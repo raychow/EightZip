@@ -94,7 +94,7 @@ wxString FileListCtrl::OnGetItemText(long item, long column) const
         const auto &spChild = m_spModel->GetEntries().at(m_vnChildrenMap[item]);
         return spChild->GetItem(m_spModel->GetSupportedItems().at(column));
     }
-    catch (out_of_range)
+    catch (const out_of_range &)
     {
         return wxEmptyString;
     }
@@ -108,7 +108,7 @@ int FileListCtrl::OnGetItemImage(long item) const
         const auto spChild = children.at(m_vnChildrenMap[item]);
         return spChild->GetIconIndex();
     }
-    catch (out_of_range)
+    catch (const out_of_range &)
     {
         return -1;
     }

@@ -11,7 +11,7 @@
 
 namespace SevenZipCore
 {
-    enum class PropId
+    enum class PropertyId
     {
         NoProperty = 0,
         MainSubfile = 1,
@@ -22,10 +22,10 @@ namespace SevenZipCore
         IsDir,
         Size,
         PackSize,
-        Attrib,
-        CTime,
-        ATime,
-        MTime,
+        Attribute,
+        Created,
+        Accessed,
+        Modified,
         Solid,
         Commented,
         Encrypted,
@@ -81,18 +81,40 @@ namespace SevenZipCore
         UserDefined = 0x10000
     };
 
+#define DECLARE_PROPERTY_HELPER(type, name) \
+    static type name(const PROPVARIANT &property); \
+    static type name(const PROPVARIANT &property, type defaultValue);
+
+#define IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(type, name) \
+    type PropertyHelper::name(const PROPVARIANT &property, type defaultValue) \
+    { \
+        try \
+        { \
+            return name(property); \
+        } \
+        catch (const PropertyException &ex) \
+        { \
+            if (PropertyErrorCode::EMPTY_VALUE == ex.GetErrorCode()) \
+            { \
+                return defaultValue; \
+            } \
+            throw; \
+        } \
+    }
+
     class PropertyHelper
     {
     public:
-        static bool GetBool(const PROPVARIANT &property);
-        static BYTE GetByte(const PROPVARIANT &property);
-        static USHORT GetUShort(const PROPVARIANT &property);
-        static UINT32 GetUInt32(const PROPVARIANT &property);
-        static UINT64 GetUInt64(const PROPVARIANT &property);
-        static TString GetString(const PROPVARIANT &property);
-        static GUID GetGUID(const PROPVARIANT &property);
-        static std::vector<BYTE> GetBytes(const PROPVARIANT &property);
-        static UINT64 GetConvertedUInt64(const PROPVARIANT &property);
+        DECLARE_PROPERTY_HELPER(bool, GetBool)
+        DECLARE_PROPERTY_HELPER(BYTE, GetByte)
+        DECLARE_PROPERTY_HELPER(USHORT, GetUShort)
+        DECLARE_PROPERTY_HELPER(UINT32, GetUInt32)
+        DECLARE_PROPERTY_HELPER(UINT64, GetUInt64)
+        DECLARE_PROPERTY_HELPER(TString, GetString)
+        DECLARE_PROPERTY_HELPER(GUID, GetGUID)
+        DECLARE_PROPERTY_HELPER(std::vector<BYTE>, GetBytes)
+        DECLARE_PROPERTY_HELPER(UINT64, GetConvertedUInt64)
+        DECLARE_PROPERTY_HELPER(FILETIME, GetFileTime)
     };
 }
 

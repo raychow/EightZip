@@ -39,6 +39,7 @@ std::shared_ptr<IModel> FolderEntry::GetModel() const
         tstrExecutablePath = tstrExecutablePath.substr(0, tstrExecutablePath.find_last_of(wxFILE_SEP_PATH) + 1);
         auto result = make_shared<ArchiveModel>(nullptr
             , tstrFullPath + wxFILE_SEP_PATH
+            , TString()
             , SevenZipCore::MakeComPtr(new SevenZipCore::Codecs(tstrExecutablePath))
             , tstrFullPath
             , nullptr);

@@ -5,6 +5,10 @@
 
 #include <Windows.h>
 
+#ifdef _DEBUG
+#include "TString.h"
+#endif
+
 #define QUERYINTERFACE_BEGIN \
     STDMETHOD(QueryInterface)(REFGUID iid, void **outObject) \
     {

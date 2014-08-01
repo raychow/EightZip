@@ -20,7 +20,7 @@ namespace SevenZipCore
     {
         if (!getHandlerProperty && !getHandlerProperty2)
         {
-            throw CodecException("Cannot read property.");
+            throw LibraryException("Assigned two empty functions.");
         }
     }
 
@@ -38,7 +38,7 @@ namespace SevenZipCore
         }
         if (hResult != S_OK)
         {
-            throw CodecException("Cannot read property.");
+            throw LibraryException("Cannot read property.");
         }
         return result;
     }
@@ -51,17 +51,17 @@ namespace SevenZipCore
         TString tstrExtension;
         TString tstrAdditionExtension;
         // Will call std::[w]string's or std::vector's move constructor.
-        m_tstrName = PropertyHelper::GetString(propertyReader.ReadProperty(m_unFormatIndex, static_cast<PROPID>(FormatInfo::Name)));
+        m_tstrName = PropertyHelper::GetString(propertyReader.ReadProperty(m_unFormatIndex, static_cast<PROPID>(FormatInfo::Name)), TString());
         m_classId = PropertyHelper::GetGUID(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::ClassID)));
-        __AddExtension(PropertyHelper::GetString(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::Extension))).c_str()
-            , PropertyHelper::GetString(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::AdditionExtension))).c_str());
+        __AddExtension(PropertyHelper::GetString(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::Extension)), TString()).c_str()
+            , PropertyHelper::GetString(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::AdditionExtension)), TString()).c_str());
 
-        if (m_isUpdateEnbaled = PropertyHelper::GetBool(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::Update))))
+        if (m_isUpdateEnbaled = PropertyHelper::GetBool(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::Update)), false))
         {
-            m_isKeepName = PropertyHelper::GetBool(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::KeepName)));
+            m_isKeepName = PropertyHelper::GetBool(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::KeepName)), false);
 
         }
-        m_vbySignature = PropertyHelper::GetBytes(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::StartSignature)));
+        m_vbySignature = PropertyHelper::GetBytes(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::StartSignature)), vector<BYTE>());
     }
 
     CodecFormat::~CodecFormat()
@@ -121,8 +121,8 @@ namespace SevenZipCore
         , m_unCodecIndex(unCodecIndex)
         , m_isEncoderAssigned(false)
         , m_isDecoderAssigned(false)
-        , m_clsidEncoder(__GetCodecClass(unCodecIndex, static_cast<PROPID>(MethodPropId::Encoder)))
-        , m_clsidDecoder(__GetCodecClass(unCodecIndex, static_cast<PROPID>(MethodPropId::Decoder)))
+        , m_clsidEncoder(__GetCodecClass(unCodecIndex, static_cast<PROPID>(MethodPropertyId::Encoder)))
+        , m_clsidDecoder(__GetCodecClass(unCodecIndex, static_cast<PROPID>(MethodPropertyId::Decoder)))
     {}
 
     CodecInfo::~CodecInfo()
@@ -140,7 +140,7 @@ namespace SevenZipCore
         case VT_EMPTY:
             return CLSID();
         default:
-            throw CodecException("Cannot get codec class");
+            throw LibraryException("Cannot get codec class");
         }
     }
 
@@ -170,14 +170,14 @@ namespace SevenZipCore
     {
         const auto &codecInfo = *m_vupCodecInfo[unIndex];
 
-        if (propId == static_cast<PROPID>(MethodPropId::IsDecoderAssigned))
+        if (propId == static_cast<PROPID>(MethodPropertyId::IsDecoderAssigned))
         {
             PropertyVariant propVariant;
             propVariant = codecInfo.IsDecoderAssigned();
             propVariant.Detach(value);
             return S_OK;
         }
-        if (propId == static_cast<PROPID>(MethodPropId::IsEncoderAssigned))
+        if (propId == static_cast<PROPID>(MethodPropertyId::IsEncoderAssigned))
         {
             PropertyVariant propVariant;
             propVariant = codecInfo.IsEncoderAssigned();
@@ -188,7 +188,7 @@ namespace SevenZipCore
         {
             *value = codecInfo.GetCodecLibrary().GetMethodProperty(codecInfo.GetCodecIndex(), propId);
         }
-        catch (SevenZipCoreException)
+        catch (const SevenZipCoreException &)
         {
             return S_FALSE;
         }
@@ -204,7 +204,7 @@ namespace SevenZipCore
             {
                 *coder = codecInfo.GetCodecLibrary().CreateObject<void>(codecInfo.GetEncoder(), *interfaceId);
             }
-            catch (SevenZipCoreException)
+            catch (const SevenZipCoreException &)
             {
                 return S_FALSE;
             }
@@ -221,7 +221,7 @@ namespace SevenZipCore
             {
                 *coder = codecInfo.GetCodecLibrary().CreateObject<void>(codecInfo.GetDecoder(), *interfaceId);
             }
-            catch (SevenZipCoreException)
+            catch (const SevenZipCoreException &)
             {
                 return S_FALSE;
             }
@@ -249,7 +249,7 @@ namespace SevenZipCore
         UINT32 unNumberOfMethods;
         if (getNumberOfMethods(&unNumberOfMethods) != S_OK)
         {
-            throw CodecException("Cannot get number of methods.");
+            throw LibraryException("Cannot get number of methods.");
         }
         UINT32 result = 0;
         for (UINT32 i = 0; i != unNumberOfMethods; ++i)
@@ -259,7 +259,7 @@ namespace SevenZipCore
                 m_vupCodecInfo.push_back(unique_ptr<CodecInfo>(new CodecInfo(codecLibrary, i)));
                 ++result;
             }
-            catch (CodecException)
+            catch (const LibraryException &)
             {}
         }
         return result;
@@ -285,8 +285,9 @@ namespace SevenZipCore
                 m_vupCodecFormat.push_back(unique_ptr<CodecFormat>(new CodecFormat(codecLibrary, i, propertyReader)));
                 ++result;
             }
-            catch (CodecException)
-            {}
+            catch (const LibraryException &)
+            {
+            }
         }
         return result;
     }

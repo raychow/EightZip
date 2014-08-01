@@ -169,7 +169,7 @@ namespace SevenZipCore
 
     //////////////////////
     // It's for DLL file
-    enum struct MethodPropId
+    enum struct MethodPropertyId
     {
         ID,
         Name,

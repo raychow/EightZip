@@ -116,18 +116,26 @@ namespace SevenZipCore
 
         //IUNKNOWN_IMP
 
-            QUERYINTERFACE_BEGIN \
-            QUERYINTERFACE_ENTRY_UNKNOWN(IUnknown) \
-            QUERYINTERFACE_END
-    public: \
-            STDMETHOD_(ULONG, AddRef)() {
+        QUERYINTERFACE_BEGIN
+            QUERYINTERFACE_ENTRY_UNKNOWN(IUnknown)
+        QUERYINTERFACE_END
+        STDMETHOD_(ULONG, AddRef)()
+        {
             return ++m_ulRefCount;
-        } \
-            STDMETHOD_(ULONG, Release)() {
-            if (--m_ulRefCount) { return m_ulRefCount; } delete this; return 0;
-        } \
-    private: \
-             ULONG m_ulRefCount = 0;
+        }
+        STDMETHOD_(ULONG, Release)()
+        {
+            if (--m_ulRefCount)
+            {
+                return m_ulRefCount;
+            }
+            delete this;
+            return 0;
+        }
+
+    private:
+        ULONG m_ulRefCount = 0;
+
     private:
         std::vector<std::unique_ptr<CodecLibrary>> m_vupCodecLibrary;
         std::vector<std::unique_ptr<CodecInfo>> m_vupCodecInfo;

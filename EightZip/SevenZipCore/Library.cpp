@@ -6,17 +6,12 @@
 namespace SevenZipCore
 {
     Library::Library(const TString &tstrPath)
-        : Library(_CheckLibrary(::LoadLibrary(tstrPath.c_str())))
+        : m_sphModule(_CheckLibrary(::LoadLibrary(tstrPath.c_str())), &::FreeLibrary)
     {
     }
 
     Library::Library(const TString &tstrPath, DWORD dwFlags)
-        : Library(_CheckLibrary(::LoadLibraryEx(tstrPath.c_str(), nullptr, dwFlags)))
-    {
-    }
-
-    Library::Library(HMODULE hModule)
-        : m_sphModule(hModule, &::FreeLibrary)
+        : m_sphModule(_CheckLibrary(::LoadLibraryEx(tstrPath.c_str(), nullptr, dwFlags)), &::FreeLibrary)
     {
     }
 
@@ -28,7 +23,7 @@ namespace SevenZipCore
     {
         if (!hModule)
         {
-            throw LibraryException("Cannot load the library.");
+            throw SystemException("Cannot load the library.");
         }
         return hModule;
     }

@@ -52,16 +52,17 @@ namespace SevenZipCore
             return;
         }
         IInArchiveAdapter archiveAdapter(m_spArchive);
-        m_upInformation->Size = PropertyHelper::GetConvertedUInt64(archiveAdapter.GetProperty(*m_ounIndex, PropId::Size));
-        m_upInformation->PackedSize = PropertyHelper::GetConvertedUInt64(archiveAdapter.GetProperty(*m_ounIndex, PropId::PackSize));
-        auto property = archiveAdapter.GetProperty(*m_ounIndex, PropId::CRC);
-        if (property.vt == VT_UI4)
+        m_upInformation->Size = PropertyHelper::GetConvertedUInt64(archiveAdapter.GetProperty(*m_ounIndex, PropertyId::Size), 0);
+        m_upInformation->PackedSize = PropertyHelper::GetConvertedUInt64(archiveAdapter.GetProperty(*m_ounIndex, PropertyId::PackSize), 0);
+        auto property = archiveAdapter.GetProperty(*m_ounIndex, PropertyId::CRC);
+        try
         {
             m_upInformation->CRC = PropertyHelper::GetUInt32(property);
         }
-        else
+        catch (const PropertyException &)
         {
             m_upInformation->CRC = none;
+
         }
         m_upInformation->IsValid = true;
     }
@@ -117,7 +118,7 @@ namespace SevenZipCore
                         continue;
                     }
                 }
-                catch (SevenZipCoreException)
+                catch (const SevenZipCoreException &)
                 {
                 }
                 m_upInformation->CRC.reset();

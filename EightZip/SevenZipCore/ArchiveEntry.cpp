@@ -39,7 +39,7 @@ namespace SevenZipCore
         {
             __Close();
         }
-        catch (ArchiveException)
+        catch (const ArchiveException &)
         {
         }
     }
@@ -110,9 +110,9 @@ namespace SevenZipCore
         //try
         //{
         //    PropertyVariant property;
-        //    ErrorMessage = PropertyHelper::GetString(archiveAdapter.GetArchiveProperty(static_cast<PROPID>(PropId::Error)));
+        //    ErrorMessage = PropertyHelper::GetString(archiveAdapter.GetArchiveProperty(static_cast<PROPID>(PropertyId::Error)));
         //}
-        //catch (ArchiveException)
+        //catch (const ArchiveException &)
         //{
         //}
 

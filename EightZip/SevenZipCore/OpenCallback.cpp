@@ -28,9 +28,9 @@ namespace SevenZipCore
                 , numBytes ? optional<UINT64>(*numBytes) : none);
             return S_OK;
         }
-        catch (SevenZipCoreException)
+        catch (...)
         {
-            return S_FALSE;
+            return E_FAIL;
         }
     }
 
@@ -47,9 +47,9 @@ namespace SevenZipCore
                 numBytes ? optional<UINT64>(*numBytes) : none);
             return S_OK;
         }
-        catch (SevenZipCoreException)
+        catch (...)
         {
-            return S_FALSE;
+            return E_FAIL;
         }
     }
 
@@ -65,9 +65,9 @@ namespace SevenZipCore
             SetProgressTotal(total);
             return S_OK;
         }
-        catch (SevenZipCoreException)
+        catch (...)
         {
-            return S_FALSE;
+            return E_FAIL;
         }
     }
 
@@ -83,9 +83,9 @@ namespace SevenZipCore
             SetProgressCompleted(completeValue ? optional<UINT64>(*completeValue) : none);
             return S_OK;
         }
-        catch (SevenZipCoreException)
+        catch (...)
         {
-            return S_FALSE;
+            return E_FAIL;
         }
     }
 }

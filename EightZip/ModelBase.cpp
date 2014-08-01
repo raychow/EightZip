@@ -58,7 +58,7 @@ TString EntryBase::GetItem(ItemType itemType) const
             break;
         }
     }
-    catch (std::exception)
+    catch (const exception &)
     {
     }
     return wxEmptyString;

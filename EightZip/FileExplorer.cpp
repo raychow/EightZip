@@ -96,11 +96,11 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
             m_pToolBar->EnableTool(ID_PARENT_FOLDER, true);
             return;
         }
-        catch (SevenZipCore::ArchiveException)
+        catch (const SevenZipCore::SevenZipCoreException &)
         {
             // Open external.
         }
-        catch (ModelException)
+        catch (const ModelException &)
         {
             wxMessageBox(wxString::Format(_("Cannot access \"%s\"."), spEntry->GetFullPath()));
             return;
@@ -111,7 +111,7 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
     {
         spEntry->OpenExternal();
     }
-    catch (SystemException)
+    catch (const SystemException &)
     {
         wxMessageBox(wxString::Format(_("Cannot open \"%s\"."), spEntry->GetFullPath()));
     }
