@@ -6,14 +6,11 @@ using namespace std;
 FileFinder::FileFinder(TString tstrDir, bool isDiretoryOnly /*= false*/)
     : m_isDirectoryOnly(isDiretoryOnly)
 {
-    if (wxEndsWithPathSeparator(tstrDir))
+    if (!wxEndsWithPathSeparator(tstrDir))
     {
-        tstrDir.append(wxT("*"));
+        tstrDir.push_back(wxFILE_SEP_PATH);
     }
-    else
-    {
-        tstrDir.append(wxT("\\*"));
-    }
+    tstrDir.push_back(wxT('*'));
 #ifdef __WXMSW__
     m_upHandle.reset(::FindFirstFile(tstrDir.c_str(), &m_findData));
 #endif

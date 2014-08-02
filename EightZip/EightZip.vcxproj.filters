@@ -144,6 +144,9 @@
     <ClInclude Include="SevenZipCore\ArchiveExtractCallback.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
+    <ClInclude Include="SevenZipCore\Platform.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">

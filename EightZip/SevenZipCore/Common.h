@@ -5,9 +5,8 @@
 
 #include <vector>
 
+#include "Platform.h"
 #include "TString.h"
-
-#define FOLDER_SEPARATOR TEXT("\\/")
 
 namespace SevenZipCore
 {
@@ -26,6 +25,7 @@ namespace SevenZipCore
         static std::vector<TString> SplitString(const TString &tstrPath, const TString &tstrSeparators, bool isSkipEmptyPart = false);
         static std::vector<TString> GetFilteredPath(std::vector<TString> vtstrPathPart);
         static TString GetFilteredFileName(TString tstrPathPart);
+        static TString JoinString(std::vector<TString> vtstrPathPart, const TString &tstrSeparators, bool isSkipEmptyPart = false);
     };
 }
 

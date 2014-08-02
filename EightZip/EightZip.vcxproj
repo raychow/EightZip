@@ -122,6 +122,7 @@
     <ClInclude Include="SevenZipCore\IStreamAdapter.h" />
     <ClInclude Include="SevenZipCore\Library.h" />
     <ClInclude Include="SevenZipCore\OpenCallback.h" />
+    <ClInclude Include="SevenZipCore\Platform.h" />
     <ClInclude Include="SevenZipCore\Property.h" />
     <ClInclude Include="SevenZipCore\PropertyVariant.h" />
     <ClInclude Include="SevenZipCore\TString.h" />

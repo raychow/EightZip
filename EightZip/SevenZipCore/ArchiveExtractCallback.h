@@ -47,7 +47,7 @@ namespace SevenZipCore
         bool m_isEncrypted;
         bool m_isSplit;
         TString m_tstrInternalPath;
-        bool m_isDir;
+        bool m_isDirectory;
         boost::optional<UINT64> m_oun64Position;
         boost::optional<UINT64> m_oun64Size;
         boost::optional<UINT32> m_ounAttribute;

@@ -3,6 +3,8 @@
 
 #include <algorithm>
 
+#include <boost/algorithm/string.hpp>
+
 #include <Windows.h>
 
 using namespace std;
@@ -11,7 +13,7 @@ namespace SevenZipCore
 {
     TString Helper::GetFileName(const TString &tstrPath)
     {
-        return tstrPath.substr(tstrPath.find_last_of(FOLDER_SEPARATOR) + 1);
+        return tstrPath.substr(tstrPath.find_last_of(FOLDER_POSSIBLE_SEPARATOR) + 1);
     }
 
     TString Helper::GetFileNameStem(const TString &tstrPath)
@@ -64,21 +66,66 @@ namespace SevenZipCore
         {
             tstrPathPart = GetFilteredFileName(move(tstrPathPart));
         }
+        auto result = vector<TString>();
+        result.reserve(vtstrPathPart.size());
+        for (auto &value : vtstrPathPart)
+        {
+            if (!value.empty())
+            {
+                result.push_back(move(value));
+            }
+        }
+        return result;
     }
 
     TString Helper::GetFilteredFileName(TString tstrPathPart)
     {
-        static const TCHAR *pchSepical = TEXT("*?<>|:\"");
+#ifdef __WINDOWS__
+        static const TString tstrReserved(TEXT("<>:\"/\\|?*"));
         if (all_of(tstrPathPart.cbegin()
             , tstrPathPart.cend()
             , [](TCHAR value) { return value == TEXT('.'); }))
+#else
+        static const TString tstrReserved(TEXT("/"));
+        if (tstrPathPart == TEXT(".") || tstrPathPart == TEXT(".."))
+#endif
         {
             return TString();
         }
+#ifdef __WINDOWS__
+        boost::trim(tstrPathPart);
+        while (!tstrPathPart.empty() && tstrPathPart.back() == TEXT('.'))
+        {
+            tstrPathPart.pop_back();
+        }
+#endif
         for (auto value : tstrPathPart)
         {
+            if (tstrReserved.cend() != find(tstrReserved.cbegin(), tstrReserved.cend(), value))
+            {
+                value = TEXT('_');
+            }
 
         }
+        return tstrPathPart;
     }
 
+    TString Helper::JoinString(std::vector<TString> vtstrPathPart, const TString &tstrSeparators, bool isSkipEmptyPart /*= false*/)
+    {
+        TString result;
+        for (int i = 0; i != vtstrPathPart.size(); ++i)
+        {
+            const auto &value = vtstrPathPart[i];
+            if (isSkipEmptyPart && value.empty())
+            {
+                continue;;
+            }
+            if (0 != i)
+            {
+                result.append(tstrSeparators);
+            }
+            result.append(value);
+        }
+        return result;
+    }
 }

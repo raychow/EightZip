@@ -58,7 +58,7 @@ namespace SevenZipCore
         {
             shared_ptr<ArchiveFolder> spCurrentFolder = m_spRootFolder;
             TString tstrItemPath = archiveAdapter.GetItemPath(i);
-            auto vtstrFolder = Helper::SplitString(tstrItemPath, FOLDER_SEPARATOR, true);
+            auto vtstrFolder = Helper::SplitString(tstrItemPath, FOLDER_POSSIBLE_SEPARATOR, true);
             const auto tstrBack = vtstrFolder.back();
             vtstrFolder.pop_back();
             for (const auto &strFolder : vtstrFolder)

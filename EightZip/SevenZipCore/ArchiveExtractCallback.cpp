@@ -1,7 +1,11 @@
 #include "stdwx.h"
 #include "ArchiveExtractCallback.h"
 
+#include "vector"
+
 #include "Common.h"
+
+using namespace std;
 
 namespace SevenZipCore
 {
@@ -11,7 +15,7 @@ namespace SevenZipCore
         , m_isTestMode(isTestMode)
         , m_isCRCMode(isCRCMode)
         , m_tstrExtractPath(move(tstrExtractPath))
-        , m_vtstrInternalPathPart(Helper::SplitString(move(tstrInternalPath), FOLDER_SEPARATOR, true))
+        , m_vtstrInternalPathPart(Helper::SplitString(move(tstrInternalPath), FOLDER_POSSIBLE_SEPARATOR, true))
         , m_pathMode(pathMode)
         , m_overwriteMode(overwriteMode)
     {
@@ -37,7 +41,7 @@ namespace SevenZipCore
 
             IInArchiveAdapter archiveAdapter(m_spArchiveEntry->GetArchive());
             m_tstrInternalPath = archiveAdapter.GetItemPath(index);
-            m_isDir = PropertyHelper::GetBool(archiveAdapter.GetProperty(index, PropertyId::IsDir), false);
+            m_isDirectory = PropertyHelper::GetBool(archiveAdapter.GetProperty(index, PropertyId::IsDir), false);
 
             try
             {
@@ -99,7 +103,7 @@ namespace SevenZipCore
                 m_oftModified = __GetTime(archiveAdapter, index, PropertyId::Modified);
 
                 bool isAnti = PropertyHelper::GetBool(archiveAdapter.GetProperty(index, PropertyId::IsAnti), false);
-                auto vtstrPathPart = Helper::SplitString(m_tstrInternalPath, FOLDER_SEPARATOR, true);
+                auto vtstrPathPart = Helper::SplitString(m_tstrInternalPath, FOLDER_POSSIBLE_SEPARATOR, true);
                 if (vtstrPathPart.empty())
                 {
                     return E_FAIL;
@@ -119,9 +123,25 @@ namespace SevenZipCore
                     vtstrPathPart.erase(vtstrPathPart.begin(), vtstrPathPart.begin() + m_vtstrInternalPathPart.size());
                     break;
                 case PathMode::NoPathNames:
-                    vtstrPathPart.clear();
+                    vtstrPathPart = { vtstrPathPart.back() };
                 }
                 vtstrPathPart = Helper::GetFilteredPath(move(vtstrPathPart));
+                auto tstrFilteredPath = Helper::JoinString(m_vtstrInternalPathPart, FOLDER_SEPARATOR_STRING);
+                if (!isAnti)
+                {
+                    if (!m_isDirectory)
+                    {
+                        if (!vtstrPathPart.empty())
+                        {
+                            vtstrPathPart.pop_back();
+                        }
+                        //  Used for extracting the folder with sub directories.
+                        if (!vtstrPathPart.empty())
+                        {
+
+                        }
+                    }
+                }
             }
             return S_OK;
         }
