@@ -10,7 +10,8 @@
 
 #include "IModel.h"
 
-#define COMPARE(left, right, isAscending) isAscending ? (left < right) : (left > right)
+#define COMPARE(left, right, isAscending) \
+    isAscending ? (left < right) : (left > right)
 
 class EntryBase
     : public IEntry
@@ -25,7 +26,8 @@ public:
     virtual bool IsOpenExternal() const;
     virtual void OpenExternal() const;
 
-    virtual bool Compare(const IEntry &otherEntry, ItemType itemType, bool isAscending) const;
+    virtual bool Compare(
+        const IEntry &otherEntry, ItemType itemType, bool isAscending) const;
 
 protected:
     // File name with extension.
@@ -44,7 +46,8 @@ protected:
     boost::optional<UINT32> m_oun32CRC;
     bool m_isDirectory = false;
 
-    static bool _LocaleCompare(const TString &tstrLeft, const TString & tstrRight, bool isAscending);
+    static bool _LocaleCompare(
+        const TString &tstrLeft, const TString & tstrRight, bool isAscending);
 
 };
 

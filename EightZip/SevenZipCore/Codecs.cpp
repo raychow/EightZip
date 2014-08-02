@@ -14,7 +14,9 @@ using namespace std;
 
 namespace SevenZipCore
 {
-    LibraryPropertyReader::LibraryPropertyReader(GetHandlerPropertyFunc getHandlerProperty, GetHandlerProperty2Func getHandlerProperty2)
+    LibraryPropertyReader::LibraryPropertyReader(
+        GetHandlerPropertyFunc getHandlerProperty,
+        GetHandlerProperty2Func getHandlerProperty2)
         : m_getHandlerProperty(getHandlerProperty)
         , m_getHandlerProperty2(getHandlerProperty2)
     {
@@ -24,7 +26,8 @@ namespace SevenZipCore
         }
     }
 
-    PROPVARIANT LibraryPropertyReader::ReadProperty(UINT32 unIndex, PROPID propId) const
+    PROPVARIANT LibraryPropertyReader::ReadProperty(
+        UINT32 unIndex, PROPID propId) const
     {
         PROPVARIANT result = {};
         HRESULT hResult = NULL;
@@ -43,7 +46,9 @@ namespace SevenZipCore
         return result;
     }
 
-    CodecFormat::CodecFormat(const CodecLibrary &codecLibrary, UINT unFormatIndex, const LibraryPropertyReader &propertyReader)
+    CodecFormat::CodecFormat(const CodecLibrary &codecLibrary,
+        UINT unFormatIndex,
+        const LibraryPropertyReader &propertyReader)
         : m_codecLibrary(codecLibrary)
         , m_unFormatIndex(unFormatIndex)
         , m_classId()
@@ -51,17 +56,29 @@ namespace SevenZipCore
         TString tstrExtension;
         TString tstrAdditionExtension;
         // Will call std::[w]string's or std::vector's move constructor.
-        m_tstrName = PropertyHelper::GetString(propertyReader.ReadProperty(m_unFormatIndex, static_cast<PROPID>(FormatInfo::Name)), TString());
-        m_classId = PropertyHelper::GetGUID(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::ClassID)));
-        __AddExtension(PropertyHelper::GetString(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::Extension)), TString()).c_str()
-            , PropertyHelper::GetString(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::AdditionExtension)), TString()).c_str());
+        m_tstrName = PropertyHelper::GetString(propertyReader.ReadProperty(
+            m_unFormatIndex, static_cast<PROPID>(FormatInfo::Name)), TString());
+        m_classId = PropertyHelper::GetGUID(propertyReader.ReadProperty(
+            unFormatIndex, static_cast<PROPID>(FormatInfo::ClassID)));
+        __AddExtension(PropertyHelper::GetString(propertyReader.ReadProperty(
+            unFormatIndex, static_cast<PROPID>(FormatInfo::Extension)),
+            TString()),
+            PropertyHelper::GetString(propertyReader.ReadProperty(
+            unFormatIndex, static_cast<PROPID>(FormatInfo::AdditionExtension)),
+            TString()));
 
-        if (m_isUpdateEnbaled = PropertyHelper::GetBool(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::Update)), false))
+        if (m_isUpdateEnbaled = PropertyHelper::GetBool(
+            propertyReader.ReadProperty(
+            unFormatIndex, static_cast<PROPID>(FormatInfo::Update)), false))
         {
-            m_isKeepName = PropertyHelper::GetBool(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::KeepName)), false);
+            m_isKeepName = PropertyHelper::GetBool(propertyReader.ReadProperty(
+                unFormatIndex, static_cast<PROPID>(
+                FormatInfo::KeepName)), false);
 
         }
-        m_vbySignature = PropertyHelper::GetBytes(propertyReader.ReadProperty(unFormatIndex, static_cast<PROPID>(FormatInfo::StartSignature)), vector<BYTE>());
+        m_vbySignature = PropertyHelper::GetBytes(propertyReader.ReadProperty(
+            unFormatIndex, static_cast<PROPID>(FormatInfo::StartSignature)),
+            vector<BYTE>());
     }
 
     CodecFormat::~CodecFormat()
@@ -70,15 +87,18 @@ namespace SevenZipCore
 
     std::shared_ptr<IInArchive> CodecFormat::CreateInArchive() const
     {
-        return MakeComPtr(m_codecLibrary.CreateObject<IInArchive>(m_classId, IID_IInArchive));
+        return MakeComPtr(m_codecLibrary.CreateObject<IInArchive>(
+            m_classId, IID_IInArchive));
     }
 
     std::shared_ptr<IOutArchive> CodecFormat::CreateOutArchive() const
     {
-        return MakeComPtr(m_codecLibrary.CreateObject<IOutArchive>(m_classId, IID_IOutArchive));
+        return MakeComPtr(m_codecLibrary.CreateObject<IOutArchive>(
+            m_classId, IID_IOutArchive));
     }
 
-    void CodecFormat::__SplitString(const TString &tstrSource, std::vector<TString> &vtstrDestination, TCHAR wchDelimiter)
+    void CodecFormat::__SplitString(const TString &tstrSource,
+        std::vector<TString> &vtstrDestination, TCHAR wchDelimiter)
     {
         TStringStream tstringStream(tstrSource);
         TString tstrItem;
@@ -88,7 +108,8 @@ namespace SevenZipCore
         }
     }
 
-    void CodecFormat::__AddExtension(const TString &tstrExtension, const TString &tstrAdditionExtension)
+    void CodecFormat::__AddExtension(const TString &tstrExtension,
+        const TString &tstrAdditionExtension)
     {
         vector<TString> vtstrExtension;
         vector<TString> vtstrAdditionExtension;
@@ -97,7 +118,8 @@ namespace SevenZipCore
         auto iterAdditionExtension = vtstrAdditionExtension.cbegin();
         for (const auto &tstrExtension : vtstrExtension)
         {
-            auto upExtensionInfo = unique_ptr<ExtensionInfo>(new ExtensionInfo(tstrExtension.c_str()));
+            auto upExtensionInfo = unique_ptr<ExtensionInfo>(
+                new ExtensionInfo(tstrExtension.c_str()));
             if (iterAdditionExtension != vtstrAdditionExtension.cend())
             {
                 upExtensionInfo->AdditionExtension = *iterAdditionExtension++;
@@ -121,8 +143,10 @@ namespace SevenZipCore
         , m_unCodecIndex(unCodecIndex)
         , m_isEncoderAssigned(false)
         , m_isDecoderAssigned(false)
-        , m_clsidEncoder(__GetCodecClass(unCodecIndex, static_cast<PROPID>(MethodPropertyId::Encoder)))
-        , m_clsidDecoder(__GetCodecClass(unCodecIndex, static_cast<PROPID>(MethodPropertyId::Decoder)))
+        , m_clsidEncoder(__GetCodecClass(unCodecIndex,
+        static_cast<PROPID>(MethodPropertyId::Encoder)))
+        , m_clsidDecoder(__GetCodecClass(unCodecIndex,
+        static_cast<PROPID>(MethodPropertyId::Decoder)))
     {}
 
     CodecInfo::~CodecInfo()
@@ -132,7 +156,8 @@ namespace SevenZipCore
 
     CLSID CodecInfo::__GetCodecClass(UINT32 unIndex, PROPID propId)
     {
-        PropertyVariant propVariant = m_codecLibrary.GetMethodProperty(unIndex, propId);
+        PropertyVariant propVariant = m_codecLibrary.GetMethodProperty(
+            unIndex, propId);
         switch (propVariant.vt)
         {
         case VT_BSTR:
@@ -140,7 +165,7 @@ namespace SevenZipCore
         case VT_EMPTY:
             return CLSID();
         default:
-            throw LibraryException("Cannot get codec class");
+            throw LibraryException("Cannot get the codec class.");
         }
     }
 
@@ -166,7 +191,8 @@ namespace SevenZipCore
         return S_OK;
     }
 
-    STDMETHODIMP Codecs::GetProperty(UINT32 unIndex, PROPID propId, PROPVARIANT *value)
+    STDMETHODIMP Codecs::GetProperty(
+        UINT32 unIndex, PROPID propId, PROPVARIANT *value)
     {
         const auto &codecInfo = *m_vupCodecInfo[unIndex];
 
@@ -186,7 +212,8 @@ namespace SevenZipCore
         }
         try
         {
-            *value = codecInfo.GetCodecLibrary().GetMethodProperty(codecInfo.GetCodecIndex(), propId);
+            *value = codecInfo.GetCodecLibrary().GetMethodProperty(
+                codecInfo.GetCodecIndex(), propId);
         }
         catch (const SevenZipCoreException &)
         {
@@ -195,14 +222,16 @@ namespace SevenZipCore
         return S_OK;
     }
 
-    STDMETHODIMP Codecs::CreateEncoder(UINT32 unIndex, const GUID *interfaceId, void **coder)
+    STDMETHODIMP Codecs::CreateEncoder(
+        UINT32 unIndex, const GUID *interfaceId, void **coder)
     {
         const auto &codecInfo = *m_vupCodecInfo[unIndex];
         if (codecInfo.IsEncoderAssigned())
         {
             try
             {
-                *coder = codecInfo.GetCodecLibrary().CreateObject<void>(codecInfo.GetEncoder(), *interfaceId);
+                *coder = codecInfo.GetCodecLibrary().CreateObject<void>(
+                    codecInfo.GetEncoder(), *interfaceId);
             }
             catch (const SevenZipCoreException &)
             {
@@ -212,14 +241,16 @@ namespace SevenZipCore
         return S_OK;
     }
 
-    STDMETHODIMP Codecs::CreateDecoder(UINT32 unIndex, const GUID *interfaceId, void **coder)
+    STDMETHODIMP Codecs::CreateDecoder(
+        UINT32 unIndex, const GUID *interfaceId, void **coder)
     {
         const auto &codecInfo = *m_vupCodecInfo[unIndex];
         if (codecInfo.IsDecoderAssigned())
         {
             try
             {
-                *coder = codecInfo.GetCodecLibrary().CreateObject<void>(codecInfo.GetDecoder(), *interfaceId);
+                *coder = codecInfo.GetCodecLibrary().CreateObject<void>(
+                    codecInfo.GetDecoder(), *interfaceId);
             }
             catch (const SevenZipCoreException &)
             {
@@ -231,7 +262,8 @@ namespace SevenZipCore
 
     void Codecs::__LoadDLL(const TString &tstrPath)
     {
-        auto upCodecLibrary = unique_ptr<CodecLibrary>(new CodecLibrary(tstrPath));
+        auto upCodecLibrary = unique_ptr<CodecLibrary>(
+            new CodecLibrary(tstrPath));
         if (__LoadCodecs(*upCodecLibrary) + __LoadFormats(*upCodecLibrary))
         {
             m_vupCodecLibrary.push_back(move(upCodecLibrary));
@@ -245,7 +277,8 @@ namespace SevenZipCore
 
     UINT32 Codecs::__LoadCodecs(const CodecLibrary &codecLibrary)
     {
-        auto getNumberOfMethods = codecLibrary.GetProc<GetNumberOfMethodsFunc>("GetNumberOfMethods");
+        auto getNumberOfMethods = codecLibrary.GetProc<GetNumberOfMethodsFunc>(
+            "GetNumberOfMethods");
         UINT32 unNumberOfMethods;
         if (getNumberOfMethods(&unNumberOfMethods) != S_OK)
         {
@@ -256,7 +289,8 @@ namespace SevenZipCore
         {
             try
             {
-                m_vupCodecInfo.push_back(unique_ptr<CodecInfo>(new CodecInfo(codecLibrary, i)));
+                m_vupCodecInfo.push_back(unique_ptr<CodecInfo>(
+                    new CodecInfo(codecLibrary, i)));
                 ++result;
             }
             catch (const LibraryException &)
@@ -267,22 +301,30 @@ namespace SevenZipCore
 
     UINT32 Codecs::__LoadFormats(const CodecLibrary &codecLibrary)
     {
-        auto getHandlerProperty2 = codecLibrary.GetProc<GetHandlerProperty2Func>("GetHandlerProperty2", true);
-        auto getHandlerProperty = getHandlerProperty2 ? nullptr : codecLibrary.GetProc<GetHandlerPropertyFunc>("GetHandlerProperty");
+        auto getHandlerProperty2
+            = codecLibrary.GetProc<GetHandlerProperty2Func>(
+            "GetHandlerProperty2", true);
+        auto getHandlerProperty = getHandlerProperty2 ?
+            nullptr :
+            codecLibrary.GetProc<GetHandlerPropertyFunc>("GetHandlerProperty");
         UINT32 unNumberOfFormats = 1u;
         if (!getHandlerProperty)
         {
-            auto getNumberOfFormats = codecLibrary.GetProc<GetNumberOfFormatsFunc>("GetNumberOfFormats");
+            auto getNumberOfFormats
+                = codecLibrary.GetProc<GetNumberOfFormatsFunc>(
+                "GetNumberOfFormats");
             getNumberOfFormats(&unNumberOfFormats);
         }
 
         UINT32 result = 0;
-        LibraryPropertyReader propertyReader(getHandlerProperty, getHandlerProperty2);
+        LibraryPropertyReader propertyReader(
+            getHandlerProperty, getHandlerProperty2);
         for (UINT32 i = 0; i != unNumberOfFormats; ++i)
         {
             try
             {
-                m_vupCodecFormat.push_back(unique_ptr<CodecFormat>(new CodecFormat(codecLibrary, i, propertyReader)));
+                m_vupCodecFormat.push_back(unique_ptr<CodecFormat>(
+                    new CodecFormat(codecLibrary, i, propertyReader)));
                 ++result;
             }
             catch (const LibraryException &)

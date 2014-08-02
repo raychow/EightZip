@@ -20,7 +20,9 @@ SevenZipCore::ArchiveManager::~ArchiveManager()
     Close();
 }
 
-void SevenZipCore::ArchiveManager::Open(TString tstrPath, std::shared_ptr<IArchiveOpenCallback> cpCallback)
+void SevenZipCore::ArchiveManager::Open(
+    TString tstrPath,
+    std::shared_ptr<IArchiveOpenCallback> cpCallback)
 {
     m_upArchive.reset(new Archive(m_cpCodecs, tstrPath, move(cpCallback)));
 }

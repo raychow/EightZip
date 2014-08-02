@@ -19,21 +19,31 @@ namespace SevenZipCore
     {
     public:
         Archive(std::shared_ptr<Codecs> cpCodecs);
-        Archive(std::shared_ptr<Codecs> cpCodecs, TString tstrPath, std::shared_ptr<IArchiveOpenCallback> cpCallback);
+        Archive(
+            std::shared_ptr<Codecs> cpCodecs,
+            TString tstrPath,
+            std::shared_ptr<IArchiveOpenCallback> cpCallback);
         virtual ~Archive();
 
-        void Open(TString tstrPath, std::shared_ptr<IArchiveOpenCallback> cpCallback);
+        void Open(
+            TString tstrPath,
+            std::shared_ptr<IArchiveOpenCallback> cpCallback);
         void Close();
 
         TString GetPath() const { return m_tstrPath; }
-        std::shared_ptr<ArchiveFolder> GetRootFolder() const { return m_spRootFolder; }
+        std::shared_ptr<ArchiveFolder> GetRootFolder() const
+        {
+            return m_spRootFolder;
+        }
+
+        std::shared_ptr<ArchiveEntry> GetArchiveEntry() const;
 
     private:
         std::shared_ptr<Codecs> m_cpCodecs;
 
         TString m_tstrPath;
 
-        std::vector<std::unique_ptr<ArchiveEntry>> m_vupArchiveEntry;
+        std::vector<std::shared_ptr<ArchiveEntry>> m_vspArchiveEntry;
         std::shared_ptr<ArchiveFolder> m_spRootFolder;
 
         void __LoadArchiveList();

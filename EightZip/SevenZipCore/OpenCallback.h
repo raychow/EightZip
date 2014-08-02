@@ -21,10 +21,12 @@ namespace SevenZipCore
     public:
         virtual ~OpenCallback();
 
-        void SetArchiveTotal(boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes);
+        void SetArchiveTotal(
+            boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes);
         STDMETHOD(SetTotal)(const UINT64 *numFiles, const UINT64 *numBytes);
         
-        void SetArchiveCompleted(boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes);
+        void SetArchiveCompleted(
+            boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes);
         STDMETHOD(SetCompleted)(const UINT64 *numFiles, const UINT64 *numBytes);
 
         void SetProgressTotal(UINT64 total);

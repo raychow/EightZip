@@ -6,7 +6,9 @@
 void Helper::OpenFileExternal(TString &tstrPath)
 {
 #ifdef __WXMSW__
-    if ((int)::ShellExecute(nullptr, nullptr, tstrPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL) > 32)
+    if ((int)::ShellExecute(
+        nullptr, nullptr, tstrPath.c_str(), nullptr, nullptr, SW_SHOWNORMAL
+        ) > 32)
     {
         return;
     }

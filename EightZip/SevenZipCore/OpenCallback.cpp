@@ -15,17 +15,19 @@ namespace SevenZipCore
 
     }
 
-    void OpenCallback::SetArchiveTotal(boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes)
+    void OpenCallback::SetArchiveTotal(
+        boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes)
     {
         // COpenArchiveCallback::SetTotal
     }
 
-    STDMETHODIMP OpenCallback::SetTotal(const UINT64 *numFiles, const UINT64 *numBytes)
+    STDMETHODIMP OpenCallback::SetTotal(
+        const UINT64 *numFiles, const UINT64 *numBytes)
     {
         try
         {
-            SetArchiveTotal(numFiles ? optional<UINT64>(*numFiles) : none
-                , numBytes ? optional<UINT64>(*numBytes) : none);
+            SetArchiveTotal(numFiles ? optional<UINT64>(*numFiles) : none,
+                numBytes ? optional<UINT64>(*numBytes) : none);
             return S_OK;
         }
         catch (...)
@@ -34,12 +36,14 @@ namespace SevenZipCore
         }
     }
 
-    void OpenCallback::SetArchiveCompleted(boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes)
+    void OpenCallback::SetArchiveCompleted(
+        boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes)
     {
         // COpenArchiveCallback::SetCompleted
     }
 
-    STDMETHODIMP OpenCallback::SetCompleted(const UINT64 *numFiles, const UINT64 *numBytes)
+    STDMETHODIMP OpenCallback::SetCompleted(
+        const UINT64 *numFiles, const UINT64 *numBytes)
     {
         try
         {
@@ -71,7 +75,8 @@ namespace SevenZipCore
         }
     }
 
-    void OpenCallback::SetProgressCompleted(boost::optional<UINT64> completeValue)
+    void OpenCallback::SetProgressCompleted(
+        boost::optional<UINT64> completeValue)
     {
         // FM, COpenArchiveCallback::SetCompleted
     }
@@ -80,7 +85,8 @@ namespace SevenZipCore
     {
         try
         {
-            SetProgressCompleted(completeValue ? optional<UINT64>(*completeValue) : none);
+            SetProgressCompleted(
+                completeValue ? optional<UINT64>(*completeValue) : none);
             return S_OK;
         }
         catch (...)

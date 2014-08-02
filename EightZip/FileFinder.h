@@ -20,11 +20,27 @@ public:
     bool FindNext();
 
     TString GetFileName() const { return m_findData.cFileName; }
-    bool IsDirectory() const { return (m_findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0; }
-    wxULongLong_t GetSize() const { return IsDirectory() ? 0 : wxULongLong(m_findData.nFileSizeHigh, m_findData.nFileSizeLow).GetValue(); }
-    wxDateTime GetAccessed() const { return GetTimeFromFileTime(&m_findData.ftLastAccessTime); }
-    wxDateTime GetModified() const { return GetTimeFromFileTime(&m_findData.ftLastWriteTime); }
-    wxDateTime GetCreated() const { return GetTimeFromFileTime(&m_findData.ftCreationTime); }
+    bool IsDirectory() const
+    {
+        return (m_findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+    }
+    wxULongLong_t GetSize() const
+    {
+        return IsDirectory() ? 0 : wxULongLong(
+            m_findData.nFileSizeHigh, m_findData.nFileSizeLow).GetValue();
+    }
+    wxDateTime GetAccessed() const
+    {
+        return GetTimeFromFileTime(&m_findData.ftLastAccessTime);
+    }
+    wxDateTime GetModified() const
+    {
+        return GetTimeFromFileTime(&m_findData.ftLastWriteTime);
+    }
+    wxDateTime GetCreated() const
+    {
+        return GetTimeFromFileTime(&m_findData.ftCreationTime);
+    }
 
 private:
 #ifdef __WXMSW__

@@ -18,14 +18,18 @@
     { \
         std::vector<char> result(size); \
         UINT32 unReadSize = 0; \
-        CHECK_OK(m_spTarget->Read(result.data(), size, &unReadSize), StreamException, "Cannot read the file stream."); \
+        CHECK_OK(m_spTarget->Read(result.data(), size, &unReadSize), \
+            StreamException, \
+            "Cannot read the file stream."); \
         result.resize(size); \
         return result; \
     } \
     UINT64 target_name##Adapter::Seek(INT64 offset, UINT32 seekOrigin) \
     { \
         UINT64 result = 0; \
-        CHECK_OK(m_spTarget->Seek(offset, seekOrigin, &result), StreamException, "Cannot seek the file stream."); \
+        CHECK_OK(m_spTarget->Seek(offset, seekOrigin, &result), \
+            StreamException, \
+            "Cannot seek the file stream."); \
         return result; \
     } \
 
@@ -36,7 +40,9 @@
     UINT64 target_name##Adapter::GetSize() \
     { \
         UINT64 result = 0; \
-        CHECK_OK(m_spTarget->GetSize(&result), StreamException, "Cannot get size of the file stream."); \
+        CHECK_OK(m_spTarget->GetSize(&result), \
+            StreamException, \
+            "Cannot get size of the file stream."); \
         return result; \
     } \
 

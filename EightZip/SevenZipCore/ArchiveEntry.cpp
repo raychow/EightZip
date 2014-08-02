@@ -15,7 +15,10 @@ using namespace std;
 
 namespace SevenZipCore
 {
-    ArchiveEntry::ArchiveEntry(Codecs &codecs, TString tstrPath, std::shared_ptr<IArchiveOpenCallback> cpCallback)
+    ArchiveEntry::ArchiveEntry(
+        Codecs &codecs,
+        TString tstrPath,
+        std::shared_ptr<IArchiveOpenCallback> cpCallback)
         : m_codecs(codecs)
         , m_tstrPath(move(tstrPath))
         , m_cpCallback(move(cpCallback))
@@ -23,7 +26,11 @@ namespace SevenZipCore
         __OpenFile();
     }
 
-    ArchiveEntry::ArchiveEntry(Codecs &codecs, TString tstrPath, shared_ptr<IInStream> cpStream, int nSubFileIndex, std::shared_ptr<IArchiveOpenCallback> cpCallback)
+    ArchiveEntry::ArchiveEntry(
+        Codecs &codecs,
+        TString tstrPath,
+        shared_ptr<IInStream> cpStream,
+        int nSubFileIndex, std::shared_ptr<IArchiveOpenCallback> cpCallback)
         : m_codecs(codecs)
         , m_tstrPath(move(tstrPath))
         , m_cpInStream(cpStream)
@@ -62,8 +69,12 @@ namespace SevenZipCore
         for (const auto &format : m_codecs.GetFormats())
         {
             const auto &vupExtensionInfo = format->GetExtensions();
-            if (find_if(vupExtensionInfo.cbegin(), vupExtensionInfo.cend(), [&tstrFileExtension](const unique_ptr<ExtensionInfo> &value) {
-                return Helper::ToLower(tstrFileExtension) == Helper::ToLower(value->Extension);
+            if (find_if(
+                vupExtensionInfo.cbegin(),
+                vupExtensionInfo.cend(),
+                [&tstrFileExtension](const unique_ptr<ExtensionInfo> &value) {
+                return Helper::ToLower(tstrFileExtension)
+                    == Helper::ToLower(value->Extension);
             }) == vupExtensionInfo.cend())
             {
                 // Not found.
@@ -76,7 +87,10 @@ namespace SevenZipCore
         }
         
         //assert(vCodecFormat.size() == 1);
-        vCodecFormat.insert(vCodecFormat.end(), vOtherCodecFormat.cbegin(), vOtherCodecFormat.cend());
+        vCodecFormat.insert(
+            vCodecFormat.end(),
+            vOtherCodecFormat.cbegin(),
+            vOtherCodecFormat.cend());
 
         // TODO: See also 7zFM, OpenArchive.cpp, CArc::OpenStream.
         // 1. Special order for PE format;
@@ -99,18 +113,24 @@ namespace SevenZipCore
 
         IInArchiveAdapter archiveAdapter(m_cpArchive);
 
-        auto cpSetCompressCodecsInfo = archiveAdapter.QueryInterface<ISetCompressCodecsInfo>(IID_ISetCompressCodecsInfo);
+        auto cpSetCompressCodecsInfo
+            = archiveAdapter.QueryInterface<ISetCompressCodecsInfo>(
+            IID_ISetCompressCodecsInfo);
         if (cpSetCompressCodecsInfo)
         {
-            ISetCompressCodecsInfoAdapter(cpSetCompressCodecsInfo).SetCompressCodecsInfo(m_codecs);
+            ISetCompressCodecsInfoAdapter(
+                cpSetCompressCodecsInfo).SetCompressCodecsInfo(m_codecs);
         }
 
-        archiveAdapter.Open(m_cpInStream.get(), MAX_CHECK_START_POSITION, m_cpCallback.get());
+        archiveAdapter.Open(
+            m_cpInStream.get(), MAX_CHECK_START_POSITION, m_cpCallback.get());
         // Error message does not seem to be used.
         //try
         //{
         //    PropertyVariant property;
-        //    ErrorMessage = PropertyHelper::GetString(archiveAdapter.GetArchiveProperty(static_cast<PROPID>(PropertyId::Error)));
+        //    ErrorMessage = PropertyHelper::GetString(
+        //        archiveAdapter.GetArchiveProperty(
+        //        static_cast<PROPID>(PropertyId::Error)));
         //}
         //catch (const ArchiveException &)
         //{

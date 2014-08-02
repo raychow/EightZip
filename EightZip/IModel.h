@@ -46,7 +46,10 @@ public:
     virtual bool IsOpenExternal() const PURE;
     virtual void OpenExternal() const PURE;
 
-    virtual bool Compare(const IEntry &otherEntry, ItemType itemType, bool isAscending) const PURE;
+    virtual bool Compare(
+        const IEntry &otherEntry,
+        ItemType itemType,
+        bool isAscending) const PURE;
 };
 
 class IModel

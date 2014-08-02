@@ -11,13 +11,13 @@ class FolderEntry
     : public EntryBase
 {
 public:
-    FolderEntry(TString tstrPath
-        , TString tstrName
-        , bool isDirectory
-        , wxULongLong_t un64Size
-        , wxDateTime dtAccessed
-        , wxDateTime dtModified
-        , wxDateTime dtCreated);
+    FolderEntry(TString tstrPath,
+        TString tstrName,
+        bool isDirectory,
+        wxULongLong_t un64Size,
+        wxDateTime dtAccessed,
+        wxDateTime dtModified,
+        wxDateTime dtCreated);
 
     virtual bool IsOpenDirectly() const;
     virtual std::shared_ptr<IModel> GetModel() const;

@@ -7,7 +7,7 @@
 
 #include <boost/optional.hpp>
 
-#include "ArchiveEntry.h"
+#include "Archive.h"
 #include "COM.h"
 #include "IArchive.h"
 
@@ -17,18 +17,22 @@ namespace SevenZipCore
         : public IArchiveExtractCallback
     {
     public:
-        ArchiveExtractCallback(std::shared_ptr<ArchiveEntry> spArchiveEntry
-            , bool isStandardOutMode
-            , bool isTestMode
-            , bool isCRC
-            , TString tstrExtractPath
-            , TString tstrInternalPath
-            , PathMode pathMode
-            , OverwriteMode overwriteMode);
+        ArchiveExtractCallback(
+            std::shared_ptr<Archive> spArchive,
+            bool isStandardOutMode,
+            bool isTestMode,
+            bool isCRCMode,
+            TString tstrExtractPath,
+            TString tstrInternalPath,
+            PathMode pathMode,
+            OverwriteMode overwriteMode);
 
         STDMETHOD(SetTotal)(UINT64 total);
         STDMETHOD(SetCompleted)(const UINT64 *completeValue);
-        STDMETHOD(GetStream)(UINT32 index, ISequentialOutStream **outStream, INT32 askExtractMode);
+        STDMETHOD(GetStream)(
+            UINT32 index,
+            ISequentialOutStream **outStream,
+            INT32 askExtractMode);
 
         STDMETHOD(PrepareOperation)(INT32 askExtractMode);
         STDMETHOD(SetOperationResult)(INT32 resultEOperationResult);
@@ -36,7 +40,7 @@ namespace SevenZipCore
         IUNKNOWN_IMP
 
     private:
-        std::shared_ptr<ArchiveEntry> m_spArchiveEntry;
+        std::shared_ptr<Archive> m_spArchive;
         bool m_isStandardOutMode;
         bool m_isTestMode;
         bool m_isCRCMode;
@@ -57,7 +61,10 @@ namespace SevenZipCore
         PathMode m_pathMode;
         OverwriteMode m_overwriteMode;
 
-        static boost::optional<FILETIME> __GetTime(IInArchiveAdapter &archiveAdapter, UINT32 index, PropertyId propertyId);
+        static boost::optional<FILETIME> __GetTime(
+            IInArchiveAdapter &archiveAdapter,
+            UINT32 index,
+            PropertyId propertyId);
 
     };
 }

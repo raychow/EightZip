@@ -12,7 +12,10 @@ namespace SevenZipCore
     {
     }
 
-    Archive::Archive(std::shared_ptr<Codecs> cpCodecs, TString tstrPath, shared_ptr<IArchiveOpenCallback> cpCallback)
+    Archive::Archive(
+        std::shared_ptr<Codecs> cpCodecs,
+        TString tstrPath,
+        shared_ptr<IArchiveOpenCallback> cpCallback)
         : Archive(cpCodecs)
     {
         Open(move(tstrPath), move(cpCallback));
@@ -23,16 +26,20 @@ namespace SevenZipCore
         Close();
     }
 
-    void Archive::Open(TString tstrPath, shared_ptr<IArchiveOpenCallback> cpCallback)
+    void Archive::Open(
+        TString tstrPath,
+        shared_ptr<IArchiveOpenCallback> cpCallback)
     {
-        if (!m_vupArchiveEntry.empty())
+        if (!m_vspArchiveEntry.empty())
         {
-            throw ArchiveException("The archive class is already associated with a file.");
+            throw ArchiveException(
+                "The archive class is already associated with a file.");
         }
-        m_vupArchiveEntry.clear();
+        m_vspArchiveEntry.clear();
 
         // make_unique is not available in C++ 0x.
-        m_vupArchiveEntry.push_back(move(unique_ptr<ArchiveEntry>(new ArchiveEntry(*m_cpCodecs, tstrPath, move(cpCallback)))));
+        m_vspArchiveEntry.push_back(shared_ptr<ArchiveEntry>(
+            new ArchiveEntry(*m_cpCodecs, tstrPath, move(cpCallback))));
         // Maybe open inner main stream in the PE file automatically (like 7zFM).
 
         m_tstrPath = move(tstrPath);
@@ -42,13 +49,22 @@ namespace SevenZipCore
     void Archive::Close()
     {
         m_tstrPath.clear();
-        m_vupArchiveEntry.clear();
+        m_vspArchiveEntry.clear();
         m_spRootFolder.reset();
+    }
+
+    std::shared_ptr<ArchiveEntry> Archive::GetArchiveEntry() const
+    {
+        if (m_vspArchiveEntry.empty())
+        {
+            return nullptr;
+        }
+        return m_vspArchiveEntry.back();
     }
 
     void Archive::__LoadArchiveList()
     {
-        const auto &archiveEntry = *m_vupArchiveEntry.back();
+        const auto &archiveEntry = *m_vspArchiveEntry.back();
         auto archive = archiveEntry.GetArchive();
         m_spRootFolder = make_shared<ArchiveFolder>(TEXT(""), archive);
         IInArchiveAdapter archiveAdapter(archive);
@@ -58,7 +74,10 @@ namespace SevenZipCore
         {
             shared_ptr<ArchiveFolder> spCurrentFolder = m_spRootFolder;
             TString tstrItemPath = archiveAdapter.GetItemPath(i);
-            auto vtstrFolder = Helper::SplitString(tstrItemPath, FOLDER_POSSIBLE_SEPARATOR, true);
+            auto vtstrFolder = Helper::SplitString(
+                tstrItemPath,
+                FOLDER_POSSIBLE_SEPARATOR,
+                true);
             const auto tstrBack = vtstrFolder.back();
             vtstrFolder.pop_back();
             for (const auto &strFolder : vtstrFolder)
@@ -67,13 +86,15 @@ namespace SevenZipCore
                 {
                     continue;
                 }
-                spCurrentFolder = spCurrentFolder->AddFolder(strFolder, spCurrentFolder);
+                spCurrentFolder = spCurrentFolder->AddFolder(
+                    strFolder, spCurrentFolder);
             }
             if (tstrBack.empty())
             {
                 continue;
             }
-            if (PropertyHelper::GetBool(archiveAdapter.GetProperty(i, PropertyId::IsDir), false))
+            if (PropertyHelper::GetBool(archiveAdapter.GetProperty(
+                i, PropertyId::IsDir), false))
             {
                 spCurrentFolder->AddFolder(i, tstrBack, spCurrentFolder);
             }

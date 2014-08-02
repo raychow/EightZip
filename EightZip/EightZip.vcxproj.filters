@@ -147,6 +147,9 @@
     <ClInclude Include="SevenZipCore\Platform.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
+    <ClInclude Include="SevenZipCore\HandleUniquePtr.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">

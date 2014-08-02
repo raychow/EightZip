@@ -13,10 +13,10 @@ class DriveEntry
     : public EntryBase
 {
 public:
-    DriveEntry(TString tstrName
-        , wxULongLong_t un64TotalSize
-        , wxULongLong_t un64FreeSpace
-        , TString tstrType);
+    DriveEntry(TString tstrName,
+        wxULongLong_t un64TotalSize,
+        wxULongLong_t un64FreeSpace,
+        TString tstrType);
 
     virtual std::shared_ptr<IModel> GetModel() const;
     virtual bool IsOpenExternal() { return false; }

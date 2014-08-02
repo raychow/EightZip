@@ -22,15 +22,20 @@ namespace SevenZipCore
 
     typedef HRESULT(WINAPI *GetNumberOfMethodsFunc)(UINT32 *numMethods);
     typedef HRESULT(WINAPI *GetNumberOfFormatsFunc)(UINT32 *numFormats);
-    typedef HRESULT(WINAPI *GetHandlerPropertyFunc)(PROPID propId, PROPVARIANT *value);
-    typedef HRESULT(WINAPI *GetHandlerProperty2Func)(UINT32 index, PROPID propId, PROPVARIANT *value);
-    typedef HRESULT(WINAPI *CreateObjectFunc)(const GUID *clsId, const GUID *iid, void **outObject);
+    typedef HRESULT(WINAPI *GetHandlerPropertyFunc)(
+        PROPID propId, PROPVARIANT *value);
+    typedef HRESULT(WINAPI *GetHandlerProperty2Func)(
+        UINT32 index, PROPID propId, PROPVARIANT *value);
+    typedef HRESULT(WINAPI *CreateObjectFunc)(
+        const GUID *clsId, const GUID *iid, void **outObject);
     typedef HRESULT(WINAPI *SetLargePageModeFunc)();
 
     class LibraryPropertyReader
     {
     public:
-        LibraryPropertyReader(GetHandlerPropertyFunc getHandlerProperty, GetHandlerProperty2Func getHandlerProperty2);
+        LibraryPropertyReader(
+            GetHandlerPropertyFunc getHandlerProperty,
+            GetHandlerProperty2Func getHandlerProperty2);
 
         PROPVARIANT ReadProperty(UINT32 unIndex, PROPID propId) const;
     private:
@@ -41,7 +46,10 @@ namespace SevenZipCore
     class CodecFormat
     {
     public:
-        CodecFormat(const CodecLibrary &codecLibrary, UINT unFormatIndex, const LibraryPropertyReader &propertyReader);
+        CodecFormat(
+            const CodecLibrary &codecLibrary,
+            UINT unFormatIndex,
+            const LibraryPropertyReader &propertyReader);
         virtual ~CodecFormat();
 
         const CodecLibrary &GetCodecLibrary() const { return m_codecLibrary; }
@@ -49,7 +57,10 @@ namespace SevenZipCore
         CLSID GetClassId() const { return m_classId; }
         bool IsUpdateEnbaled() const { return m_isUpdateEnbaled; }
         const TString &GetName() const { return m_tstrName; }
-        const std::vector<std::unique_ptr<ExtensionInfo>> &GetExtensions() const { return m_vupExtensionInfo; }
+        const std::vector<std::unique_ptr<ExtensionInfo>> &GetExtensions() const
+        {
+            return m_vupExtensionInfo;
+        }
         const std::vector<BYTE> &Signature() const { return m_vbySignature; }
         bool IsKeepName() const { return m_isKeepName; }
 
@@ -67,8 +78,13 @@ namespace SevenZipCore
         std::vector<BYTE> m_vbySignature;
         bool m_isKeepName = false;
 
-        static void __SplitString(const TString &tstrSource, std::vector<TString> &vtstrDestination, TCHAR wchDelimiter);
-        void __AddExtension(const TString &tstrExtension, const TString &tstrAdditionExtension);
+        static void __SplitString(
+            const TString &tstrSource,
+            std::vector<TString> &vtstrDestination,
+            TCHAR wchDelimiter);
+        void __AddExtension(
+            const TString &tstrExtension,
+            const TString &tstrAdditionExtension);
     };
 
     class CodecInfo
@@ -105,14 +121,26 @@ namespace SevenZipCore
         Codecs(const TString &tstrBaseFolder);
         virtual ~Codecs();
 
-        const std::vector<std::unique_ptr<CodecLibrary>> &GetLibraries() const { return m_vupCodecLibrary; }
-        const std::vector<std::unique_ptr<CodecInfo>> &GetInfo() const { return m_vupCodecInfo; }
-        const std::vector<std::unique_ptr<CodecFormat>> &GetFormats() const { return m_vupCodecFormat; }
+        const std::vector<std::unique_ptr<CodecLibrary>> &GetLibraries() const
+        {
+            return m_vupCodecLibrary;
+        }
+        const std::vector<std::unique_ptr<CodecInfo>> &GetInfo() const
+        {
+            return m_vupCodecInfo;
+        }
+        const std::vector<std::unique_ptr<CodecFormat>> &GetFormats() const
+        {
+            return m_vupCodecFormat;
+        }
 
         STDMETHOD(GetNumberOfMethods)(UINT32 *unNumberOfMethods);
-        STDMETHOD(GetProperty)(UINT32 unIndex, PROPID propId, PROPVARIANT *value);
-        STDMETHOD(CreateEncoder)(UINT32 unIndex, const GUID *interfaceId, void **coder);
-        STDMETHOD(CreateDecoder)(UINT32 unIndex, const GUID *interfaceId, void **coder);
+        STDMETHOD(GetProperty)(
+            UINT32 unIndex, PROPID propId, PROPVARIANT *value);
+        STDMETHOD(CreateEncoder)(
+            UINT32 unIndex, const GUID *interfaceId, void **coder);
+        STDMETHOD(CreateDecoder)(
+            UINT32 unIndex, const GUID *interfaceId, void **coder);
 
         //IUNKNOWN_IMP
 

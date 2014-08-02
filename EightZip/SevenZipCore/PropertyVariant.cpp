@@ -162,7 +162,8 @@ namespace SevenZipCore
             memmove((PROPVARIANT*)this, pSrc, sizeof(PROPVARIANT));
             return S_OK;
         }
-        return ::VariantCopy((tagVARIANT *)this, (tagVARIANT *)const_cast<PROPVARIANT *>(pSrc));
+        return ::VariantCopy(
+            (tagVARIANT *)this, (tagVARIANT *)const_cast<PROPVARIANT *>(pSrc));
     }
 
 

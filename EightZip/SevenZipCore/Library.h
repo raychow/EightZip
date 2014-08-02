@@ -12,8 +12,10 @@
 
 namespace SevenZipCore
 {
-    typedef HRESULT(WINAPI *GetMethodPropertyFunc)(UINT32 index, PROPID propId, PROPVARIANT *value);
-    typedef HRESULT(WINAPI *CreateObjectFunc)(const GUID *classId, const GUID *interfaceId, void **outObject);
+    typedef HRESULT(WINAPI *GetMethodPropertyFunc)(
+        UINT32 index, PROPID propId, PROPVARIANT *value);
+    typedef HRESULT(WINAPI *CreateObjectFunc)(
+        const GUID *classId, const GUID *interfaceId, void **outObject);
 
     class Library
     {
@@ -23,11 +25,15 @@ namespace SevenZipCore
         virtual ~Library();
 
         template<typename T>
-        T GetProc(const std::string &strProcName, bool isSuppresseException = false) const;
+        T GetProc(
+            const std::string &strProcName,
+            bool isSuppresseException = false) const;
+
     protected:
         std::shared_ptr<HINSTANCE__> m_sphModule;
 
         HMODULE _CheckLibrary(HMODULE hModule);
+
     };
 
     class CodecLibrary
@@ -47,18 +53,22 @@ namespace SevenZipCore
     };
 
     template<typename T>
-    T Library::GetProc(const std::string &strProcName, bool isSuppresseException /*= false*/) const
+    T Library::GetProc(const std::string &strProcName,
+        bool isSuppresseException /*= false*/) const
     {
         auto result = ::GetProcAddress(m_sphModule.get(), strProcName.c_str());
         if (!isSuppresseException && !result)
         {
-            throw LibraryException((std::string("Cannot get function \"") + strProcName + "\".").c_str());
+            throw LibraryException(
+                (std::string("Cannot get function \"") 
+                + strProcName + "\".").c_str());
         }
         return reinterpret_cast<T>(result);
     }
 
     template<typename T>
-    T *CodecLibrary::CreateObject(const GUID &classId, const GUID &interfaceId) const
+    T *CodecLibrary::CreateObject(
+        const GUID &classId, const GUID &interfaceId) const
     {
         void *pOutObject = nullptr;
         if (S_OK != m_createObject(&classId, &interfaceId, &pOutObject))

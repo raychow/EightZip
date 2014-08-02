@@ -8,6 +8,7 @@
     0x23170F69, 0x40C1, 0x278A, 0, 0, 0, (groupId), 0, (subId), 0, 0); \
     struct i: public base
 
-#define DECL_INTERFACE(i, groupId, subId) DECL_INTERFACE_SUB(i, IUnknown, groupId, subId)
+#define DECL_INTERFACE(i, groupId, subId) \
+    DECL_INTERFACE_SUB(i, IUnknown, groupId, subId)
 
 #endif // SEVENZIPCORE_IDECL_H

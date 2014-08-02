@@ -17,13 +17,48 @@ namespace SevenZipCore
         PropertyVariant(const PropertyVariant &varSrc);
         PropertyVariant(BSTR bstrSrc);
         PropertyVariant(LPCOLESTR lpszSrc);
-        PropertyVariant(bool bSrc) { vt = VT_BOOL; wReserved1 = 0; boolVal = (bSrc ? VARIANT_TRUE : VARIANT_FALSE); }
-        PropertyVariant(BYTE value) { vt = VT_UI1; wReserved1 = 0; bVal = value; }
-        PropertyVariant(INT16 value) { vt = VT_I2; wReserved1 = 0; iVal = value; }
-        PropertyVariant(INT32 value) { vt = VT_I4; wReserved1 = 0; lVal = value; }
-        PropertyVariant(UINT32 value) { vt = VT_UI4; wReserved1 = 0; ulVal = value; }
-        PropertyVariant(UINT64 value) { vt = VT_UI8; wReserved1 = 0; uhVal.QuadPart = value; }
-        PropertyVariant(const FILETIME &value) { vt = VT_FILETIME; wReserved1 = 0; filetime = value; }
+        PropertyVariant(bool bSrc)
+        {
+            vt = VT_BOOL;
+            wReserved1 = 0;
+            boolVal = (bSrc ? VARIANT_TRUE : VARIANT_FALSE);
+        }
+        PropertyVariant(BYTE value)
+        {
+            vt = VT_UI1;
+            wReserved1 = 0;
+            bVal = value;
+        }
+        PropertyVariant(INT16 value)
+        {
+            vt = VT_I2;
+            wReserved1 = 0;
+            iVal = value;
+        }
+        PropertyVariant(INT32 value)
+        {
+            vt = VT_I4;
+            wReserved1 = 0;
+            lVal = value;
+        }
+        PropertyVariant(UINT32 value)
+        {
+            vt = VT_UI4;
+            wReserved1 = 0;
+            ulVal = value;
+        }
+        PropertyVariant(UINT64 value)
+        {
+            vt = VT_UI8;
+            wReserved1 = 0;
+            uhVal.QuadPart = value;
+        }
+        PropertyVariant(const FILETIME &value)
+        {
+            vt = VT_FILETIME;
+            wReserved1 = 0;
+            filetime = value;
+        }
 
         PropertyVariant& operator=(const PropertyVariant &varSrc);
         PropertyVariant& operator=(const PROPVARIANT &varSrc);

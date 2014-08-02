@@ -46,7 +46,8 @@
     { \
         TStringStream tss; \
         tss << TEXT("AddRef: 0x") << std::hex << this; \
-        tss << " (" << m_ulRefCount << " -> " << (m_ulRefCount + 1) << ")" << TEXT('\n'); \
+        tss << " (" << m_ulRefCount << " -> " << (m_ulRefCount + 1) << ")"; \
+        tss << TEXT('\n'); \
         OutputDebugString(tss.str().c_str()); \
         return ++m_ulRefCount; \
     } \
@@ -54,7 +55,8 @@
     { \
         TStringStream tss; \
         tss << TEXT("Release: 0x") << std::hex << this; \
-        tss << " (" << m_ulRefCount << " -> " << (m_ulRefCount - 1) << ")" << TEXT('\n'); \
+        tss << " (" << m_ulRefCount << " -> " << (m_ulRefCount - 1) << ")"; \
+        tss << TEXT('\n'); \
         OutputDebugString(tss.str().c_str()); \
         if (--m_ulRefCount) \
         { \

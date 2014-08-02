@@ -21,14 +21,17 @@ namespace SevenZipCore
 
     void InFileStream::Open(const TString &tstrPath)
     {
-        m_ifFile.open(ConvertWStringToString(tstrPath), ios_base::in | ios_base::binary);
+        m_ifFile.open(
+            ConvertWStringToString(tstrPath),
+            ios_base::in | ios_base::binary);
         if (!m_ifFile.good())
         {
             throw StreamException("Cannot open specified file.");
         }
     }
 
-    STDMETHODIMP InFileStream::Read(void *data, UINT32 size, UINT32 *processedSize)
+    STDMETHODIMP InFileStream::Read(
+        void *data, UINT32 size, UINT32 *processedSize)
     {
         if (processedSize)
         {
@@ -51,7 +54,8 @@ namespace SevenZipCore
         // And message can be "Network connection was lost"
         // else
         m_ifFile.read(reinterpret_cast<char *>(data), size);
-        // When read beyond the end, the fail bit is set, but we can ignore it because data is set.
+        // When read beyond the end, the fail bit is set,
+        // but we can ignore it because data is set.
         if (m_ifFile.bad())
         {
             return S_FALSE;
@@ -63,7 +67,10 @@ namespace SevenZipCore
         return S_OK;
     }
 
-    STDMETHODIMP InFileStream::Seek(INT64 offset, UINT32 seekOrigin, UINT64 *newPosition)
+    STDMETHODIMP InFileStream::Seek(
+        INT64 offset,
+        UINT32 seekOrigin,
+        UINT64 *newPosition)
     {
         ios_base::seekdir seekDirection;
         switch (seekOrigin)

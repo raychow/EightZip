@@ -21,7 +21,8 @@
     std::shared_ptr<T> target_name##Adapter::QueryInterface(REFGUID iid) \
     { \
         T *pResult = nullptr; \
-        if (S_OK == m_spTarget->QueryInterface(iid, reinterpret_cast<void **>(&pResult))) \
+        if (S_OK == m_spTarget->QueryInterface( \
+            iid, reinterpret_cast<void **>(&pResult))) \
         { \
             return MakeComPtr(pResult); \
         } \
@@ -39,14 +40,16 @@
         class_body2 \
     END_DECLARE_ADAPTER_CLASS(target_name) \
 
-#define DECLARE_ADAPTER_CLASS3(target_name, class_body1, class_body2, class_body3) \
+#define DECLARE_ADAPTER_CLASS3( \
+    target_name, class_body1, class_body2, class_body3) \
     BEGIN_DECLARE_ADAPTER_CLASS(target_name) \
         class_body1 \
         class_body2 \
         class_body3 \
     END_DECLARE_ADAPTER_CLASS(target_name) \
 
-#define DECLARE_ADAPTER_CLASS4(target_name, class_body1, class_body2, class_body3, class_body4) \
+#define DECLARE_ADAPTER_CLASS4( \
+    target_name, class_body1, class_body2, class_body3, class_body4) \
     BEGIN_DECLARE_ADAPTER_CLASS(target_name) \
         class_body1 \
         class_body2 \
@@ -54,7 +57,13 @@
         class_body4 \
     END_DECLARE_ADAPTER_CLASS(target_name) \
 
-#define DECLARE_ADAPTER_CLASS5(target_name, class_body1, class_body2, class_body3, class_body4, class_body5) \
+#define DECLARE_ADAPTER_CLASS5( \
+    target_name, \
+    class_body1, \
+    class_body2, \
+    class_body3, \
+    class_body4, \
+    class_body5) \
     BEGIN_DECLARE_ADAPTER_CLASS(target_name) \
         class_body1 \
         class_body2 \
@@ -65,7 +74,9 @@
 
 #define IMPLEMENT_ADAPTER_CONSTRUCTOR(target_name) \
     target_name##Adapter::target_name##Adapter() : m_spTarget() {} \
-    target_name##Adapter::target_name##Adapter(std::shared_ptr<target_name> sp##target_name) : m_spTarget(std::move(sp##target_name)) {} \
+    target_name##Adapter::target_name##Adapter( \
+        std::shared_ptr<target_name> sp##target_name) \
+    : m_spTarget(std::move(sp##target_name)) {} \
     
 #define CHECK_OK(result, exception_class, message) \
     if (S_OK != (result)) \

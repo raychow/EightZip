@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <boost/optional.hpp>
+
 #include "Codecs.h"
 #include "ComPtr.h"
 #include "IArchiveAdapter.h"
@@ -14,8 +16,15 @@ namespace SevenZipCore
     class ArchiveEntry
     {
     public:
-        ArchiveEntry(Codecs &codecs, TString tstrPath, std::shared_ptr<IArchiveOpenCallback> cpCallback);
-        ArchiveEntry(Codecs &codecs, TString tstrPath, std::shared_ptr<IInStream> cpStream, int nSubFileIndex, std::shared_ptr<IArchiveOpenCallback> cpCallback);
+        ArchiveEntry(
+            Codecs &codecs,
+            TString tstrPath,
+            std::shared_ptr<IArchiveOpenCallback> cpCallback);
+        ArchiveEntry(Codecs &codecs,
+            TString tstrPath,
+            std::shared_ptr<IInStream> cpStream,
+            int nSubFileIndex,
+            std::shared_ptr<IArchiveOpenCallback> cpCallback);
         virtual ~ArchiveEntry();
 
         int GetSubfileIndex() const { return m_nSubfileIndex; }
@@ -33,6 +42,8 @@ namespace SevenZipCore
 
         std::shared_ptr<IInArchive> m_cpArchive;
         std::shared_ptr<IArchiveOpenCallback> m_cpCallback;
+
+        boost::optional<FILETIME> m_oftModified;
 
         void __OpenFile();
         void __OpenStream();

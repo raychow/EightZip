@@ -27,7 +27,8 @@ namespace SevenZipCore
 
     STREAM_INTERFACE(ISequentialOutStream, 0x02)
     {
-        STDMETHOD(Write)(const void *data, UINT32 size, UINT32 *processedSize) PURE;
+        STDMETHOD(Write)(
+            const void *data, UINT32 size, UINT32 *processedSize) PURE;
         /*
         if (size > 0) this function must write at least 1 byte.
         This function is allowed to write less than "size".
@@ -37,12 +38,14 @@ namespace SevenZipCore
 
     STREAM_INTERFACE_SUB(IInStream, ISequentialInStream, 0x03)
     {
-        STDMETHOD(Seek)(INT64 offset, UINT32 seekOrigin, UINT64 *newPosition) PURE;
+        STDMETHOD(Seek)(
+            INT64 offset, UINT32 seekOrigin, UINT64 *newPosition) PURE;
     };
 
     STREAM_INTERFACE_SUB(IOutStream, ISequentialOutStream, 0x04)
     {
-        STDMETHOD(Seek)(INT64 offset, UINT32 seekOrigin, UINT64 *newPosition) PURE;
+        STDMETHOD(Seek)(
+            INT64 offset, UINT32 seekOrigin, UINT64 *newPosition) PURE;
         STDMETHOD(SetSize)(UINT64 newSize) PURE;
     };
 

@@ -126,6 +126,7 @@
     <ClInclude Include="SevenZipCore\Property.h" />
     <ClInclude Include="SevenZipCore\PropertyVariant.h" />
     <ClInclude Include="SevenZipCore\TString.h" />
+    <ClInclude Include="SevenZipCore\HandleUniquePtr.h" />
     <ClInclude Include="stdwx.h" />
     <ClInclude Include="SystemImageList.h" />
   </ItemGroup>

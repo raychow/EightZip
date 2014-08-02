@@ -6,7 +6,11 @@
 
 using namespace std;
 
-DriveEntry::DriveEntry(TString tstrName, wxULongLong_t un64TotalSize, wxULongLong_t un64FreeSpace, TString tstrType)
+DriveEntry::DriveEntry(
+    TString tstrName,
+    wxULongLong_t un64TotalSize,
+    wxULongLong_t un64FreeSpace,
+    TString tstrType)
 {
     m_tstrName = move(tstrName);
     m_un64TotalSize = un64TotalSize;
@@ -27,12 +31,20 @@ DriveModel::DriveModel()
         wxULongLong_t un64TotalNumberOfBytes;
         wxULongLong_t un64TotalNumberOfFreeBytes;
 
-        if (FALSE == ::GetDiskFreeSpaceEx(tstrDrive.c_str(), nullptr, reinterpret_cast<PULARGE_INTEGER>(&un64TotalNumberOfBytes), reinterpret_cast<PULARGE_INTEGER>(&un64TotalNumberOfFreeBytes)))
+        if (FALSE == ::GetDiskFreeSpaceEx(
+            tstrDrive.c_str(),
+            nullptr,
+            reinterpret_cast<PULARGE_INTEGER>(&un64TotalNumberOfBytes),
+            reinterpret_cast<PULARGE_INTEGER>(&un64TotalNumberOfFreeBytes)))
         {
             un64TotalNumberOfBytes = 0;
             un64TotalNumberOfFreeBytes = 0;
         }
-        m_vspEntry.push_back(make_shared<DriveEntry>(tstrDrive, un64TotalNumberOfBytes, un64TotalNumberOfFreeBytes, FileInfo::GetType(tstrDrive, true, false)));
+        m_vspEntry.push_back(make_shared<DriveEntry>(
+            tstrDrive,
+            un64TotalNumberOfBytes,
+            un64TotalNumberOfFreeBytes,
+            FileInfo::GetType(tstrDrive, true, false)));
     }
 #endif
 }

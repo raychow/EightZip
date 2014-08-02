@@ -20,7 +20,8 @@ namespace SevenZipCore
         ArchiveManager(std::shared_ptr<Codecs> cpCodecs);
         virtual ~ArchiveManager();
 
-        void Open(TString tstrPath, std::shared_ptr<IArchiveOpenCallback> cpCallback);
+        void Open(
+            TString tstrPath, std::shared_ptr<IArchiveOpenCallback> cpCallback);
         void Close();
     private:
         std::shared_ptr<Codecs> m_cpCodecs;

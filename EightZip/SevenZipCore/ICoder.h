@@ -11,20 +11,27 @@ namespace SevenZipCore
 
     CODER_INTERFACE(ICompressProgressInfo, 0x04)
     {
-        STDMETHOD(SetRatioInfo)(const UINT64 *inSize, const UINT64 *outSize) PURE;
+        STDMETHOD(SetRatioInfo)(
+            const UINT64 *inSize, const UINT64 *outSize) PURE;
     };
 
     CODER_INTERFACE(ICompressCoder, 0x05)
     {
-        STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-            const UINT64 *inSize, const UINT64 *outSize,
+        STDMETHOD(Code)(ISequentialInStream *inStream,
+            ISequentialOutStream *outStream,
+            const UINT64 *inSize,
+            const UINT64 *outSize,
             ICompressProgressInfo *progress) PURE;
     };
 
     CODER_INTERFACE(ICompressCoder2, 0x18)
     {
-        STDMETHOD(Code)(ISequentialInStream **inStreams, const UINT64 **inSizes, UINT32 numInStreams,
-            ISequentialOutStream **outStreams, const UINT64 **outSizes, UINT32 numOutStreams,
+        STDMETHOD(Code)(ISequentialInStream **inStreams,
+            const UINT64 **inSizes,
+            UINT32 numInStreams,
+            ISequentialOutStream **outStreams,
+            const UINT64 **outSizes,
+            UINT32 numOutStreams,
             ICompressProgressInfo *progress) PURE;
     };
 
@@ -52,7 +59,9 @@ namespace SevenZipCore
 
     CODER_INTERFACE(ICompressSetCoderProperties, 0x20)
     {
-        STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UINT32 numProps) PURE;
+        STDMETHOD(SetCoderProperties)(const PROPID *propIDs,
+            const PROPVARIANT *props,
+            UINT32 numProps) PURE;
     };
 
     /*
@@ -64,7 +73,8 @@ namespace SevenZipCore
 
     CODER_INTERFACE(ICompressSetDecoderProperties2, 0x22)
     {
-        STDMETHOD(SetDecoderProperties2)(const BYTE *data, UINT32 size) PURE;
+        STDMETHOD(SetDecoderProperties2)(
+            const BYTE *data, UINT32 size) PURE;
     };
 
     CODER_INTERFACE(ICompressWriteCoderProperties, 0x23)
@@ -130,13 +140,17 @@ namespace SevenZipCore
     CODER_INTERFACE(ICompressCodecsInfo, 0x60)
     {
         STDMETHOD(GetNumberOfMethods)(UINT32 *numMethods) PURE;
-        STDMETHOD(GetProperty)(UINT32 index, PROPID propID, PROPVARIANT *value) PURE;
-        STDMETHOD(CreateDecoder)(UINT32 index, const GUID *iid, void **coder) PURE;
-        STDMETHOD(CreateEncoder)(UINT32 index, const GUID *iid, void **coder) PURE;
+        STDMETHOD(GetProperty)(
+            UINT32 index, PROPID propID, PROPVARIANT *value) PURE;
+        STDMETHOD(CreateDecoder)(
+            UINT32 index, const GUID *iid, void **coder) PURE;
+        STDMETHOD(CreateEncoder)(
+            UINT32 index, const GUID *iid, void **coder) PURE;
     };
     CODER_INTERFACE(ISetCompressCodecsInfo, 0x61)
     {
-        STDMETHOD(SetCompressCodecsInfo)(ICompressCodecsInfo *compressCodecsInfo) PURE;
+        STDMETHOD(SetCompressCodecsInfo)(
+            ICompressCodecsInfo *compressCodecsInfo) PURE;
     };
 
     CODER_INTERFACE(ICryptoProperties, 0x80)

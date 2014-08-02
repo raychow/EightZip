@@ -22,10 +22,22 @@ namespace SevenZipCore
         static TString ToUpper(const TString &value);
         static TString ToLower(const TString &value);
 
-        static std::vector<TString> SplitString(const TString &tstrPath, const TString &tstrSeparators, bool isSkipEmptyPart = false);
-        static std::vector<TString> GetFilteredPath(std::vector<TString> vtstrPathPart);
+        static std::vector<TString> SplitString(
+            const TString &tstrPath,
+            const TString &tstrSeparators,
+            bool isSkipEmptyPart = false);
+        static std::vector<TString> GetFilteredPath(
+            std::vector<TString> vtstrPathPart);
         static TString GetFilteredFileName(TString tstrPathPart);
-        static TString JoinString(std::vector<TString> vtstrPathPart, const TString &tstrSeparators, bool isSkipEmptyPart = false);
+        static TString JoinString(
+            std::vector<TString> vtstrPathPart,
+            const TString &tstrSeparators,
+            bool isSkipEmptyPart = false);
+        static void SetFileTime(
+            TString tstrFileName,
+            const FILETIME *lpCreationTime,
+            const FILETIME *lpLastAccessTime,
+            const FILETIME *lpLastWriteTime);
     };
 }
 

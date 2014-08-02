@@ -3,7 +3,14 @@
 
 using namespace std;
 
-FileListCtrl::FileListCtrl(wxWindow *parent, wxWindowID id /*= wxID_ANY*/, const wxPoint& pos /*= wxDefaultPosition*/, const wxSize& size /*= wxDefaultSize*/, long style /*= wxLC_REPORT | wxLC_VIRTUAL*/, const wxValidator& validator /*= wxDefaultValidator*/, const wxString& name /*= wxListCtrlNameStr*/)
+FileListCtrl::FileListCtrl(
+    wxWindow *parent,
+    wxWindowID id /*= wxID_ANY*/,
+    const wxPoint& pos /*= wxDefaultPosition*/,
+    const wxSize& size /*= wxDefaultSize*/,
+    long style /*= wxLC_REPORT | wxLC_VIRTUAL*/,
+    const wxValidator& validator /*= wxDefaultValidator*/,
+    const wxString& name /*= wxListCtrlNameStr*/)
     : wxListCtrl(parent, id, pos, size, style, validator, name)
     , m_imageList(true)
 {
@@ -18,7 +25,8 @@ void FileListCtrl::SetModel(shared_ptr<IModel> spModel)
     const auto &supportedItems = spModel->GetSupportedItems();
     for (auto t : supportedItems)
     {
-        AppendColumn(GetColumnCaption(t), GetColumnFormat(t), GetColumnWidth(t));
+        AppendColumn(
+            GetColumnCaption(t), GetColumnFormat(t), GetColumnWidth(t));
     }
     const auto &children = m_spModel->GetEntries();
     m_vnChildrenMap.resize(children.size());
@@ -60,7 +68,10 @@ void FileListCtrl::Sort(int nColumn, bool isAscending)
     else
     {
         const auto &children = m_spModel->GetEntries();
-        sort(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [this, isAscending, itemType, &children](int nLeft, int nRight) {
+        sort(
+            m_vnChildrenMap.begin(),
+            m_vnChildrenMap.end(),
+            [this, isAscending, itemType, &children](int nLeft, int nRight) {
             const auto &leftChild = children[nLeft];
             const auto &rightChild = children[nRight];
             bool isLeftChildDiectory = leftChild->IsDirectory();

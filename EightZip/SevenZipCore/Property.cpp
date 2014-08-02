@@ -16,9 +16,13 @@ namespace SevenZipCore
         case VT_BOOL:
             return property.boolVal != VARIANT_FALSE;
         case VT_EMPTY:
-            throw PropertyException(PropertyErrorCode::EMPTY_VALUE, "Get a empty value when read property.");
+            throw PropertyException(
+                PropertyErrorCode::EMPTY_VALUE,
+                "Get a empty value when read property.");
         default:
-            throw PropertyException(PropertyErrorCode::INVALID_VALUE_TYPE, "Get a non-bool value when read bool property.");
+            throw PropertyException(
+                PropertyErrorCode::INVALID_VALUE_TYPE,
+                "Get a non-bool value when read bool property.");
         }
     }
 
@@ -31,9 +35,13 @@ namespace SevenZipCore
         case VT_BSTR:
             return property.bstrVal;
         case VT_EMPTY:
-            throw PropertyException(PropertyErrorCode::EMPTY_VALUE, "Get a empty value when read property.");
+            throw PropertyException(
+                PropertyErrorCode::EMPTY_VALUE,
+                "Get a empty value when read property.");
         default:
-            throw PropertyException(PropertyErrorCode::INVALID_VALUE_TYPE, "Get a non-bstr value when read string property.");
+            throw PropertyException(
+                PropertyErrorCode::INVALID_VALUE_TYPE,
+                "Get a non-bstr value when read string property.");
         }
     }
 
@@ -46,9 +54,13 @@ namespace SevenZipCore
         case VT_BSTR:
             return *(const GUID*)property.bstrVal;
         case VT_EMPTY:
-            throw PropertyException(PropertyErrorCode::EMPTY_VALUE, "Get a empty value when read property.");
+            throw PropertyException(
+                PropertyErrorCode::EMPTY_VALUE,
+                "Get a empty value when read property.");
         default:
-            throw PropertyException(PropertyErrorCode::INVALID_VALUE_TYPE, "Get a non-bstr value when read guid property.");
+            throw PropertyException(
+                PropertyErrorCode::INVALID_VALUE_TYPE,
+                "Get a non-bstr value when read guid property.");
         }
     }
 
@@ -60,12 +72,19 @@ namespace SevenZipCore
         switch (property.vt)
         {
         case VT_BSTR:
-            result.assign(reinterpret_cast<BYTE *>(property.bstrVal), reinterpret_cast<BYTE *>(property.bstrVal) + ::SysStringByteLen(property.bstrVal));
+            result.assign(
+                reinterpret_cast<BYTE *>(property.bstrVal),
+                reinterpret_cast<BYTE *>(property.bstrVal)
+                + ::SysStringByteLen(property.bstrVal));
             break;
         case VT_EMPTY:
-            throw PropertyException(PropertyErrorCode::EMPTY_VALUE, "Get a empty value when read property.");
+            throw PropertyException(
+                PropertyErrorCode::EMPTY_VALUE,
+                "Get a empty value when read property.");
         default:
-            throw PropertyException(PropertyErrorCode::INVALID_VALUE_TYPE, "Get a non-bstr value when read bytes property.");
+            throw PropertyException(
+                PropertyErrorCode::INVALID_VALUE_TYPE,
+                "Get a non-bstr value when read bytes property.");
         }
         return result;
     }
@@ -79,9 +98,13 @@ namespace SevenZipCore
         case VT_UI1:
             return property.bVal;
         case VT_EMPTY:
-            throw PropertyException(PropertyErrorCode::EMPTY_VALUE, "Get a empty value when read property.");
+            throw PropertyException(
+                PropertyErrorCode::EMPTY_VALUE,
+                "Get a empty value when read property.");
         default:
-            throw PropertyException(PropertyErrorCode::INVALID_VALUE_TYPE, "Get a non-ui1 value when read byte property.");
+            throw PropertyException(
+                PropertyErrorCode::INVALID_VALUE_TYPE,
+                "Get a non-ui1 value when read byte property.");
         }
     }
 
@@ -94,9 +117,13 @@ namespace SevenZipCore
         case VT_UI2:
             return property.uiVal;
         case VT_EMPTY:
-            throw PropertyException(PropertyErrorCode::EMPTY_VALUE, "Get a empty value when read property.");
+            throw PropertyException(
+                PropertyErrorCode::EMPTY_VALUE,
+                "Get a empty value when read property.");
         default:
-            throw PropertyException(PropertyErrorCode::INVALID_VALUE_TYPE, "Get a non-ui2 value when read ushort property.");
+            throw PropertyException(
+                PropertyErrorCode::INVALID_VALUE_TYPE,
+                "Get a non-ui2 value when read ushort property.");
         }
     }
 
@@ -109,9 +136,13 @@ namespace SevenZipCore
         case VT_UI4:
             return property.ulVal;
         case VT_EMPTY:
-            throw PropertyException(PropertyErrorCode::EMPTY_VALUE, "Get a empty value when read property.");
+            throw PropertyException(
+                PropertyErrorCode::EMPTY_VALUE,
+                "Get a empty value when read property.");
         default:
-            throw PropertyException(PropertyErrorCode::INVALID_VALUE_TYPE, "Get a non-ui4 value when read uint32 property.");
+            throw PropertyException(
+                PropertyErrorCode::INVALID_VALUE_TYPE,
+                "Get a non-ui4 value when read uint32 property.");
         }
     }
 
@@ -124,9 +155,13 @@ namespace SevenZipCore
         case VT_UI8:
             return property.uhVal.QuadPart;
         case VT_EMPTY:
-            throw PropertyException(PropertyErrorCode::EMPTY_VALUE, "Get a empty value when read property.");
+            throw PropertyException(
+                PropertyErrorCode::EMPTY_VALUE,
+                "Get a empty value when read property.");
         default:
-            throw PropertyException(PropertyErrorCode::INVALID_VALUE_TYPE, "Get a non-ui8 value when read uint64 property.");
+            throw PropertyException(
+                PropertyErrorCode::INVALID_VALUE_TYPE,
+                "Get a non-ui8 value when read uint64 property.");
         }
     }
 
@@ -145,9 +180,13 @@ namespace SevenZipCore
         case VT_UI8:
             return property.uhVal.QuadPart;
         case VT_EMPTY:
-            throw PropertyException(PropertyErrorCode::EMPTY_VALUE, "Get a empty value when read property.");
+            throw PropertyException(
+                PropertyErrorCode::EMPTY_VALUE,
+                "Get a empty value when read property.");
         default:
-            throw PropertyException(PropertyErrorCode::INVALID_VALUE_TYPE, "Get a non-unsigned value when read converted uint64 property.");
+            throw PropertyException(
+                PropertyErrorCode::INVALID_VALUE_TYPE,
+                "Get a non-unsigned value when read converted uint64 property.");
         }
     }
 
@@ -158,15 +197,22 @@ namespace SevenZipCore
         switch (property.vt)
         {
         case VT_FILETIME:
-            if (property.filetime.dwHighDateTime != 0 || property.filetime.dwLowDateTime != 0)
+            if (property.filetime.dwHighDateTime != 0
+                || property.filetime.dwLowDateTime != 0)
             {
                 return property.filetime;
             }
-            throw PropertyException(PropertyErrorCode::EMPTY_VALUE, "Get a empty value when read property.");
+            throw PropertyException(
+                PropertyErrorCode::EMPTY_VALUE,
+                "Get a empty value when read property.");
         case VT_EMPTY:
-            throw PropertyException(PropertyErrorCode::EMPTY_VALUE, "Get a empty value when read property.");
+            throw PropertyException(
+                PropertyErrorCode::EMPTY_VALUE,
+                "Get a empty value when read property.");
         default:
-            throw PropertyException(PropertyErrorCode::INVALID_VALUE_TYPE, "Get a non-filetime value when read filetime property.");
+            throw PropertyException(
+                PropertyErrorCode::INVALID_VALUE_TYPE,
+                "Get a non-filetime value when read filetime property.");
         }
     }
 

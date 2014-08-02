@@ -7,13 +7,17 @@
 
 #include <Windows.h>
 
+#include "Exception.h"
+#include "HandleUniquePtr.h"
+
 using namespace std;
 
 namespace SevenZipCore
 {
     TString Helper::GetFileName(const TString &tstrPath)
     {
-        return tstrPath.substr(tstrPath.find_last_of(FOLDER_POSSIBLE_SEPARATOR) + 1);
+        return tstrPath.substr(
+            tstrPath.find_last_of(FOLDER_POSSIBLE_SEPARATOR) + 1);
     }
 
     TString Helper::GetFileNameStem(const TString &tstrPath)
@@ -43,16 +47,19 @@ namespace SevenZipCore
         return result;
     }
 
-    std::vector<TString> Helper::SplitString(const TString &tstrPath, const TString &tstrSeparators, bool isSkipEmptyPart /*= false*/)
+    std::vector<TString> Helper::SplitString(const TString &tstrPath,
+        const TString &tstrSeparators, bool isSkipEmptyPart /*= false*/)
     {
         vector<TString> vtstrResult;
         TString::size_type stPosition = -1;
         TString::size_type stLastPosition = 0;
-        while ((stPosition = tstrPath.find_first_of(tstrSeparators, stPosition + 1)) != string::npos)
+        while ((stPosition = tstrPath.find_first_of(
+            tstrSeparators, stPosition + 1)) != string::npos)
         {
             if (0 != stPosition - stLastPosition)
             {
-                vtstrResult.push_back(tstrPath.substr(stLastPosition, stPosition - stLastPosition));
+                vtstrResult.push_back(tstrPath.substr(
+                    stLastPosition, stPosition - stLastPosition));
             }
             stLastPosition = stPosition + 1;
         }
@@ -82,9 +89,9 @@ namespace SevenZipCore
     {
 #ifdef __WINDOWS__
         static const TString tstrReserved(TEXT("<>:\"/\\|?*"));
-        if (all_of(tstrPathPart.cbegin()
-            , tstrPathPart.cend()
-            , [](TCHAR value) { return value == TEXT('.'); }))
+        if (all_of(tstrPathPart.cbegin(),
+            tstrPathPart.cend(),
+            [](TCHAR value) { return value == TEXT('.'); }))
 #else
         static const TString tstrReserved(TEXT("/"));
         if (tstrPathPart == TEXT(".") || tstrPathPart == TEXT(".."))
@@ -101,7 +108,8 @@ namespace SevenZipCore
 #endif
         for (auto value : tstrPathPart)
         {
-            if (tstrReserved.cend() != find(tstrReserved.cbegin(), tstrReserved.cend(), value))
+            if (tstrReserved.cend() != find(
+                tstrReserved.cbegin(), tstrReserved.cend(), value))
             {
                 value = TEXT('_');
             }
@@ -110,7 +118,10 @@ namespace SevenZipCore
         return tstrPathPart;
     }
 
-    TString Helper::JoinString(std::vector<TString> vtstrPathPart, const TString &tstrSeparators, bool isSkipEmptyPart /*= false*/)
+    TString Helper::JoinString(
+        std::vector<TString> vtstrPathPart,
+        const TString &tstrSeparators,
+        bool isSkipEmptyPart /*= false*/)
     {
         TString result;
         for (int i = 0; i != vtstrPathPart.size(); ++i)
@@ -127,5 +138,37 @@ namespace SevenZipCore
             result.append(value);
         }
         return result;
+    }
+
+    void Helper::SetFileTime(
+        TString tstrFileName,
+        const FILETIME *lpCreationTime,
+        const FILETIME *lpLastAccessTime,
+        const FILETIME *lpLastWriteTime)
+    {
+#ifdef __WINDOWS__
+        HandleUniquePtr uphFile(::CreateFile(
+            tstrFileName.c_str(),
+            GENERIC_WRITE,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            nullptr,
+            OPEN_EXISTING,
+            FILE_FLAG_BACKUP_SEMANTICS,
+            nullptr));
+        if (INVALID_HANDLE_VALUE == uphFile.get())
+        {
+            throw SystemException("Cannot create file.");
+        }
+        if (0 == ::SetFileTime(
+            uphFile.get(),
+            lpCreationTime,
+            lpLastAccessTime,
+            lpLastWriteTime))
+        {
+            throw SystemException("Cannot set file time.");
+        }
+#else
+
+#endif
     }
 }

@@ -11,7 +11,8 @@ FileInfo::FileInfo(TString tstrPath)
     : m_tstrPath(move(tstrPath))
 {
 #ifdef __WXMSW__
-    m_isOK = (FALSE != ::GetFileAttributesEx(m_tstrPath.c_str(), GetFileExInfoStandard, &m_fileAttributeData));
+    m_isOK = (FALSE != ::GetFileAttributesEx(
+        m_tstrPath.c_str(), GetFileExInfoStandard, &m_fileAttributeData));
 #endif
 }
 
@@ -28,7 +29,8 @@ TString FileInfo::GetNormalizedPath() const
         if (nBufferSize)
         {
             unique_ptr<wxChar[]> uptchBuffer(new wxChar[nBufferSize]);
-            if (::GetLongPathName(m_tstrPath.c_str(), uptchBuffer.get(), nBufferSize))
+            if (::GetLongPathName(
+                m_tstrPath.c_str(), uptchBuffer.get(), nBufferSize))
             {
                 m_tstrNormalizedPath = uptchBuffer.get();
                 return m_tstrNormalizedPath;
@@ -40,7 +42,10 @@ TString FileInfo::GetNormalizedPath() const
     return m_tstrNormalizedPath;
 }
 
-TString FileInfo::GetType(TString tstrFileName, bool isDirectory /*= false*/, bool isVirtual /*= true*/)
+TString FileInfo::GetType(
+    TString tstrFileName,
+    bool isDirectory /*= false*/,
+    bool isVirtual /*= true*/)
 {
 #ifdef __WXMSW__
     TString tstrFakeName;
@@ -53,7 +58,8 @@ TString FileInfo::GetType(TString tstrFileName, bool isDirectory /*= false*/, bo
         else
         {
             auto szPointPosition = tstrFileName.rfind(wxT('.'));
-            tstrFakeName = TString(wxT("fake.")) + tstrFileName.substr(szPointPosition + 1);
+            tstrFakeName = TString(wxT("fake."))
+                + tstrFileName.substr(szPointPosition + 1);
         }
         auto iter = m_mTypeCache.find(tstrFakeName);
         if (iter != m_mTypeCache.end())
@@ -63,8 +69,8 @@ TString FileInfo::GetType(TString tstrFileName, bool isDirectory /*= false*/, bo
     }
 
     SHFILEINFO info;
-    if (SUCCEEDED(SHGetFileInfo(tstrFileName.c_str()
-        , isDirectory ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL,
+    if (SUCCEEDED(SHGetFileInfo(tstrFileName.c_str(),
+        isDirectory ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL,
         &info,
         sizeof(SHFILEINFO),
         SHGFI_TYPENAME | (isVirtual ? SHGFI_USEFILEATTRIBUTES : 0))))
@@ -80,15 +86,19 @@ TString FileInfo::GetType(TString tstrFileName, bool isDirectory /*= false*/, bo
     return wxEmptyString;
 }
 
-int FileInfo::GetIconIndex(TString tstrFileName, bool isDirectory /*= false*/, bool isVirtual /*= true*/)
+int FileInfo::GetIconIndex(
+    TString tstrFileName,
+    bool isDirectory /*= false*/,
+    bool isVirtual /*= true*/)
 {
 #ifdef __WXMSW__
     SHFILEINFO info;
-    if (SUCCEEDED(SHGetFileInfo(tstrFileName.c_str()
-        , isDirectory ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL,
+    if (SUCCEEDED(SHGetFileInfo(tstrFileName.c_str(),
+        isDirectory ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL,
         &info,
         sizeof(SHFILEINFO),
-        SHGFI_SMALLICON | SHGFI_SYSICONINDEX | (isVirtual ? SHGFI_USEFILEATTRIBUTES : 0))))
+        SHGFI_SMALLICON | SHGFI_SYSICONINDEX | (
+        isVirtual ? SHGFI_USEFILEATTRIBUTES : 0))))
     {
         return info.iIcon;
     }

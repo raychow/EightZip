@@ -6,7 +6,12 @@
 
 using namespace std;
 
-ArchiveEntry::ArchiveEntry(weak_ptr<IModel> wpParent, shared_ptr<SevenZipCore::ArchiveFile> spArchiveFile, TString tstrPath, TString tstrInternalPath, bool isDirectory)
+ArchiveEntry::ArchiveEntry(
+    weak_ptr<IModel> wpParent,
+    shared_ptr<SevenZipCore::ArchiveFile> spArchiveFile,
+    TString tstrPath,
+    TString tstrInternalPath,
+    bool isDirectory)
     : m_wpParent(move(wpParent))
     , m_spArchiveFile(move(spArchiveFile))
     , m_tstrInternalPath(move(tstrInternalPath))
@@ -24,7 +29,8 @@ int ArchiveEntry::GetIconIndex() const
 {
     if (-1 == m_nIconIndex)
     {
-        m_nIconIndex = FileInfo::GetIconIndex(GetFullPath(), IsDirectory(), true);
+        m_nIconIndex = FileInfo::GetIconIndex(
+            GetFullPath(), IsDirectory(), true);
     }
     return m_nIconIndex;
 }
@@ -53,7 +59,11 @@ std::shared_ptr<IModel> ArchiveEntry::GetModel() const
 {
     if (IsDirectory())
     {
-        auto result = make_shared<ArchiveModel>(m_wpParent.lock(), GetFullPath() + wxFILE_SEP_PATH, m_tstrInternalPath + GetName() + wxFILE_SEP_PATH, dynamic_pointer_cast<SevenZipCore::ArchiveFolder>(m_spArchiveFile));
+        auto result = make_shared<ArchiveModel>(
+            m_wpParent.lock(),
+            GetFullPath() + wxFILE_SEP_PATH,
+            m_tstrInternalPath + GetName() + wxFILE_SEP_PATH,
+            dynamic_pointer_cast<SevenZipCore::ArchiveFolder>(m_spArchiveFile));
         result->LoadChildren();
         return result;
     }
@@ -68,8 +78,15 @@ void ArchiveEntry::OpenExternal() const
 
 }
 
-ArchiveModel::ArchiveModel(std::shared_ptr<IModel> spParent, TString tstrPath, TString tstrInternalPath, shared_ptr<SevenZipCore::Codecs> cpCodecs, TString tstrTempFullPath, std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
-    : m_upArchive(new SevenZipCore::Archive(move(cpCodecs), move(tstrTempFullPath), move(cpCallback)))
+ArchiveModel::ArchiveModel(
+    std::shared_ptr<IModel> spParent,
+    TString tstrPath,
+    TString tstrInternalPath,
+    shared_ptr<SevenZipCore::Codecs> cpCodecs,
+    TString tstrTempFullPath,
+    std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
+    : m_upArchive(new SevenZipCore::Archive(
+    move(cpCodecs), move(tstrTempFullPath), move(cpCallback)))
     , m_spParent(move(spParent))
     , m_tstrInternalPath(move(tstrInternalPath))
 {
@@ -77,7 +94,11 @@ ArchiveModel::ArchiveModel(std::shared_ptr<IModel> spParent, TString tstrPath, T
     m_tstrPath = tstrPath;
 }
 
-ArchiveModel::ArchiveModel(std::shared_ptr<IModel> spParent, TString tstrPath, TString tstrInternalPath, shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder)
+ArchiveModel::ArchiveModel(
+    std::shared_ptr<IModel> spParent,
+    TString tstrPath,
+    TString tstrInternalPath,
+    shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder)
     : m_spParent(move(spParent))
     , m_spArchiveFolder(move(spArchiveFolder))
     , m_tstrInternalPath(move(tstrInternalPath))
@@ -95,7 +116,8 @@ std::shared_ptr<IModel> ArchiveModel::GetParent() const
     {
         auto tstrParent = m_tstrPath;
         tstrParent.pop_back();
-        return make_shared<FolderModel>(tstrParent.substr(0, tstrParent.rfind(wxFILE_SEP_PATH) + 1));
+        return make_shared<FolderModel>(
+            tstrParent.substr(0, tstrParent.rfind(wxFILE_SEP_PATH) + 1));
     }
 }
 
@@ -117,18 +139,20 @@ void ArchiveModel::LoadChildren()
     m_vspEntry.clear();
     for (const auto &folder : m_spArchiveFolder->GetFolders())
     {
-        m_vspEntry.push_back(make_shared<ArchiveEntry>(shared_from_this()
-            , folder
-            , m_tstrPath
-            , m_tstrInternalPath
-            , true));
+        m_vspEntry.push_back(make_shared<ArchiveEntry>(
+            shared_from_this(),
+            folder,
+            m_tstrPath,
+            m_tstrInternalPath,
+            true));
     }
     for (const auto &file : m_spArchiveFolder->GetFiles())
     {
-        m_vspEntry.push_back(make_shared<ArchiveEntry>(shared_from_this()
-            , file
-            , m_tstrPath
-            , m_tstrInternalPath
-            , false));
+        m_vspEntry.push_back(make_shared<ArchiveEntry>(
+            shared_from_this(),
+            file,
+            m_tstrPath,
+            m_tstrInternalPath,
+            false));
     }
 }

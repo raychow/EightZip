@@ -10,7 +10,8 @@ int EntryBase::GetIconIndex() const
 {
     if (-1 == m_nIconIndex)
     {
-        m_nIconIndex = FileInfo::GetIconIndex(GetFullPath(), IsDirectory(), false);
+        m_nIconIndex = FileInfo::GetIconIndex(
+            GetFullPath(), IsDirectory(), false);
     }
     return m_nIconIndex;
 }
@@ -51,7 +52,8 @@ TString EntryBase::GetItem(ItemType itemType) const
             if (m_oun32CRC)
             {
                 TStringStream tss;
-                tss << hex << setw(8) << setfill(wxT('0')) << uppercase << *m_oun32CRC;
+                tss << hex << setw(8) << setfill(wxT('0'));
+                tss << uppercase << *m_oun32CRC;
                 return tss.str();
             }
         default:
@@ -121,9 +123,9 @@ bool EntryBase::IsOpenExternal() const
         return false;
     }
     auto tstrExtension = m_tstrName.substr(szPointLocation + 1);
-    return binary_search(atstrDirectExtension.cbegin()
-        , atstrDirectExtension.cend()
-        , tstrExtension);
+    return binary_search(atstrDirectExtension.cbegin(),
+        atstrDirectExtension.cend(),
+        tstrExtension);
 }
 
 void EntryBase::OpenExternal() const
@@ -131,20 +133,24 @@ void EntryBase::OpenExternal() const
     Helper::OpenFileExternal(GetFullPath());
 }
 
-bool EntryBase::Compare(const IEntry &otherEntry, ItemType itemType, bool isAscending) const
+bool EntryBase::Compare(
+    const IEntry &otherEntry, ItemType itemType, bool isAscending) const
 {
     const auto &otherEntryBase = dynamic_cast<const EntryBase &>(otherEntry);
 
     switch (itemType)
     {
     case ItemType::Name:
-        return _LocaleCompare(m_tstrName, otherEntryBase.m_tstrName, isAscending);
+        return _LocaleCompare(
+            m_tstrName, otherEntryBase.m_tstrName, isAscending);
     case ItemType::Size:
         return COMPARE(m_un64Size, otherEntryBase.m_un64Size, isAscending);
     case ItemType::PackedSize:
-        return COMPARE(m_un64PackedSize, otherEntryBase.m_un64PackedSize, isAscending);
+        return COMPARE(
+            m_un64PackedSize, otherEntryBase.m_un64PackedSize, isAscending);
     case ItemType::Type:
-        return _LocaleCompare(GetItem(itemType), otherEntryBase.GetItem(itemType), isAscending);
+        return _LocaleCompare(
+            GetItem(itemType), otherEntryBase.GetItem(itemType), isAscending);
     case ItemType::Modified:
         return COMPARE(m_dtModified, otherEntryBase.m_dtModified, isAscending);
     case ItemType::Created:
@@ -155,7 +161,8 @@ bool EntryBase::Compare(const IEntry &otherEntry, ItemType itemType, bool isAsce
     return false;
 }
 
-bool EntryBase::_LocaleCompare(const TString &tstrLeft, const TString & tstrRight, bool isAscending)
+bool EntryBase::_LocaleCompare(
+    const TString &tstrLeft, const TString & tstrRight, bool isAscending)
 {
     if (tstrLeft.empty() || tstrRight.empty())
     {
@@ -163,7 +170,12 @@ bool EntryBase::_LocaleCompare(const TString &tstrLeft, const TString & tstrRigh
     }
 
 #ifdef __WXMSW__
-    switch (::CompareString(GetUserDefaultLCID(), 0, tstrLeft.c_str(), tstrLeft.size(), tstrRight.c_str(), tstrRight.size())) {
+    switch (::CompareString(
+        GetUserDefaultLCID(),
+        0, tstrLeft.c_str(),
+        tstrLeft.size(),
+        tstrRight.c_str(),
+        tstrRight.size())) {
     case CSTR_LESS_THAN:
         return isAscending;
     case CSTR_GREATER_THAN:
