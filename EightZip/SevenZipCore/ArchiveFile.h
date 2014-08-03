@@ -31,13 +31,13 @@ namespace SevenZipCore
     public:
         ArchiveFile() {};
         ArchiveFile(
-            boost::optional<UINT> ounIndex,
+            const boost::optional<UINT> &ounIndex,
             TString tstrName,
             std::shared_ptr<IInArchive> wpArchive,
             std::weak_ptr<ArchiveFolder> wpParent);
 
-        boost::optional<UINT> GetIndex() const { return m_ounIndex; }
-        void SetIndex(boost::optional<UINT> value) { m_ounIndex = value; }
+        const boost::optional<UINT> &GetIndex() const { return m_ounIndex; }
+        void SetIndex(const boost::optional<UINT> &value) { m_ounIndex = value; }
 
         const TString &GetName() const { return m_tstrName; }
         void SetName(TString value) { m_tstrName = move(value); }
@@ -50,13 +50,13 @@ namespace SevenZipCore
 
         virtual UINT64 GetSize() const;
         virtual UINT64 GetPackedSize() const;
-        virtual boost::optional<UINT32> GetCRC() const;
+        virtual const boost::optional<UINT32> &GetCRC() const;
 
         void Calculate() const;
     protected:
         boost::optional<UINT> m_ounIndex;
         TString m_tstrName;
-        std::shared_ptr<IInArchive> m_spArchive;
+        std::shared_ptr<IInArchive> m_cpArchive;
         std::weak_ptr<ArchiveFolder> m_wpParent;
 
         std::unique_ptr<ArchiveInformation> m_upInformation
@@ -71,13 +71,13 @@ namespace SevenZipCore
     public:
         ArchiveFolder(
             TString tstrName,
-            std::shared_ptr<IInArchive> spArchive,
+            std::shared_ptr<IInArchive> cpArchive,
             std::weak_ptr<ArchiveFolder> wpParent
             = std::weak_ptr<ArchiveFolder>());
         ArchiveFolder(
             boost::optional<UINT> ounIndex,
             TString tstrName,
-            std::shared_ptr<IInArchive> spArchive,
+            std::shared_ptr<IInArchive> cpArchive,
             std::weak_ptr<ArchiveFolder> wpParent
             = std::weak_ptr<ArchiveFolder>());
 
@@ -124,10 +124,9 @@ namespace SevenZipCore
         void _Calculate() const;
 
         std::shared_ptr<ArchiveFolder> __AddFolder(
-            boost::optional<UINT> ounIndex,
+            const boost::optional<UINT> &ounIndex,
             TString tstrName,
-            std::weak_ptr<ArchiveFolder> wpParent
-            = std::weak_ptr<ArchiveFolder>());
+            std::weak_ptr<ArchiveFolder> wpParent /*= std::weak_ptr<ArchiveFolder>()*/);
     };
 }
 

@@ -1,6 +1,8 @@
 #include "stdwx.h"
 #include "Archive.h"
 
+#include <sys/stat.h>
+
 #include "Common.h"
 
 using namespace std;
@@ -41,6 +43,15 @@ namespace SevenZipCore
         m_vspArchiveEntry.push_back(shared_ptr<ArchiveEntry>(
             new ArchiveEntry(*m_cpCodecs, tstrPath, move(cpCallback))));
         // Maybe open inner main stream in the PE file automatically (like 7zFM).
+
+        // TODO: if (m_cpStream)
+        try
+        {
+            m_oftModified = Helper::GetFileModifiedTime(tstrPath);
+        }
+        catch (const SystemException &)
+        {
+        }
 
         m_tstrPath = move(tstrPath);
         __LoadArchiveList();

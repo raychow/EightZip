@@ -13,6 +13,7 @@
 
 namespace SevenZipCore
 {
+    // CArc
     class ArchiveEntry
     {
     public:
@@ -31,6 +32,7 @@ namespace SevenZipCore
         void SetSubfileIndex(int value) { m_nSubfileIndex = value; }
 
         std::shared_ptr<IInArchive> GetArchive() const { return m_cpArchive; }
+
     private:
         static const UINT64 MAX_CHECK_START_POSITION = 1 << 22;
 
@@ -42,8 +44,6 @@ namespace SevenZipCore
 
         std::shared_ptr<IInArchive> m_cpArchive;
         std::shared_ptr<IArchiveOpenCallback> m_cpCallback;
-
-        boost::optional<FILETIME> m_oftModified;
 
         void __OpenFile();
         void __OpenStream();

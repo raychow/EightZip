@@ -34,10 +34,12 @@ namespace SevenZipCore
             const TString &tstrSeparators,
             bool isSkipEmptyPart = false);
         static void SetFileTime(
-            TString tstrFileName,
+            TString tstrPath,
             const FILETIME *lpCreationTime,
             const FILETIME *lpLastAccessTime,
             const FILETIME *lpLastWriteTime);
+        static boost::optional<FILETIME> GetFileModifiedTime(TString tstrPath);
+        static bool AutoRenamePath(TString &tstrFullPath);
     };
 }
 

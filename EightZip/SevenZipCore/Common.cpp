@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/optional.hpp>
 
 #include <Windows.h>
 
@@ -141,14 +142,14 @@ namespace SevenZipCore
     }
 
     void Helper::SetFileTime(
-        TString tstrFileName,
+        TString tstrPath,
         const FILETIME *lpCreationTime,
         const FILETIME *lpLastAccessTime,
         const FILETIME *lpLastWriteTime)
     {
 #ifdef __WINDOWS__
         HandleUniquePtr uphFile(::CreateFile(
-            tstrFileName.c_str(),
+            tstrPath.c_str(),
             GENERIC_WRITE,
             FILE_SHARE_READ | FILE_SHARE_WRITE,
             nullptr,
@@ -168,7 +169,41 @@ namespace SevenZipCore
             throw SystemException("Cannot set file time.");
         }
 #else
-
 #endif
     }
+
+    boost::optional<FILETIME> Helper::GetFileModifiedTime(TString tstrPath)
+    {
+        FILETIME ftModified;
+#ifdef __WINDOWS__
+        HandleUniquePtr uphFile(::CreateFile(
+            tstrPath.c_str(),
+            GENERIC_READ,
+            FILE_SHARE_READ | FILE_SHARE_WRITE,
+            nullptr,
+            OPEN_EXISTING,
+            FILE_FLAG_BACKUP_SEMANTICS,
+            nullptr));
+        if (INVALID_HANDLE_VALUE == uphFile.get())
+        {
+            throw SystemException("Cannot create file.");
+        }
+        if (0 == ::GetFileTime(
+            uphFile.get(),
+            nullptr,
+            nullptr,
+            &ftModified))
+        {
+            throw SystemException("Cannot get file time.");
+        }
+#else
+#endif
+        return ftModified;
+    }
+
+    bool Helper::AutoRenamePath(TString &tstrFullPath)
+    {
+        throw std::logic_error("The method or operation is not implemented.");
+    }
+
 }

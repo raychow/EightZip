@@ -47,9 +47,9 @@ namespace SevenZipCore
         UnSupportedMethod,
         DataError,
         CRCError
-
     };
 
+    // NExtract::NPathMode
     enum struct PathMode
     {
         FullPathNames,
@@ -57,6 +57,7 @@ namespace SevenZipCore
         NoPathNames
     };
 
+    // NExtract::NOverwriteMode 
     enum struct OverwriteMode
     {
         AskBefore,
@@ -64,6 +65,17 @@ namespace SevenZipCore
         SkipExisting,
         AutoRename,
         AutoRenameExisting
+    };
+
+    // NOverwriteAnswer
+    enum struct OverwriteAnswer
+    {
+        Yes,
+        YesToAll,
+        No,
+        NoToAll,
+        AutoRename,
+        Cancel
     };
 
 #define INTERFACE_IArchiveOpenCallback(x) \

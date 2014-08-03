@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <boost/filesystem.hpp>
+#include <boost/system/error_code.hpp>
 
 #include "Common.h"
 
@@ -52,7 +53,8 @@ namespace SevenZipCore
             *outStream = nullptr;
             m_nindex = index;
 
-            IInArchiveAdapter archiveAdapter(m_spArchive->GetArchiveEntry()->GetArchive());
+            IInArchiveAdapter archiveAdapter(
+                m_spArchive->GetArchiveEntry()->GetArchive());
             m_tstrInternalPath = archiveAdapter.GetItemPath(index);
             m_isDirectory = PropertyHelper::GetBool(
                 archiveAdapter.GetProperty(index, PropertyId::IsDir), false);
@@ -127,6 +129,7 @@ namespace SevenZipCore
                 m_oftModified = __GetTime(
                     archiveAdapter, index, PropertyId::Modified);
 
+                // TODO: What does isAnti mean?
                 bool isAnti = PropertyHelper::GetBool(
                     archiveAdapter.GetProperty(index, PropertyId::IsAnti),
                     false);
@@ -159,7 +162,7 @@ namespace SevenZipCore
                 }
                 vtstrPathPart = Helper::GetFilteredPath(move(vtstrPathPart));
                 auto tstrFilteredPath = Helper::JoinString(
-                    m_vtstrInternalPathPart,
+                    vtstrPathPart,
                     FOLDER_SEPARATOR_STRING);
                 if (!isAnti)
                 {
@@ -169,25 +172,83 @@ namespace SevenZipCore
                         {
                             vtstrPathPart.pop_back();
                         }
-                        //  Used for extracting the folder with sub directories.
-                        if (!vtstrPathPart.empty())
+                    }
+                    //  Used for extracting the folder with sub directories.
+                    if (!vtstrPathPart.empty())
+                    {
+                        auto tstrDirectoryrPath = m_tstrExtractPath
+                            + Helper::JoinString(vtstrPathPart,
+                            FOLDER_SEPARATOR_STRING);
+                        boost::filesystem::create_directories(
+                            tstrDirectoryrPath);
+                        try
                         {
-                            auto tstrFullPath = m_tstrExtractPath
-                                + Helper::JoinString(m_vtstrInternalPathPart,
-                                FOLDER_SEPARATOR_STRING);
-                            boost::filesystem::create_directories(tstrFullPath);
-                            try
+                            Helper::SetFileTime(
+                                tstrDirectoryrPath,
+                                m_oftCreated ? &*m_oftCreated : nullptr,
+                                m_oftAccessed ? &*m_oftAccessed : nullptr,
+                                m_oftModified ? &*m_oftModified :
+                                m_spArchive->GetModifiedTime() ?
+                                &*m_spArchive->GetModifiedTime() : nullptr);
+                        }
+                        catch (const SystemException &)
+                        {
+                        }
+                    }
+                }
+                auto tstrFullPath = m_tstrExtractPath + tstrFilteredPath;
+                if (m_isDirectory)
+                {
+                    m_tstrRealPath = move(tstrFullPath);
+                    if (isAnti)
+                    {
+                        boost::system::error_code errorCode;
+                        boost::filesystem::remove(m_tstrRealPath, errorCode);
+                    }
+                    return S_OK;
+                }
+
+                // !_isSplit
+                if (!m_oun64Position)
+                {
+                    if (boost::filesystem::exists(tstrFullPath))
+                    {
+                        switch (m_overwriteMode)
+                        {
+                        case OverwriteMode::SkipExisting:
+                            return S_OK;
+                        case OverwriteMode::AskBefore:
+                        {
+                            int nDialogResult = 0;
+                            // nDialogResult = ShowOverwriteDialog();
+                            switch (static_cast<OverwriteAnswer>(nDialogResult))
                             {
-                                Helper::SetFileTime(
-                                    tstrFullPath,
-                                    m_oftCreated ? &*m_oftCreated : nullptr,
-                                    m_oftAccessed ? &*m_oftAccessed : nullptr,
-                                    m_oftModified ? &*m_oftModified :
-                                    m_spArchive->GetModifiedTime() ?
-                                    *m_spArchive->GetModifiedTime() : nullptr);
+                            case OverwriteAnswer::Cancel:
+                                return E_ABORT;
+                            case OverwriteAnswer::No:
+                                return S_OK;
+                            case OverwriteAnswer::NoToAll:
+                                m_overwriteMode = OverwriteMode::SkipExisting;
+                                return S_OK;
+                            case OverwriteAnswer::YesToAll:
+                                m_overwriteMode = OverwriteMode::WithoutPrompt;
+                                break;
+                            case OverwriteAnswer::Yes:
+                                break;
+                            case OverwriteAnswer::AutoRename:
+                                m_overwriteMode = OverwriteMode::AutoRename;
+                                break;
+                            default:
+                                return E_FAIL;
                             }
-                            catch (const SystemException &)
+                        }
+                        }
+                        switch (m_overwriteMode)
+                        {
+                        case OverwriteMode::AutoRename:
+                            if (!Helper::AutoRenamePath(tstrFullPath))
                             {
+
                             }
                         }
                     }

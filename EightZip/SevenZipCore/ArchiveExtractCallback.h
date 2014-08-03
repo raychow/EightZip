@@ -61,6 +61,8 @@ namespace SevenZipCore
         PathMode m_pathMode;
         OverwriteMode m_overwriteMode;
 
+        TString m_tstrRealPath;
+
         static boost::optional<FILETIME> __GetTime(
             IInArchiveAdapter &archiveAdapter,
             UINT32 index,

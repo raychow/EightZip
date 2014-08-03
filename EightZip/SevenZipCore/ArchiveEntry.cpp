@@ -124,6 +124,8 @@ namespace SevenZipCore
 
         archiveAdapter.Open(
             m_cpInStream.get(), MAX_CHECK_START_POSITION, m_cpCallback.get());
+
+
         // Error message does not seem to be used.
         //try
         //{

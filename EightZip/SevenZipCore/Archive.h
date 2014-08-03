@@ -38,6 +38,11 @@ namespace SevenZipCore
 
         std::shared_ptr<ArchiveEntry> GetArchiveEntry() const;
 
+        const boost::optional<FILETIME> &GetModifiedTime() const
+        {
+            return m_oftModified;
+        }
+
     private:
         std::shared_ptr<Codecs> m_cpCodecs;
 
@@ -45,6 +50,7 @@ namespace SevenZipCore
 
         std::vector<std::shared_ptr<ArchiveEntry>> m_vspArchiveEntry;
         std::shared_ptr<ArchiveFolder> m_spRootFolder;
+        boost::optional<FILETIME> m_oftModified;
 
         void __LoadArchiveList();
     };
