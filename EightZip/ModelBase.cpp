@@ -117,7 +117,7 @@ bool EntryBase::IsOpenExternal() const
     };
 #else
 #endif
-    auto szPointLocation = m_tstrName.rfind(wxT('.'));
+    auto szPointLocation = m_tstrName.rfind(wxFILE_SEP_EXT);
     if (m_tstrName.npos == szPointLocation)
     {
         return false;

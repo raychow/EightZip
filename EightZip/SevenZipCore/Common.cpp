@@ -1,15 +1,15 @@
-#include "stdwx.h"
 #include "Common.h"
 
 #include <algorithm>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 
 #include <Windows.h>
 
 #include "Exception.h"
-#include "HandleUniquePtr.h"
+#include "SmartPointer.h"
 
 using namespace std;
 
@@ -24,12 +24,14 @@ namespace SevenZipCore
     TString Helper::GetFileNameStem(const TString &tstrPath)
     {
         TString tstrFileName = GetFileName(tstrPath);
-        return tstrFileName.substr(0, tstrFileName.rfind(TEXT(".")));
+        return tstrFileName.substr(0, tstrFileName.rfind(
+            FILE_EXTENSION_SEPARATOR));
     }
 
     TString Helper::GetFileExtension(const TString &tstrExtension)
     {
-        return tstrExtension.substr(tstrExtension.rfind(TEXT(".")) + 1);
+        return tstrExtension.substr(
+            tstrExtension.rfind(FILE_EXTENSION_SEPARATOR) + 1);
     }
 
     TString Helper::ToUpper(const TString &value)
@@ -92,7 +94,7 @@ namespace SevenZipCore
         static const TString tstrReserved(TEXT("<>:\"/\\|?*"));
         if (all_of(tstrPathPart.cbegin(),
             tstrPathPart.cend(),
-            [](TCHAR value) { return value == TEXT('.'); }))
+            [](TCHAR value) { return value == FILE_EXTENSION_SEPARATOR; }))
 #else
         static const TString tstrReserved(TEXT("/"));
         if (tstrPathPart == TEXT(".") || tstrPathPart == TEXT(".."))
@@ -102,7 +104,8 @@ namespace SevenZipCore
         }
 #ifdef __WINDOWS__
         boost::trim(tstrPathPart);
-        while (!tstrPathPart.empty() && tstrPathPart.back() == TEXT('.'))
+        while (!tstrPathPart.empty()
+            && tstrPathPart.back() == FILE_EXTENSION_SEPARATOR)
         {
             tstrPathPart.pop_back();
         }
@@ -201,9 +204,40 @@ namespace SevenZipCore
         return ftModified;
     }
 
-    bool Helper::AutoRenamePath(TString &tstrFullPath)
+    bool Helper::AutoRenamePath(TString &tstrPath)
     {
-        throw std::logic_error("The method or operation is not implemented.");
+        auto szDotPosition = tstrPath.rfind(FILE_EXTENSION_SEPARATOR);
+        auto szSlashPosition = tstrPath.find_last_of(FOLDER_SEPARATOR_STRING);
+        TString tstrPrefix;
+        TString tstrExtension;
+        if (TString::npos != szDotPosition && szDotPosition > szSlashPosition)
+        {
+            tstrPrefix = tstrPath.substr(0, szDotPosition);
+            tstrExtension = tstrPath.substr(szDotPosition);
+        }
+        else
+        {
+            tstrPrefix = move(tstrPath);
+        }
+        tstrPrefix.append(TEXT(" ("));
+        tstrExtension = TEXT(")") + tstrExtension;
+        int nLeft = 1;
+        int nRight = 1 << 30;
+        while (nLeft != nRight)
+        {
+            int nMid = (nLeft + nRight) >> 1;
+            if (boost::filesystem::exists(
+                tstrPrefix + ToTString(nMid) + tstrExtension))
+            {
+                nLeft = nMid + 1;
+            }
+            else
+            {
+                nRight = nMid;
+            }
+        }
+        tstrPath = tstrPrefix + ToTString(nRight) + tstrExtension;
+        return boost::filesystem::exists(tstrPath);
     }
 
 }

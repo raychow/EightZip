@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "Library.h"
 
 #include "Exception.h"

@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "ICoderAdapter.h"
 
 #include "Exception.h"

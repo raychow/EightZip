@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "Archive.h"
 
 #include <sys/stat.h>

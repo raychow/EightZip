@@ -139,7 +139,7 @@
                 GetProperty(index, PropertyId::Extension), TString()); \
             if (!tstrExtension.empty()) \
             { \
-                tstrPath = TEXT(".") + tstrExtension; \
+                tstrPath = TString(TEXT(".")) + tstrExtension; \
             } \
         } \
         return tstrPath; \

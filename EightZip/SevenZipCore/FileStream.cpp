@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "FileStream.h"
 
 #include "Exception.h"
@@ -12,11 +11,6 @@ namespace SevenZipCore
         : InFileStream()
     {
         Open(tstrPath);
-    }
-
-    InFileStream::~InFileStream()
-    {
-
     }
 
     void InFileStream::Open(const TString &tstrPath)

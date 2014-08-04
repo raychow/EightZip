@@ -41,8 +41,15 @@ std::wstring ConvertWStringToTString(const std::wstring &value);
 class LocaleSwitcher
 {
 public:
-    LocaleSwitcher(const char *locale);
-    ~LocaleSwitcher();
+    LocaleSwitcher(const char *locale)
+        : m_strOldLocale(setlocale(LC_CTYPE, nullptr))
+    {
+        setlocale(LC_CTYPE, locale);
+    }
+    ~LocaleSwitcher()
+    {
+        setlocale(LC_CTYPE, m_strOldLocale.c_str());
+    }
 
 private:
     std::string m_strOldLocale;

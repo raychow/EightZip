@@ -34,7 +34,7 @@ namespace SevenZipCore
 
         void SetProgressCompleted(boost::optional<UINT64> completeValue);
         STDMETHOD(SetCompleted)(const UINT64 *completeValue);
-
+        
         IUNKNOWN_IMP1(IProgress)
 
     };

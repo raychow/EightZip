@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "Codecs.h"
 
 #include <sstream>

@@ -1,7 +1,7 @@
 // ArchiveExtractCallback.h
 
-#ifndef ARCHIVEEXTRACTCALLBACK_H
-#define ARCHIVEEXTRACTCALLBACK_H
+#ifndef SEVENZIPCORE_ARCHIVEEXTRACTCALLBACK_H
+#define SEVENZIPCORE_ARCHIVEEXTRACTCALLBACK_H
 
 #include <memory>
 
@@ -62,6 +62,7 @@ namespace SevenZipCore
         OverwriteMode m_overwriteMode;
 
         TString m_tstrRealPath;
+        std::shared_ptr<ISequentialOutStream> m_cpOutStream;
 
         static boost::optional<FILETIME> __GetTime(
             IInArchiveAdapter &archiveAdapter,
@@ -71,4 +72,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // ARCHIVEEXTRACTCALLBACK_H
+#endif // SEVENZIPCORE_ARCHIVEEXTRACTCALLBACK_H

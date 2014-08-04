@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "ArchiveExtractCallback.h"
 
 #include <vector>
@@ -197,12 +196,12 @@ namespace SevenZipCore
                     }
                 }
                 auto tstrFullPath = m_tstrExtractPath + tstrFilteredPath;
+                boost::system::error_code errorCode;
                 if (m_isDirectory)
                 {
                     m_tstrRealPath = move(tstrFullPath);
                     if (isAnti)
                     {
-                        boost::system::error_code errorCode;
                         boost::filesystem::remove(m_tstrRealPath, errorCode);
                     }
                     return S_OK;
@@ -219,7 +218,8 @@ namespace SevenZipCore
                             return S_OK;
                         case OverwriteMode::AskBefore:
                         {
-                            int nDialogResult = 0;
+                            int nDialogResult =
+                                static_cast<int>(OverwriteAnswer::YesToAll);
                             // nDialogResult = ShowOverwriteDialog();
                             switch (static_cast<OverwriteAnswer>(nDialogResult))
                             {
@@ -248,10 +248,30 @@ namespace SevenZipCore
                         case OverwriteMode::AutoRename:
                             if (!Helper::AutoRenamePath(tstrFullPath))
                             {
-
+                                // TODO: Add error message.
+                                return E_FAIL;
                             }
+                            break;
+                        case OverwriteMode::AutoRenameExisting:
+                            // Unused?
+                            // Not implement yet.
+                            return E_FAIL;
+                        case OverwriteMode::WithoutPrompt:
+                            boost::filesystem::remove(tstrFullPath, errorCode);
+                            if (errorCode)
+                            {
+                                // Add error message.
+                                return S_OK;
+                            }
+                            break;
+                        default:
+                            return E_FAIL;
                         }
                     }
+                }
+                if (!isAnti)
+                {
+                    // TODO: 20140804
                 }
             }
             return S_OK;

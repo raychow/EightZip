@@ -1,33 +1,66 @@
-#include "stdwx.h"
 #include "TString.h"
 
 #include <memory>
+
+#include "Platform.h"
 
 using namespace std;
 
 wstring ConvertStringToWString(const std::string &value)
 {
     LocaleSwitcher localeSwitcher("");
-    auto szLength = mbstowcs(nullptr, value.c_str(), 0);
-    if ((size_t)-1 == szLength)
+    size_t szLength = 0;
+#ifdef __WINDOWS__
+    if (0 != mbstowcs_s(&szLength, nullptr, 0, value.c_str(), _TRUNCATE))
+    {
+        return wstring();
+    }
+    unique_ptr<wchar_t[]> upWChar(new wchar_t[szLength]);
+    if (0 != mbstowcs_s(&szLength, upWChar.get(), szLength, value.c_str(), _TRUNCATE))
+    {
+        return wstring();
+    }
+    return wstring(upWChar.get());
+#else
+    if ((size_t)-1 == (szLength = mbstowcs(nullptr, value.c_str(), 0)))
     {
         return wstring();
     }
     unique_ptr<wchar_t[]> upWChar(new wchar_t[++szLength]);
     mbstowcs(upWChar.get(), value.c_str(), szLength);
+    upWChar[szLength - 1] = 0;
     return std::wstring(upWChar.get());
+#endif
 }
 
 string ConvertWStringToString(const std::wstring &value)
 {
     LocaleSwitcher localeSwitcher("");
-    auto szLength = (value.size() + 1) * sizeof(wchar_t);
-    unique_ptr<char[]> upChar(new char[szLength]);
-    if ((size_t)-1 == wcstombs(upChar.get(), value.c_str(), szLength))
+    size_t szLength = 0;
+#ifdef __WINDOWS__
+    if (0 != wcstombs_s(&szLength, nullptr, 0, value.c_str(), _TRUNCATE))
     {
-        return string();
+        return std::string();
+    }
+    unique_ptr<char[]> upChar(new char[szLength]);
+    if (0 != wcstombs_s(&szLength, upChar.get(), szLength, value.c_str(), _TRUNCATE))
+    {
+        return std::string();
     }
     return std::string(upChar.get());
+#else
+    if ((size_t)-1 == (szLength = wcstombs(nullptr, value.c_str(), 0)))
+    {
+        return std::string();
+    }
+    unique_ptr<char[]> upChar(new char[++szLength]);
+    if ((size_t)-1 == wcstombs(upChar.get(), value.c_str(), szLength))
+    {
+        return std::string();
+}
+    upChar[szLength - 1] = 0;
+    return std::string(upChar.get());
+#endif
 }
 
 wstring ConvertTStringToWString(const TString &value)
@@ -64,15 +97,4 @@ wstring ConvertWStringToTString(const std::wstring &value)
 #else
     return ConvertWStringToString(value);
 #endif
-}
-
-LocaleSwitcher::LocaleSwitcher(const char *locale)
-    : m_strOldLocale(setlocale(LC_CTYPE, nullptr))
-{
-    setlocale(LC_CTYPE, locale);
-}
-
-LocaleSwitcher::~LocaleSwitcher()
-{
-    setlocale(LC_CTYPE, m_strOldLocale.c_str());
 }

@@ -1,7 +1,7 @@
 // Platform.h
 
-#ifndef PLATFORM_H
-#define PLATFORM_H
+#ifndef SEVENZIPCORE_PLATFORM_H
+#define SEVENZIPCORE_PLATFORM_H
 
 #if defined(_WIN32) || defined(__WIN32__)
 #ifndef __WINDOWS__
@@ -18,5 +18,7 @@
 #define FOLDER_SEPARATOR_STRING TEXT("/")
 #define FOLDER_POSSIBLE_SEPARATOR TEXT("/")
 #endif
+#define FILE_EXTENSION_SEPARATOR TEXT('.')
+#define FILE_EXTENSION_SEPARATOR_STRING TEXT(".")
 
-#endif // PLATFORM_H
+#endif // SEVENZIPCORE_PLATFORM_H

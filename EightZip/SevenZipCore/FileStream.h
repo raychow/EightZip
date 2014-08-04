@@ -25,9 +25,9 @@ namespace SevenZipCore
         , public IStreamGetSize
     {
     public:
-        InFileStream() {};
+        InFileStream() {}
         InFileStream(const TString &tstrPath);
-        virtual ~InFileStream();
+        virtual ~InFileStream() {}
 
         void Open(const TString &tstrPath);
 

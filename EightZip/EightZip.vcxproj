@@ -117,16 +117,18 @@
     <ClInclude Include="SevenZipCore\ICoder.h" />
     <ClInclude Include="SevenZipCore\ICoderAdapter.h" />
     <ClInclude Include="SevenZipCore\IDecl.h" />
+    <ClInclude Include="SevenZipCore\IOFile.h" />
     <ClInclude Include="SevenZipCore\IProgress.h" />
     <ClInclude Include="SevenZipCore\IStream.h" />
     <ClInclude Include="SevenZipCore\IStreamAdapter.h" />
     <ClInclude Include="SevenZipCore\Library.h" />
     <ClInclude Include="SevenZipCore\OpenCallback.h" />
+    <ClInclude Include="SevenZipCore\OutFileStream.h" />
     <ClInclude Include="SevenZipCore\Platform.h" />
     <ClInclude Include="SevenZipCore\Property.h" />
     <ClInclude Include="SevenZipCore\PropertyVariant.h" />
     <ClInclude Include="SevenZipCore\TString.h" />
-    <ClInclude Include="SevenZipCore\HandleUniquePtr.h" />
+    <ClInclude Include="SevenZipCore\SmartPointer.h" />
     <ClInclude Include="stdwx.h" />
     <ClInclude Include="SystemImageList.h" />
   </ItemGroup>
@@ -142,22 +144,96 @@
     <ClCompile Include="FolderModel.cpp" />
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="ModelBase.cpp" />
-    <ClCompile Include="SevenZipCore\Archive.cpp" />
-    <ClCompile Include="SevenZipCore\ArchiveEntry.cpp" />
-    <ClCompile Include="SevenZipCore\ArchiveExtractCallback.cpp" />
-    <ClCompile Include="SevenZipCore\ArchiveFile.cpp" />
-    <ClCompile Include="SevenZipCore\ArchiveManager.cpp" />
-    <ClCompile Include="SevenZipCore\Codecs.cpp" />
-    <ClCompile Include="SevenZipCore\Common.cpp" />
-    <ClCompile Include="SevenZipCore\FileStream.cpp" />
-    <ClCompile Include="SevenZipCore\IArchiveAdapter.cpp" />
-    <ClCompile Include="SevenZipCore\ICoderAdapter.cpp" />
-    <ClCompile Include="SevenZipCore\IStreamAdapter.cpp" />
-    <ClCompile Include="SevenZipCore\Library.cpp" />
-    <ClCompile Include="SevenZipCore\OpenCallback.cpp" />
-    <ClCompile Include="SevenZipCore\Property.cpp" />
-    <ClCompile Include="SevenZipCore\PropertyVariant.cpp" />
-    <ClCompile Include="SevenZipCore\TString.cpp" />
+    <ClCompile Include="SevenZipCore\Archive.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\ArchiveEntry.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\ArchiveExtractCallback.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\ArchiveFile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\ArchiveManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\Codecs.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\Common.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\FileStream.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\IArchiveAdapter.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\ICoderAdapter.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\IOFile.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\IStreamAdapter.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\Library.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\OpenCallback.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\OutFileStream.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\Property.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\PropertyVariant.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\TString.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="stdwx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

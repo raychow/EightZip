@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "IArchiveAdapter.h"
 
 #include "Exception.h"

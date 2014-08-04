@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "IStreamAdapter.h"
 
 #include "Exception.h"

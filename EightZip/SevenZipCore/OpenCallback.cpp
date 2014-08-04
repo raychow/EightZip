@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "OpenCallback.h"
 
 #include <cassert>

@@ -57,7 +57,7 @@ TString FileInfo::GetType(
         }
         else
         {
-            auto szPointPosition = tstrFileName.rfind(wxT('.'));
+            auto szPointPosition = tstrFileName.rfind(wxFILE_SEP_EXT);
             tstrFakeName = TString(wxT("fake."))
                 + tstrFileName.substr(szPointPosition + 1);
         }

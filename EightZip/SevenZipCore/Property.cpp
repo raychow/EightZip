@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "Property.h"
 
 #include <Windows.h>

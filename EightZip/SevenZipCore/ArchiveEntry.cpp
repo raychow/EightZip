@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "ArchiveEntry.h"
 
 #include <algorithm>

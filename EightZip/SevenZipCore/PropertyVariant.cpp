@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "PropertyVariant.h"
 
 namespace SevenZipCore

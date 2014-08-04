@@ -5,6 +5,10 @@
 
 #include <vector>
 
+#include <boost/optional.hpp>
+
+#include <Windows.h>
+
 #include "Platform.h"
 #include "TString.h"
 
@@ -39,7 +43,7 @@ namespace SevenZipCore
             const FILETIME *lpLastAccessTime,
             const FILETIME *lpLastWriteTime);
         static boost::optional<FILETIME> GetFileModifiedTime(TString tstrPath);
-        static bool AutoRenamePath(TString &tstrFullPath);
+        static bool AutoRenamePath(TString &tstrPath);
     };
 }
 

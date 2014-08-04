@@ -147,7 +147,13 @@
     <ClInclude Include="SevenZipCore\Platform.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
-    <ClInclude Include="SevenZipCore\HandleUniquePtr.h">
+    <ClInclude Include="SevenZipCore\OutFileStream.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\IOFile.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\SmartPointer.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
   </ItemGroup>
@@ -237,6 +243,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SevenZipCore\ArchiveExtractCallback.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\OutFileStream.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\IOFile.cpp">
       <Filter>源文件\SevenZipCore</Filter>
     </ClCompile>
   </ItemGroup>

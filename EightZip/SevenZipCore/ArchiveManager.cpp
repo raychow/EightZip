@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "ArchiveManager.h"
 
 SevenZipCore::ArchiveManager::ArchiveManager(const TString &tstrBaseFolder)

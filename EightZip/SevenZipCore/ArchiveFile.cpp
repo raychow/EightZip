@@ -1,4 +1,3 @@
-#include "stdwx.h"
 #include "ArchiveFile.h"
 
 #include "Exception.h"
@@ -13,7 +12,7 @@ using namespace std;
 namespace SevenZipCore
 {
     ArchiveFile::ArchiveFile(
-        optional<UINT> ounIndex,
+        const boost::optional<UINT> &ounIndex,
         TString tstrName,
         shared_ptr<IInArchive> cpArchive,
         std::weak_ptr<ArchiveFolder> wpParent)
