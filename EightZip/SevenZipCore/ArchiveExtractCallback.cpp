@@ -6,6 +6,7 @@
 #include <boost/system/error_code.hpp>
 
 #include "Common.h"
+#include "FileStream.h"
 
 using namespace std;
 
@@ -220,7 +221,7 @@ namespace SevenZipCore
                         {
                             int nDialogResult =
                                 static_cast<int>(OverwriteAnswer::YesToAll);
-                            // nDialogResult = ShowOverwriteDialog();
+                            // TODO: nDialogResult = ShowOverwriteDialog();
                             switch (static_cast<OverwriteAnswer>(nDialogResult))
                             {
                             case OverwriteAnswer::Cancel:
@@ -260,7 +261,7 @@ namespace SevenZipCore
                             boost::filesystem::remove(tstrFullPath, errorCode);
                             if (errorCode)
                             {
-                                // Add error message.
+                                // TODO: Add error message.
                                 return S_OK;
                             }
                             break;
@@ -271,8 +272,33 @@ namespace SevenZipCore
                 }
                 if (!isAnti)
                 {
-                    // TODO: 20140804
+                    try
+                    {
+                        m_cpOutStream = MakeComPtr(
+                            new OutFileStream(tstrFullPath, !m_oun64Position));
+                    }
+                    catch (const FileException &)
+                    {
+                        // TODO: Add error message.
+                        return S_OK;
+                    }
+                    OutFileStreamAdapter streamAdapter(
+                        dynamic_pointer_cast<OutFileStream>(m_cpOutStream));
+                    if (m_oun64Position)
+                    {
+                        streamAdapter.Seek(*m_oun64Position, STREAM_SEEK_SET);
+                    }
+                    *outStream = m_cpOutStream.get();
                 }
+                m_tstrRealPath = tstrFullPath;
+            }
+            else
+            {
+                *outStream = nullptr;
+            }
+            if (m_isCRCMode)
+            {
+                // TODO: CRCMode
             }
             return S_OK;
         }

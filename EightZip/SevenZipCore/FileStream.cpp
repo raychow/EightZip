@@ -7,107 +7,177 @@ using namespace std;
 
 namespace SevenZipCore
 {
-    InFileStream::InFileStream(const TString &tstrPath)
-        : InFileStream()
-    {
-        Open(tstrPath);
-    }
-
-    void InFileStream::Open(const TString &tstrPath)
-    {
-        m_ifFile.open(
-            ConvertWStringToString(tstrPath),
-            ios_base::in | ios_base::binary);
-        if (!m_ifFile.good())
-        {
-            throw StreamException("Cannot open specified file.");
-        }
+    void InFileStream::Open(const TString &tstrPath, bool isShareWrite)
+{
+        m_file.Open(tstrPath, isShareWrite);
     }
 
     STDMETHODIMP InFileStream::Read(
-        void *data, UINT32 size, UINT32 *processedSize)
+        void *pData, UINT32 unSize, UINT32 *punProcessedSize)
     {
-        if (processedSize)
+        try
         {
-            *processedSize = 0;
-        }
-        if (0 == size)
-        {
+            if (punProcessedSize)
+            {
+                *punProcessedSize = 0;
+            }
+            if (0 == unSize)
+            {
+                return S_OK;
+            }
+
+            auto unBytesRead = m_file.ReadPart(
+                reinterpret_cast<BYTE *>(pData), unSize);
+
+            if (punProcessedSize)
+            {
+                *punProcessedSize = unBytesRead;
+            }
             return S_OK;
         }
-        // TODO: if isDeviceFile
-        // ********** CHECK THIS **********
-        // 7zFM, FileIO.cpp, line 315:
-        // ReadFile and WriteFile functions in Windows have BUG:
-        // If you Read or Write 64MB or more (probably min_failure_size = 64MB - 32KB + 1)
-        // from/to Network file, it returns ERROR_NO_SYSTEM_RESOURCES
-        // (Insufficient system resources exist to complete the requested service).
-        //
-        // Probably in some version of Windows there are problems with other sizes:
-        // for 32 MB (maybe also for 16 MB).
-        // And message can be "Network connection was lost"
-        // else
-        m_ifFile.read(reinterpret_cast<char *>(data), size);
-        // When read beyond the end, the fail bit is set,
-        // but we can ignore it because data is set.
-        if (m_ifFile.bad())
+        catch (...)
         {
-            return S_FALSE;
+            return E_FAIL;
         }
-        if (processedSize)
-        {
-            *processedSize = static_cast<UINT32>(m_ifFile.gcount());
-        }
-        return S_OK;
     }
 
     STDMETHODIMP InFileStream::Seek(
-        INT64 offset,
-        UINT32 seekOrigin,
-        UINT64 *newPosition)
+        INT64 n64Offset,
+        UINT32 unSeekOrigin,
+        UINT64 *pun64NewPosition)
     {
-        ios_base::seekdir seekDirection;
-        switch (seekOrigin)
+        IOFile::SeekOrigin seekOrigin;
+        switch (unSeekOrigin)
         {
         case STREAM_SEEK_SET:
-            seekDirection = ios_base::beg;
+            seekOrigin = IOFile::SeekOrigin::Begin;
             break;
         case STREAM_SEEK_CUR:
-            seekDirection = ios_base::cur;
+            seekOrigin = IOFile::SeekOrigin::Current;
             break;
         case STREAM_SEEK_END:
-            seekDirection = ios_base::end;
+            seekOrigin = IOFile::SeekOrigin::End;
             break;
         default:
-            return STG_E_INVALIDFUNCTION;
+            return E_INVALIDARG;
         }
-        m_ifFile.seekg(offset, seekDirection);
-        // fail() checks both fail and bad bits.
-        if (m_ifFile.fail())
+        try
         {
-            return S_FALSE;
+            auto n64NewPosition = m_file.Seek(n64Offset, seekOrigin);
+
+            if (pun64NewPosition)
+            {
+                *pun64NewPosition = n64NewPosition;
+            }
+            return S_OK;
         }
-        if (newPosition)
+        catch (...)
         {
-            *newPosition = m_ifFile.tellg();
+            return E_FAIL;
         }
-        return S_OK;
     }
 
-    STDMETHODIMP InFileStream::GetSize(UINT64 *size)
+    STDMETHODIMP InFileStream::GetSize(UINT64 *pun64Size)
     {
-        auto origPosition = m_ifFile.tellg();
-        m_ifFile.seekg(0, ios_base::end);
-        *size = m_ifFile.tellg();
-        m_ifFile.seekg(origPosition, ios_base::beg);
-        if (m_ifFile.fail())
+        try
         {
-            return S_FALSE;
+            if (pun64Size)
+            {
+                *pun64Size = m_file.GetSize();
+            }
+            return S_OK;
         }
-        return S_OK;
+        catch (...)
+        {
+            return E_INVALIDARG;
+        }
     }
 
     IMPLEMENT_ADAPTER_CONSTRUCTOR(InFileStream)
     IMPLEMENT_IINSTREAM_ADAPTER(InFileStream)
     IMPLEMENT_ISTREAMGETSIZE_ADAPTER(InFileStream)
+
+    void OutFileStream::Open(const TString &tstrPath, bool isTruncate)
+    {
+         m_file.Open(tstrPath, isTruncate);
+    }
+
+    STDMETHODIMP OutFileStream::Write(
+        const void *pData, UINT32 unSize, UINT32 *punProcessedSize)
+    {
+        try
+        {
+            if (punProcessedSize)
+            {
+                *punProcessedSize = 0;
+            }
+            if (0 == unSize)
+            {
+                return S_OK;
+            }
+
+            auto unBytesRead = m_file.WritePart(
+                reinterpret_cast<const BYTE *>(pData), unSize);
+
+            if (punProcessedSize)
+            {
+                *punProcessedSize = unBytesRead;
+            }
+            return S_OK;
+        }
+        catch (...)
+        {
+            return E_FAIL;
+        }
+    }
+
+    STDMETHODIMP OutFileStream::Seek(
+        INT64 n64Offset, UINT32 unSeekOrigin, UINT64 *pun64NewPosition)
+    {
+        IOFile::SeekOrigin seekOrigin;
+        switch (unSeekOrigin)
+        {
+        case STREAM_SEEK_SET:
+            seekOrigin = IOFile::SeekOrigin::Begin;
+            break;
+        case STREAM_SEEK_CUR:
+            seekOrigin = IOFile::SeekOrigin::Current;
+            break;
+        case STREAM_SEEK_END:
+            seekOrigin = IOFile::SeekOrigin::End;
+            break;
+        default:
+            return E_INVALIDARG;
+        }
+        try
+        {
+            auto n64NewPosition = m_file.Seek(n64Offset, seekOrigin);
+
+            if (pun64NewPosition)
+            {
+                *pun64NewPosition = n64NewPosition;
+            }
+            return S_OK;
+        }
+        catch (...)
+        {
+            return E_FAIL;
+        }
+    }
+
+    STDMETHODIMP OutFileStream::SetSize(UINT64 un64Size)
+    {
+        try
+        {
+            m_file.SetSize(un64Size);
+            return S_OK;
+        }
+        catch (...)
+        {
+            return E_INVALIDARG;
+        }
+    }
+
+    IMPLEMENT_ADAPTER_CONSTRUCTOR(OutFileStream)
+    IMPLEMENT_IOUTSTREAM_ADAPTER(OutFileStream)
 }

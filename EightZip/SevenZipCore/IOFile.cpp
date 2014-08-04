@@ -16,15 +16,15 @@
 
 namespace SevenZipCore
 {
-    void IOFile::Open(TString tstrPath, bool isInput)
+    void IOFile::OpenForInput(TString tstrPath, bool isShareWrite)
     {
 #ifdef __WINDOWS__
         m_upFile.reset(::CreateFile(
             tstrPath.c_str(),
-            isInput ? GENERIC_READ : GENERIC_WRITE,
-            FILE_SHARE_READ,
+            GENERIC_READ,
+            FILE_SHARE_READ | (isShareWrite ? FILE_SHARE_WRITE : 0),
             nullptr,
-            isInput ? OPEN_EXISTING : CREATE_ALWAYS,
+            OPEN_EXISTING,
             FILE_ATTRIBUTE_NORMAL,
             nullptr));
         if (INVALID_HANDLE_VALUE == m_upFile.get())
@@ -34,7 +34,33 @@ namespace SevenZipCore
 #else
         // TODO: fcntl() or flock()?
         m_upFile.reset(fopen(
-            ConvertTStringToString(tstrPath).c_str(), isInput ? "r" : "w"));
+            ConvertTStringToString(tstrPath).c_str(), "rb"));
+        if (!m_upFile)
+        {
+            throw FileException("Cannot open file.");
+        }
+#endif
+    }
+
+    void IOFile::OpenForOutput(TString tstrPath, bool isTruncate)
+    {
+#ifdef __WINDOWS__
+        m_upFile.reset(::CreateFile(
+            tstrPath.c_str(),
+            GENERIC_WRITE,
+            FILE_SHARE_READ,
+            nullptr,
+            isTruncate ? CREATE_ALWAYS : OPEN_ALWAYS,
+            FILE_ATTRIBUTE_NORMAL,
+            nullptr));
+        if (INVALID_HANDLE_VALUE == m_upFile.get())
+        {
+            throw FileException("Cannot open file.");
+        }
+#else
+        // TODO: fcntl() or flock()?
+        m_upFile.reset(fopen(
+            ConvertTStringToString(tstrPath).c_str(), isTruncate ? "wb+" : "wb"));
         if (!m_upFile)
         {
             throw FileException("Cannot open file.");
@@ -56,13 +82,13 @@ namespace SevenZipCore
 #endif
     }
 
-    UINT64 IOFile::GetLength() const
+    UINT64 IOFile::GetSize() const
     {
 #ifdef __WINDOWS__
         LARGE_INTEGER result;
         if (0 == GetFileSizeEx(m_upFile.get(), &result))
         {
-            throw FileException("Cannot get length of the file.");
+            throw FileException("Cannot get the size of the file.");
         }
         return result.QuadPart;
 #else
@@ -132,7 +158,7 @@ namespace SevenZipCore
 #endif
     }
 
-    void InFile::Read(BYTE *pbyBuffer, UINT32 nBytesToRead)
+    void InFile::Read(BYTE *pbyBuffer, UINT32 nBytesToRead) const
     {
         UINT32 unBytesProcessed = 0;
         while (unBytesProcessed < nBytesToRead)
@@ -147,7 +173,7 @@ namespace SevenZipCore
         }
     }
 
-    UINT32 InFile::ReadPart(BYTE *pbyBuffer, UINT32 nBytesToRead)
+    UINT32 InFile::ReadPart(BYTE *pbyBuffer, UINT32 nBytesToRead) const
     {
         if (nBytesToRead > MAX_CHUNK_SIZE)
         {
@@ -167,7 +193,7 @@ namespace SevenZipCore
         return result;
     }
 
-    void OutFile::Write(BYTE *pbyBuffer, UINT32 nBytesToWrite)
+    void OutFile::Write(const BYTE *pbyBuffer, UINT32 nBytesToWrite) const
     {
         UINT32 unBytesProcessed = 0;
         while (unBytesProcessed < nBytesToWrite)
@@ -182,7 +208,7 @@ namespace SevenZipCore
         }
     }
 
-    UINT32 OutFile::WritePart(BYTE *pbyBuffer, UINT32 nBytesToWrite)
+    UINT32 OutFile::WritePart(const BYTE *pbyBuffer, UINT32 nBytesToWrite) const
     {
         if (nBytesToWrite > MAX_CHUNK_SIZE)
         {
@@ -202,16 +228,16 @@ namespace SevenZipCore
         return result;
     }
 
-    void OutFile::SetLength(UINT64 un64Length)
+    void OutFile::SetSize(UINT64 un64Size) const
     {
 #ifdef __WINDOWS__
-        if (!(un64Length == Seek(un64Length, IOFile::SeekOrigin::Begin)
+        if (!(un64Size == Seek(un64Size, IOFile::SeekOrigin::Begin)
             && 0 != ::SetEndOfFile(m_upFile.get())))
 #else
-        if (0 != ftruncate(fileno(m_upFile.get()), un64Length))
+        if (0 != ftruncate(fileno(m_upFile.get()), un64Size))
 #endif
         {
-            throw FileException("Cannot set file length.");
+            throw FileException("Cannot set file size.");
         }
     }
 

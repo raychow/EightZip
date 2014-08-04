@@ -31,17 +31,16 @@ namespace SevenZipCore
         };
 
         IOFile() {}
-        IOFile(TString tstrPath, bool isInput) { Open(tstrPath, isInput); }
         virtual ~IOFile() { Close(); }
 
-        void Open(TString tstrPath, bool isInput);
+        void OpenForInput(TString tstrPath, bool );
+        void OpenForOutput(TString tstrPath, bool isTruncate);
         void Close() { m_upFile.reset(); }
 
         UINT64 GetPosition() const;
-        UINT64 GetLength() const;
+        UINT64 GetSize() const;
 
         INT64 Seek(INT64 n64Offset, SeekOrigin seekOrigin) const;
-
     protected:
 #ifdef __WINDOWS__
         HandleUniquePtr m_upFile;
@@ -56,15 +55,18 @@ namespace SevenZipCore
     {
     public:
         InFile() {}
-        InFile(TString tstrPath) { Open(tstrPath); }
+        InFile(TString tstrPath, bool isShareWrite)
+        {
+            Open(tstrPath, isShareWrite);
+        }
         virtual ~InFile() { Close(); }
 
-        void Open(TString tstrPath)
+        void Open(TString tstrPath, bool isShareWrite)
         {
-            IOFile::Open(tstrPath, true);
+            IOFile::OpenForInput(tstrPath, isShareWrite);
         }
-        void Read(BYTE *pbyBuffer, UINT32 nBytesToRead);
-        UINT32 ReadPart(BYTE *pbyBuffer, UINT32 nBytesToRead);
+        void Read(BYTE *pbyBuffer, UINT32 nBytesToRead)  const;
+        UINT32 ReadPart(BYTE *pbyBuffer, UINT32 nBytesToRead) const;
 
     };
 
@@ -73,17 +75,20 @@ namespace SevenZipCore
     {
     public:
         OutFile() {}
-        OutFile(TString tstrPath) { Open(tstrPath); }
+        OutFile(TString tstrPath, bool isTruncate)
+        {
+            Open(tstrPath, isTruncate);
+        }
         virtual ~OutFile() { Close(); }
 
-        void Open(TString tstrPath)
+        void Open(TString tstrPath, bool isTruncate)
         {
-            IOFile::Open(tstrPath, false);
+            IOFile::OpenForOutput(tstrPath, isTruncate);
         }
 
-        void Write(BYTE *pbyBuffer, UINT32 nBytesToWrite);
-        UINT32 WritePart(BYTE *pbyBuffer, UINT32 nBytesToWrite);
-        void SetLength(UINT64 un64Length);
+        void Write(const BYTE *pbyBuffer, UINT32 nBytesToWrite) const;
+        UINT32 WritePart(const BYTE *pbyBuffer, UINT32 nBytesToWrite) const;
+        void SetSize(UINT64 un64Size) const;
     };
 }
 

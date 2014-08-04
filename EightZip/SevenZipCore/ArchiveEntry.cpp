@@ -55,7 +55,7 @@ namespace SevenZipCore
         // if stream
         //   open stream
         // else
-        m_cpInStream = MakeComPtr(new InFileStream(m_tstrPath));
+        m_cpInStream = MakeComPtr(new InFileStream(m_tstrPath, false));
         __OpenStream();
     }
 

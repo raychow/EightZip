@@ -3,9 +3,8 @@
 #ifndef SEVENZIPCORE_FILESTREAM_H
 #define SEVENZIPCORE_FILESTREAM_H
 
-#include <fstream>
-
 #include "COM.h"
+#include "IOFile.h"
 #include "IStream.h"
 #include "IStreamAdapter.h"
 #include "TString.h"
@@ -26,25 +25,62 @@ namespace SevenZipCore
     {
     public:
         InFileStream() {}
-        InFileStream(const TString &tstrPath);
+        InFileStream(const TString &tstrPath, bool isShareWrite)
+        {
+            Open(tstrPath, isShareWrite);
+        }
         virtual ~InFileStream() {}
 
-        void Open(const TString &tstrPath);
+        void Open(const TString &tstrPath, bool isShareWrite);
 
-        STDMETHOD(Read)(void *data, UINT32 size, UINT32 *processedSize);
-        STDMETHOD(Seek)(INT64 offset, UINT32 seekOrigin, UINT64 *newPosition);
+        STDMETHOD(Read)(void *pData, UINT32 unSize, UINT32 *punProcessedSize);
+        STDMETHOD(Seek)(
+            INT64 n64Offset, UINT32 unSeekOrigin, UINT64 *pun64NewPosition);
 
-        STDMETHOD(GetSize)(UINT64 *size);
+        STDMETHOD(GetSize)(UINT64 *pun64Size);
 
         IUNKNOWN_IMP2(IInStream, IStreamGetSize)
+
     protected:
-        std::ifstream m_ifFile;
+        InFile m_file;
+
     };
 
     DECLARE_ADAPTER_CLASS2(
         InFileStream,
         DECLARE_IINSTREAM_ADAPTER,
         DECLARE_ISTREAMGETSIZE_ADAPTER)
+
+    class OutFileStream
+        : public IOutStream
+    {
+    public:
+        OutFileStream() {}
+        OutFileStream(const TString &tstrPath, bool isTruncate)
+        {
+            Open(tstrPath, isTruncate);
+        }
+        virtual ~OutFileStream() {}
+
+        void Open(const TString &tstrPath, bool isTruncate);
+
+        STDMETHOD(Write)(
+            const void *pData, UINT32 unSize, UINT32 *punProcessedSize);
+
+        STDMETHOD(Seek)(
+            INT64 n64Offset, UINT32 unSeekOrigin, UINT64 *pun64NewPosition);
+        STDMETHOD(SetSize)(UINT64 un64Size);
+
+        IUNKNOWN_IMP1(IOutStream)
+
+    protected:
+        OutFile m_file;
+
+    };
+
+    DECLARE_ADAPTER_CLASS1(
+        OutFileStream,
+        DECLARE_IOUTSTREAM_ADAPTER)
 }
 
 #endif // SEVENZIPCORE_FILESTREAM_H

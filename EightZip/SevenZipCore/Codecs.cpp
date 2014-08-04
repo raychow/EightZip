@@ -216,7 +216,7 @@ namespace SevenZipCore
         }
         catch (const SevenZipCoreException &)
         {
-            return S_FALSE;
+            return E_FAIL;
         }
         return S_OK;
     }
@@ -234,7 +234,7 @@ namespace SevenZipCore
             }
             catch (const SevenZipCoreException &)
             {
-                return S_FALSE;
+                return E_FAIL;
             }
         }
         return S_OK;
@@ -253,7 +253,7 @@ namespace SevenZipCore
             }
             catch (const SevenZipCoreException &)
             {
-                return S_FALSE;
+                return E_FAIL;
             }
         }
         return S_OK;

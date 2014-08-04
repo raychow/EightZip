@@ -123,7 +123,6 @@
     <ClInclude Include="SevenZipCore\IStreamAdapter.h" />
     <ClInclude Include="SevenZipCore\Library.h" />
     <ClInclude Include="SevenZipCore\OpenCallback.h" />
-    <ClInclude Include="SevenZipCore\OutFileStream.h" />
     <ClInclude Include="SevenZipCore\Platform.h" />
     <ClInclude Include="SevenZipCore\Property.h" />
     <ClInclude Include="SevenZipCore\PropertyVariant.h" />
@@ -210,11 +209,6 @@
       </PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="SevenZipCore\OpenCallback.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="SevenZipCore\OutFileStream.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeaderFile>

@@ -33,6 +33,35 @@
         return result; \
     } \
 
+#define DECLARE_IOUTSTREAM_ADAPTER \
+    UINT32 Write(std::vector<char> data); \
+    UINT64 Seek(INT64 offset, UINT32 seekOrigin); \
+    void SetSize(UINT64 newSize); \
+
+#define IMPLEMENT_IOUTSTREAM_ADAPTER(target_name) \
+    UINT32 target_name##Adapter::Write(std::vector<char> data) \
+    { \
+        UINT32 result = 0; \
+        CHECK_OK(m_spTarget->Write(data.data(), data.size(), &result), \
+            StreamException, \
+            "Cannot write to the file stream."); \
+        return result; \
+    } \
+    UINT64 target_name##Adapter::Seek(INT64 offset, UINT32 seekOrigin) \
+    { \
+        UINT64 result = 0; \
+        CHECK_OK(m_spTarget->Seek(offset, seekOrigin, &result), \
+            StreamException, \
+            "Cannot seek the file stream."); \
+        return result; \
+    } \
+    void target_name##Adapter::SetSize(UINT64 newSize) \
+    { \
+        CHECK_OK(m_spTarget->SetSize(newSize), \
+            StreamException, \
+            "Cannot set size of the file stream."); \
+    } \
+
 #define DECLARE_ISTREAMGETSIZE_ADAPTER \
     UINT64 GetSize(); \
 
