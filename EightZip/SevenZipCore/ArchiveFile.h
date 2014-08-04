@@ -37,7 +37,10 @@ namespace SevenZipCore
             std::weak_ptr<ArchiveFolder> wpParent);
 
         const boost::optional<UINT> &GetIndex() const { return m_ounIndex; }
-        void SetIndex(const boost::optional<UINT> &value) { m_ounIndex = value; }
+        void SetIndex(const boost::optional<UINT> &value)
+        {
+            m_ounIndex = value;
+        }
 
         const TString &GetName() const { return m_tstrName; }
         void SetName(TString value) { m_tstrName = move(value); }
@@ -126,7 +129,7 @@ namespace SevenZipCore
         std::shared_ptr<ArchiveFolder> __AddFolder(
             const boost::optional<UINT> &ounIndex,
             TString tstrName,
-            std::weak_ptr<ArchiveFolder> wpParent /*= std::weak_ptr<ArchiveFolder>()*/);
+            std::weak_ptr<ArchiveFolder> wpParent);
     };
 }
 

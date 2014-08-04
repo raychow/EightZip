@@ -16,7 +16,8 @@ wstring ConvertStringToWString(const std::string &value)
         return wstring();
     }
     unique_ptr<wchar_t[]> upWChar(new wchar_t[szLength]);
-    if (0 != mbstowcs_s(&szLength, upWChar.get(), szLength, value.c_str(), _TRUNCATE))
+    if (0 != mbstowcs_s(
+        &szLength, upWChar.get(), szLength, value.c_str(), _TRUNCATE))
     {
         return wstring();
     }
@@ -43,7 +44,8 @@ string ConvertWStringToString(const std::wstring &value)
         return std::string();
     }
     unique_ptr<char[]> upChar(new char[szLength]);
-    if (0 != wcstombs_s(&szLength, upChar.get(), szLength, value.c_str(), _TRUNCATE))
+    if (0 != wcstombs_s(
+        &szLength, upChar.get(), szLength, value.c_str(), _TRUNCATE))
     {
         return std::string();
     }

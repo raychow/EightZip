@@ -29,13 +29,15 @@ namespace SevenZipCore
             nullptr));
         if (INVALID_HANDLE_VALUE == m_upFile.get())
         {
-            throw SystemException("Cannot open file.");
+            throw FileException("Cannot open file.");
         }
 #else
-        m_upFile.reset(fopen(ConvertTStringToString(tstrPath).c_str(), isInput ? "r" : "w"));
+        // TODO: fcntl() or flock()?
+        m_upFile.reset(fopen(
+            ConvertTStringToString(tstrPath).c_str(), isInput ? "r" : "w"));
         if (!m_upFile)
         {
-            throw SystemException("Cannot open file.");
+            throw FileException("Cannot open file.");
         }
 #endif
     }
@@ -48,7 +50,7 @@ namespace SevenZipCore
         auto result = ftell(m_upFile.get());
         if (-1 == result)
         {
-            throw SystemException("Can not get position.");
+            throw FileException("Cannot get position of the file.");
         }
         return result;
 #endif
@@ -60,7 +62,7 @@ namespace SevenZipCore
         LARGE_INTEGER result;
         if (0 == GetFileSizeEx(m_upFile.get(), &result))
         {
-            throw SystemException("Can not get length.");
+            throw FileException("Cannot get length of the file.");
         }
         return result.QuadPart;
 #else
@@ -98,7 +100,7 @@ namespace SevenZipCore
             &result,
             dwMoveMethod))
         {
-            throw SystemException("Can not seek.");
+            throw FileException("Cannot seek in the file.");
         }
         return result.QuadPart;
 #else
@@ -126,8 +128,91 @@ namespace SevenZipCore
                 return result;
             }
         }
-        throw SystemException("Can not seek.");
+        throw FileException("Cannot seek in the file.");
 #endif
+    }
+
+    void InFile::Read(BYTE *pbyBuffer, UINT32 nBytesToRead)
+    {
+        UINT32 unBytesProcessed = 0;
+        while (unBytesProcessed < nBytesToRead)
+        {
+            auto unBytesRead = ReadPart(pbyBuffer, nBytesToRead);
+            if (!unBytesRead)
+            {
+                return;
+            }
+            pbyBuffer += unBytesRead;
+            unBytesProcessed += unBytesRead;
+        }
+    }
+
+    UINT32 InFile::ReadPart(BYTE *pbyBuffer, UINT32 nBytesToRead)
+    {
+        if (nBytesToRead > MAX_CHUNK_SIZE)
+        {
+            nBytesToRead = MAX_CHUNK_SIZE;
+        }
+        DWORD result = 0;
+#ifdef __WINDOWS__
+        if (0 == ::ReadFile(
+            m_upFile.get(), pbyBuffer, nBytesToRead, &result, nullptr))
+#else
+        result = fread(pbyBuffer, 1, nBytesToRead, m_upFile.get());
+        if (ferror(m_upFile.get()))
+#endif
+        {
+            throw FileException("Cannot read from the file.");
+        }
+        return result;
+    }
+
+    void OutFile::Write(BYTE *pbyBuffer, UINT32 nBytesToWrite)
+    {
+        UINT32 unBytesProcessed = 0;
+        while (unBytesProcessed < nBytesToWrite)
+        {
+            auto unBytesWrite = WritePart(pbyBuffer, nBytesToWrite);
+            if (!unBytesWrite)
+            {
+                return;
+            }
+            pbyBuffer += unBytesWrite;
+            unBytesProcessed += unBytesWrite;
+        }
+    }
+
+    UINT32 OutFile::WritePart(BYTE *pbyBuffer, UINT32 nBytesToWrite)
+    {
+        if (nBytesToWrite > MAX_CHUNK_SIZE)
+        {
+            nBytesToWrite = MAX_CHUNK_SIZE;
+        }
+        DWORD result = 0;
+#ifdef __WINDOWS__
+        if (0 == ::WriteFile(
+            m_upFile.get(), pbyBuffer, nBytesToWrite, &result, nullptr))
+#else
+        result = fwrite(pbyBuffer, 1, nBytesToWrite, m_upFile.get());
+        if (ferror(m_upFile.get()))
+#endif
+        {
+            throw FileException("Cannot write to the file.");
+        }
+        return result;
+    }
+
+    void OutFile::SetLength(UINT64 un64Length)
+    {
+#ifdef __WINDOWS__
+        if (!(un64Length == Seek(un64Length, IOFile::SeekOrigin::Begin)
+            && 0 != ::SetEndOfFile(m_upFile.get())))
+#else
+        if (0 != ftruncate(fileno(m_upFile.get()), un64Length))
+#endif
+        {
+            throw FileException("Cannot set file length.");
+        }
     }
 
 }

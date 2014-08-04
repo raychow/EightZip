@@ -74,6 +74,7 @@ namespace SevenZipCore
     DECLARE_EXCEPTION(LibraryException, SevenZipCoreException);
     DECLARE_EXCEPTION(StreamException, SevenZipCoreException);
     DECLARE_EXCEPTION(ArchiveException, SevenZipCoreException);
+    DECLARE_EXCEPTION(FileException, SevenZipCoreException);
     DECLARE_EXCEPTION_WITH_ERROR_CODE(
         PropertyException,
         SevenZipCoreException,

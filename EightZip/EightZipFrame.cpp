@@ -49,7 +49,8 @@ void EightZipFrame::__CreateToolBar()
     auto *pToolBar = new wxToolBar(this, wxID_ANY);
     m_auiManager.AddPane(
         pToolBar,
-        wxAuiPaneInfo().Caption("ToolBar").Name(wxT("ToolBar")).ToolbarPane().Top());
+        wxAuiPaneInfo().Caption("ToolBar").Name(wxT("ToolBar"))
+        .ToolbarPane().Top());
 }
 
 void EightZipFrame::__OnExitClick(wxCommandEvent &WXUNUSED(event))
