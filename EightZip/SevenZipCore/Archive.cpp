@@ -1,7 +1,5 @@
 #include "Archive.h"
 
-#include <sys/stat.h>
-
 #include "Common.h"
 
 using namespace std;
@@ -38,14 +36,14 @@ namespace SevenZipCore
         }
         m_vspArchiveEntry.clear();
 
-        // make_unique is not available in C++ 0x.
-        m_vspArchiveEntry.push_back(shared_ptr<ArchiveEntry>(
-            new ArchiveEntry(*m_cpCodecs, tstrPath, move(cpCallback))));
+        m_vspArchiveEntry.push_back(make_shared<ArchiveEntry>(
+            *m_cpCodecs, tstrPath, move(cpCallback)));
         // Maybe open inner main stream in the PE file automatically (like 7zFM).
 
         // TODO: if (m_cpStream)
         try
         {
+            // TODO: Use InFile::GetTime instead.
             m_oftModified = Helper::GetFileModifiedTime(tstrPath);
         }
         catch (const SystemException &)

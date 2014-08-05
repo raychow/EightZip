@@ -19,8 +19,8 @@ namespace SevenZipCore
         bool isCRCMode,
         TString tstrExtractPath,
         TString tstrInternalPath,
-        PathMode pathMode,
-        OverwriteMode overwriteMode)
+        ExtractPathMode pathMode,
+        ExtractOverwriteMode overwriteMode)
         : m_spArchive(move(spArchive))
         , m_isStandardOutMode(isStandardOutMode)
         , m_isTestMode(isTestMode)
@@ -36,12 +36,14 @@ namespace SevenZipCore
     STDMETHODIMP ArchiveExtractCallback::SetTotal(UINT64 total)
     {
         m_un64Total = total;
+        // TODO: Set the progress window.
         return S_OK;
     }
 
     STDMETHODIMP ArchiveExtractCallback::SetCompleted(
         const UINT64 *completeValue)
     {
+        // TODO: Set the progress window.
         return S_OK;
     }
 
@@ -77,22 +79,6 @@ namespace SevenZipCore
             }
             m_isEncrypted = PropertyHelper::GetBool(archiveAdapter.GetProperty(
                 index, PropertyId::Encrypted), false);
-            try
-            {
-                m_oun64Size.reset(PropertyHelper::GetConvertedUInt64(
-                    archiveAdapter.GetProperty(index, PropertyId::Size)));
-            }
-            catch (const PropertyException &ex)
-            {
-                if (PropertyErrorCode::EMPTY_VALUE == ex.GetErrorCode())
-                {
-                    m_oun64Size.reset();
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
             if (static_cast<INT32>(ExtractAskMode::Extract) == askExtractMode
                 && !m_isTestMode)
@@ -143,9 +129,9 @@ namespace SevenZipCore
                 }
                 switch (m_pathMode)
                 {
-                case PathMode::FullPathNames:
+                case ExtractPathMode::FullPathNames:
                     break;
-                case PathMode::CurrentPathNames:
+                case ExtractPathMode::CurrentPathNames:
                     if (m_vtstrInternalPathPart.size() >= vtstrPathPart.size()
                         || !equal(m_vtstrInternalPathPart.cbegin(),
                         m_vtstrInternalPathPart.cend(),
@@ -157,7 +143,7 @@ namespace SevenZipCore
                         vtstrPathPart.begin(),
                         vtstrPathPart.begin() + m_vtstrInternalPathPart.size());
                     break;
-                case PathMode::NoPathNames:
+                case ExtractPathMode::NoPathNames:
                     vtstrPathPart = { vtstrPathPart.back() };
                 }
                 vtstrPathPart = Helper::GetFilteredPath(move(vtstrPathPart));
@@ -209,65 +195,74 @@ namespace SevenZipCore
                 }
 
                 // !_isSplit
-                if (!m_oun64Position)
+                if (!m_oun64Position && boost::filesystem::exists(tstrFullPath))
                 {
-                    if (boost::filesystem::exists(tstrFullPath))
+                    switch (m_overwriteMode)
                     {
-                        switch (m_overwriteMode)
+                    case ExtractOverwriteMode::SkipExisting:
+                        return S_OK;
+                    case ExtractOverwriteMode::AskBefore:
+                    {
+                        boost::optional<UINT64> oun64Size;
+                        try
                         {
-                        case OverwriteMode::SkipExisting:
+                            oun64Size.reset(PropertyHelper::GetConvertedUInt64(
+                                archiveAdapter.GetProperty(
+                                m_nindex, PropertyId::Size)));
+                        }
+                        catch (const PropertyException &)
+                        {
+                        }
+                        int nDialogResult =
+                            static_cast<int>(OverwriteAnswer::YesToAll);
+                        // TODO: nDialogResult = ShowOverwriteDialog();
+                        switch (static_cast<OverwriteAnswer>(nDialogResult))
+                        {
+                        case OverwriteAnswer::Cancel:
+                            return E_ABORT;
+                        case OverwriteAnswer::No:
                             return S_OK;
-                        case OverwriteMode::AskBefore:
-                        {
-                            int nDialogResult =
-                                static_cast<int>(OverwriteAnswer::YesToAll);
-                            // TODO: nDialogResult = ShowOverwriteDialog();
-                            switch (static_cast<OverwriteAnswer>(nDialogResult))
-                            {
-                            case OverwriteAnswer::Cancel:
-                                return E_ABORT;
-                            case OverwriteAnswer::No:
-                                return S_OK;
-                            case OverwriteAnswer::NoToAll:
-                                m_overwriteMode = OverwriteMode::SkipExisting;
-                                return S_OK;
-                            case OverwriteAnswer::YesToAll:
-                                m_overwriteMode = OverwriteMode::WithoutPrompt;
-                                break;
-                            case OverwriteAnswer::Yes:
-                                break;
-                            case OverwriteAnswer::AutoRename:
-                                m_overwriteMode = OverwriteMode::AutoRename;
-                                break;
-                            default:
-                                return E_FAIL;
-                            }
-                        }
-                        }
-                        switch (m_overwriteMode)
-                        {
-                        case OverwriteMode::AutoRename:
-                            if (!Helper::AutoRenamePath(tstrFullPath))
-                            {
-                                // TODO: Add error message.
-                                return E_FAIL;
-                            }
+                        case OverwriteAnswer::NoToAll:
+                            m_overwriteMode
+                                = ExtractOverwriteMode::SkipExisting;
+                            return S_OK;
+                        case OverwriteAnswer::YesToAll:
+                            m_overwriteMode
+                                = ExtractOverwriteMode::WithoutPrompt;
                             break;
-                        case OverwriteMode::AutoRenameExisting:
-                            // Unused?
-                            // Not implement yet.
-                            return E_FAIL;
-                        case OverwriteMode::WithoutPrompt:
-                            boost::filesystem::remove(tstrFullPath, errorCode);
-                            if (errorCode)
-                            {
-                                // TODO: Add error message.
-                                return S_OK;
-                            }
+                        case OverwriteAnswer::Yes:
+                            break;
+                        case OverwriteAnswer::AutoRename:
+                            m_overwriteMode = ExtractOverwriteMode::AutoRename;
                             break;
                         default:
                             return E_FAIL;
                         }
+                    }
+                    }
+                    switch (m_overwriteMode)
+                    {
+                    case ExtractOverwriteMode::AutoRename:
+                        if (!Helper::AutoRenamePath(tstrFullPath))
+                        {
+                            // TODO: Add error message.
+                            return E_FAIL;
+                        }
+                        break;
+                    case ExtractOverwriteMode::AutoRenameExisting:
+                        // Unused?
+                        // Not implement yet.
+                        return E_FAIL;
+                    case ExtractOverwriteMode::WithoutPrompt:
+                        boost::filesystem::remove(tstrFullPath, errorCode);
+                        if (errorCode)
+                        {
+                            // TODO: Add error message.
+                            return S_OK;
+                        }
+                        break;
+                    default:
+                        return E_FAIL;
                     }
                 }
                 if (!isAnti)
@@ -310,13 +305,56 @@ namespace SevenZipCore
 
     STDMETHODIMP ArchiveExtractCallback::PrepareOperation(INT32 askExtractMode)
     {
+        m_isExtractMode = false;
+        if (static_cast<int>(ExtractAskMode::Extract) == askExtractMode)
+        {
+            if (m_isTestMode)
+            {
+                askExtractMode = static_cast<int>(ExtractAskMode::Test);
+            }
+            else
+            {
+                m_isExtractMode = true;
+            }
+        }
+        // TODO: Prepare for progress window.
         return S_OK;
     }
 
     STDMETHODIMP ArchiveExtractCallback::SetOperationResult(
         INT32 resultEOperationResult)
     {
-        return S_OK;
+        try
+        {
+            switch (static_cast<ExtractResult>(resultEOperationResult))
+            {
+            case ExtractResult::OK:
+            case ExtractResult::UnSupportedMethod:
+            case ExtractResult::CRCError:
+            case ExtractResult::DataError:
+                break;
+            default:
+                m_cpOutStream.reset();
+                return E_FAIL;
+            }
+            // if m_cpCRCStream
+            if (m_cpOutStream)
+            {
+                OutFileStreamAdapter streamAdapter(
+                    dynamic_pointer_cast<OutFileStream>(m_cpOutStream));
+                streamAdapter.SetTime(
+                    m_oftCreated ? &*m_oftCreated : nullptr,
+                    m_oftAccessed ? &*m_oftAccessed : nullptr,
+                    m_oftModified ? &*m_oftModified : nullptr);
+                //m_oun64Size = streamAdapter.GetProcessedSize();
+            }
+
+            return S_OK;
+        }
+        catch (...)
+        {
+            return E_FAIL;
+        }
     }
 
     boost::optional<FILETIME> ArchiveExtractCallback::__GetTime(

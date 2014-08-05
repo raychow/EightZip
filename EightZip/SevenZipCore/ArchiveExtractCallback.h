@@ -24,8 +24,8 @@ namespace SevenZipCore
             bool isCRCMode,
             TString tstrExtractPath,
             TString tstrInternalPath,
-            PathMode pathMode,
-            OverwriteMode overwriteMode);
+            ExtractPathMode pathMode,
+            ExtractOverwriteMode overwriteMode);
 
         STDMETHOD(SetTotal)(UINT64 total);
         STDMETHOD(SetCompleted)(const UINT64 *completeValue);
@@ -33,6 +33,7 @@ namespace SevenZipCore
             UINT32 index,
             ISequentialOutStream **outStream,
             INT32 askExtractMode);
+
 
         STDMETHOD(PrepareOperation)(INT32 askExtractMode);
         STDMETHOD(SetOperationResult)(INT32 resultEOperationResult);
@@ -44,6 +45,7 @@ namespace SevenZipCore
         bool m_isStandardOutMode;
         bool m_isTestMode;
         bool m_isCRCMode;
+        bool m_isExtractMode;
         TString m_tstrExtractPath;
         std::vector<TString> m_vtstrInternalPathPart;
         UINT64 m_un64Total;
@@ -53,13 +55,12 @@ namespace SevenZipCore
         TString m_tstrInternalPath;
         bool m_isDirectory;
         boost::optional<UINT64> m_oun64Position;
-        boost::optional<UINT64> m_oun64Size;
         boost::optional<UINT32> m_ounAttribute;
         boost::optional<FILETIME> m_oftCreated;
         boost::optional<FILETIME> m_oftAccessed;
         boost::optional<FILETIME> m_oftModified;
-        PathMode m_pathMode;
-        OverwriteMode m_overwriteMode;
+        ExtractPathMode m_pathMode;
+        ExtractOverwriteMode m_overwriteMode;
 
         TString m_tstrRealPath;
         std::shared_ptr<ISequentialOutStream> m_cpOutStream;

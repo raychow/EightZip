@@ -71,10 +71,19 @@ namespace SevenZipCore
             INT64 n64Offset, UINT32 unSeekOrigin, UINT64 *pun64NewPosition);
         STDMETHOD(SetSize)(UINT64 un64Size);
 
+        void SetTime(
+            const FILETIME *pftCreated,
+            const FILETIME *pftAccessed,
+            const FILETIME *pftModified);
+
+        UINT64 GetProcessedSize() const { return m_un64ProcessedSize; }
+
         IUNKNOWN_IMP1(IOutStream)
 
     protected:
         OutFile m_file;
+
+        UINT64 m_un64ProcessedSize = 0;
 
     };
 

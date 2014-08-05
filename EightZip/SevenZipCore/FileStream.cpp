@@ -100,6 +100,7 @@ namespace SevenZipCore
     void OutFileStream::Open(const TString &tstrPath, bool isTruncate)
     {
          m_file.Open(tstrPath, isTruncate);
+         m_un64ProcessedSize = 0;
     }
 
     STDMETHODIMP OutFileStream::Write(
@@ -119,6 +120,7 @@ namespace SevenZipCore
             auto unBytesRead = m_file.WritePart(
                 reinterpret_cast<const BYTE *>(pData), unSize);
 
+            m_un64ProcessedSize += unBytesRead;
             if (punProcessedSize)
             {
                 *punProcessedSize = unBytesRead;
@@ -176,6 +178,14 @@ namespace SevenZipCore
         {
             return E_INVALIDARG;
         }
+    }
+
+    void OutFileStream::SetTime(
+        const FILETIME *pftCreated,
+        const FILETIME *pftAccessed,
+        const FILETIME *pftModified)
+    {
+        m_file.SetTime(pftCreated, pftAccessed, pftModified);
     }
 
     IMPLEMENT_ADAPTER_CONSTRUCTOR(OutFileStream)

@@ -50,7 +50,7 @@ namespace SevenZipCore
     };
 
     // NExtract::NPathMode
-    enum struct PathMode
+    enum struct ExtractPathMode
     {
         FullPathNames,
         CurrentPathNames,
@@ -58,7 +58,7 @@ namespace SevenZipCore
     };
 
     // NExtract::NOverwriteMode 
-    enum struct OverwriteMode
+    enum struct ExtractOverwriteMode
     {
         AskBefore,
         WithoutPrompt,

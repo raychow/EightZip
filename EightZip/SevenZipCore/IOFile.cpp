@@ -10,8 +10,9 @@
 #define _LARGEFILE64_SOURCE
 
 #include <stdio.h>
+#include <sys/types.h>
+#include <utime.h>
 #endif
-
 #include "Exception.h"
 
 namespace SevenZipCore
@@ -40,6 +41,7 @@ namespace SevenZipCore
             throw FileException("Cannot open file.");
         }
 #endif
+        m_tstrPath = tstrPath;
     }
 
     void IOFile::OpenForOutput(TString tstrPath, bool isTruncate)
@@ -59,13 +61,14 @@ namespace SevenZipCore
         }
 #else
         // TODO: fcntl() or flock()?
-        m_upFile.reset(fopen(
-            ConvertTStringToString(tstrPath).c_str(), isTruncate ? "wb+" : "wb"));
+        m_upFile.reset(fopen(ConvertTStringToString(
+            tstrPath).c_str(), isTruncate ? "wb+" : "wb"));
         if (!m_upFile)
         {
             throw FileException("Cannot open file.");
         }
 #endif
+        m_tstrPath = tstrPath;
     }
 
     UINT64 IOFile::GetPosition() const
@@ -226,6 +229,44 @@ namespace SevenZipCore
             throw FileException("Cannot write to the file.");
         }
         return result;
+    }
+
+    void OutFile::SetTime(
+        const FILETIME *pftCreated,
+        const FILETIME *pftAccessed,
+        const FILETIME *pftModified)
+    {
+#ifdef __WINDOWS__
+        if (0 == ::SetFileTime(
+            m_upFile.get(), pftCreated, pftAccessed, pftModified))
+        {
+            throw FileException("Cannot set file time.");
+        }
+#else
+        struct utimbuf timeBuffer = {};
+        if (!pftAccessed || !pftModified)
+        {
+            struct stat statBuffer = {};
+            if (0 != fstat(fileno(m_upFile.get()), &statBuffer)))
+            {
+                throw FileException("Cannot set file time.");
+            }
+            timeBuffer.actime = statBuffer.st_atime;
+            timeBuffer.modtime = statBuffer.st_mtime;
+        }
+        if (pftAccessed)
+        {
+            timeBuffer.actime = Helper::GetUnixTimeFromFileTime(*pftAccessed);
+        }
+        if (pftModified)
+        {
+            timeBuffer.modtime = Helper::GetUnixTimeFromFileTime(*pftModified);
+        }
+        if (0 != utime(ConvertTStringToString(m_tstrPath).c_str(), &timeBuffer))
+        {
+            throw FileException("Cannot set file time.");
+        }
+#endif
     }
 
     void OutFile::SetSize(UINT64 un64Size) const

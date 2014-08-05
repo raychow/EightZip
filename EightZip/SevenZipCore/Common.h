@@ -44,6 +44,7 @@ namespace SevenZipCore
             const FILETIME *lpLastWriteTime);
         static boost::optional<FILETIME> GetFileModifiedTime(TString tstrPath);
         static bool AutoRenamePath(TString &tstrPath);
+        static time_t GetUnixTimeFromFileTime(const FILETIME &fileTime);
     };
 }
 

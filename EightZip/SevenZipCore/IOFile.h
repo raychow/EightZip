@@ -41,12 +41,16 @@ namespace SevenZipCore
         UINT64 GetSize() const;
 
         INT64 Seek(INT64 n64Offset, SeekOrigin seekOrigin) const;
+
+        const TString &GetPath() const { return m_tstrPath; }
+
     protected:
 #ifdef __WINDOWS__
         HandleUniquePtr m_upFile;
 #else
         FileUniquePtr m_upFile;
 #endif
+        TString m_tstrPath;
 
     };
 
@@ -88,6 +92,10 @@ namespace SevenZipCore
 
         void Write(const BYTE *pbyBuffer, UINT32 nBytesToWrite) const;
         UINT32 WritePart(const BYTE *pbyBuffer, UINT32 nBytesToWrite) const;
+        void SetTime(
+            const FILETIME *pftCreated,
+            const FILETIME *pftAccessed,
+            const FILETIME *pftModified);
         void SetSize(UINT64 un64Size) const;
     };
 }
