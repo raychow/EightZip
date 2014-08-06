@@ -18,7 +18,7 @@ DriveEntry::DriveEntry(
     m_tstrType = move(tstrType);
 }
 
-std::shared_ptr<IModel> DriveEntry::GetModel() const
+std::shared_ptr<IModel> DriveEntry::GetModel()
 {
     return make_shared<FolderModel>(GetFullPath());
 }

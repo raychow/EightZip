@@ -1,7 +1,7 @@
-// Common.h
+// CommonHelper.h
 
-#ifndef SEVENZIPCORE_COMMON_H
-#define SEVENZIPCORE_COMMON_H
+#ifndef SEVENZIPCORE_COMMONHELPER_H
+#define SEVENZIPCORE_COMMONHELPER_H
 
 #include <vector>
 
@@ -48,4 +48,4 @@ namespace SevenZipCore
     };
 }
 
-#endif // SEVENZIPCORE_COMMON_H
+#endif // SEVENZIPCORE_COMMONHELPER_H

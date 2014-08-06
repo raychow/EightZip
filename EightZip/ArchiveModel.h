@@ -8,6 +8,7 @@
 #include "SevenZipCore/Archive.h"
 
 #include "ModelBase.h"
+#include "TempFolder.h"
 
 class ArchiveEntry
     : public EntryBase
@@ -23,7 +24,10 @@ public:
 
     virtual int GetIconIndex() const;
     virtual TString GetItem(ItemType itemType) const;
-    virtual std::shared_ptr<IModel> GetModel() const;
+    virtual std::shared_ptr<IModel> GetModel();
+
+    void Open();
+
     virtual void OpenExternal() const;
 
     virtual TString GetInternalPath() const { return m_tstrInternalPath; }
@@ -32,6 +36,7 @@ private:
     std::weak_ptr<IModel> m_wpParent;
     std::shared_ptr<SevenZipCore::ArchiveFile> m_spArchiveFile;
     TString m_tstrInternalPath;
+    TempFolder m_tempFolder;
 
     bool m_canOpenInternal = false;
 };
@@ -45,7 +50,6 @@ public:
         std::shared_ptr<IModel> spParent,
         TString tstrPath,
         TString tstrInternalPath,
-        std::shared_ptr<SevenZipCore::Codecs> cpCodecs,
         TString tstrTempFullPath,
         std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback);
     ArchiveModel(

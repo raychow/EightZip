@@ -87,6 +87,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ArchiveModel.h" />
+    <ClInclude Include="CodecsLoader.h" />
     <ClInclude Include="DriveModel.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="FileFinder.h" />
@@ -104,10 +105,9 @@
     <ClInclude Include="SevenZipCore\ArchiveEntry.h" />
     <ClInclude Include="SevenZipCore\ArchiveExtractCallback.h" />
     <ClInclude Include="SevenZipCore\ArchiveFile.h" />
-    <ClInclude Include="SevenZipCore\ArchiveManager.h" />
     <ClInclude Include="SevenZipCore\Codecs.h" />
     <ClInclude Include="SevenZipCore\COM.h" />
-    <ClInclude Include="SevenZipCore\Common.h" />
+    <ClInclude Include="SevenZipCore\CommonHelper.h" />
     <ClInclude Include="SevenZipCore\ComPtr.h" />
     <ClInclude Include="SevenZipCore\Exception.h" />
     <ClInclude Include="SevenZipCore\FileStream.h" />
@@ -130,9 +130,11 @@
     <ClInclude Include="SevenZipCore\SmartPointer.h" />
     <ClInclude Include="stdwx.h" />
     <ClInclude Include="SystemImageList.h" />
+    <ClInclude Include="TempFolder.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArchiveModel.cpp" />
+    <ClCompile Include="CodecsLoader.cpp" />
     <ClCompile Include="DriveModel.cpp" />
     <ClCompile Include="FileFinder.cpp" />
     <ClCompile Include="EightZipFrame.cpp" />
@@ -163,17 +165,12 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="SevenZipCore\ArchiveManager.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeaderFile>
-    </ClCompile>
     <ClCompile Include="SevenZipCore\Codecs.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="SevenZipCore\Common.cpp">
+    <ClCompile Include="SevenZipCore\CommonHelper.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeaderFile>
@@ -233,6 +230,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SystemImageList.cpp" />
+    <ClCompile Include="TempFolder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="EightZip.rc">

@@ -4,7 +4,7 @@
 #include <cassert>
 #include <vector>
 
-#include "Common.h"
+#include "CommonHelper.h"
 #include "Exception.h"
 #include "FileStream.h"
 #include "IArchiveAdapter.h"

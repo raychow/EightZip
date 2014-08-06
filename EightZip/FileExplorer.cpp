@@ -113,16 +113,18 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
             m_pToolBar->EnableTool(ID_PARENT_FOLDER, true);
             return;
         }
-        catch (const SevenZipCore::SevenZipCoreException &)
-        {
-            // Open external.
-        }
         catch (const ModelException &)
         {
             wxMessageBox(
                 wxString::Format(_("Cannot access \"%s\"."),
-                spEntry->GetFullPath()));
+                spEntry->GetFullPath()),
+                EIGHT_ZIP_NAME,
+                wxOK | wxICON_ERROR);
             return;
+        }
+        catch (const std::exception &)
+        {
+            // Open external.
         }
     }
     // else
@@ -134,6 +136,8 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
     {
         wxMessageBox(
             wxString::Format(_("Cannot open \"%s\"."),
-            spEntry->GetFullPath()));
+            spEntry->GetFullPath()),
+            EIGHT_ZIP_NAME,
+            wxOK | wxICON_ERROR);
     }
 }

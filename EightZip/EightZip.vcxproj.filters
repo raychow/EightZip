@@ -45,16 +45,10 @@
     <ClInclude Include="SevenZipCore\ArchiveFile.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
-    <ClInclude Include="SevenZipCore\ArchiveManager.h">
-      <Filter>头文件\SevenZipCore</Filter>
-    </ClInclude>
     <ClInclude Include="SevenZipCore\Codecs.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
     <ClInclude Include="SevenZipCore\COM.h">
-      <Filter>头文件\SevenZipCore</Filter>
-    </ClInclude>
-    <ClInclude Include="SevenZipCore\Common.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
     <ClInclude Include="SevenZipCore\ComPtr.h">
@@ -138,9 +132,6 @@
     <ClInclude Include="FolderModel.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Helper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="SevenZipCore\ArchiveExtractCallback.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
@@ -152,6 +143,18 @@
     </ClInclude>
     <ClInclude Include="SevenZipCore\SmartPointer.h">
       <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="CodecsLoader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\CommonHelper.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="TempFolder.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -176,13 +179,7 @@
     <ClCompile Include="SevenZipCore\ArchiveFile.cpp">
       <Filter>源文件\SevenZipCore</Filter>
     </ClCompile>
-    <ClCompile Include="SevenZipCore\ArchiveManager.cpp">
-      <Filter>源文件\SevenZipCore</Filter>
-    </ClCompile>
     <ClCompile Include="SevenZipCore\Codecs.cpp">
-      <Filter>源文件\SevenZipCore</Filter>
-    </ClCompile>
-    <ClCompile Include="SevenZipCore\Common.cpp">
       <Filter>源文件\SevenZipCore</Filter>
     </ClCompile>
     <ClCompile Include="SevenZipCore\FileStream.cpp">
@@ -244,6 +241,15 @@
     </ClCompile>
     <ClCompile Include="SevenZipCore\IOFile.cpp">
       <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="CodecsLoader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SevenZipCore\CommonHelper.cpp">
+      <Filter>源文件\SevenZipCore</Filter>
+    </ClCompile>
+    <ClCompile Include="TempFolder.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

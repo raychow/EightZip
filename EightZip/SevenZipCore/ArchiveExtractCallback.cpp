@@ -5,7 +5,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/system/error_code.hpp>
 
-#include "Common.h"
+#include "CommonHelper.h"
 #include "FileStream.h"
 
 using namespace std;

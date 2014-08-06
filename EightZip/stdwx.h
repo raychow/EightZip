@@ -49,4 +49,6 @@
 #define wxICON16(X) wxIcon(wxT(#X), wxICON_DEFAULT_TYPE, 16, 16)
 #endif // platform
 
+#define EIGHT_ZIP_NAME _("EightZip")
+
 #endif // STDWX_H

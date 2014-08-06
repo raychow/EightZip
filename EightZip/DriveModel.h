@@ -18,7 +18,7 @@ public:
         wxULongLong_t un64FreeSpace,
         TString tstrType);
 
-    virtual std::shared_ptr<IModel> GetModel() const;
+    virtual std::shared_ptr<IModel> GetModel();
     virtual bool IsOpenExternal() { return false; }
 
 };

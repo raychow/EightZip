@@ -2,6 +2,7 @@
 #include "FolderModel.h"
 
 #include "ArchiveModel.h"
+#include "CodecsLoader.h"
 #include "DriveModel.h"
 #include "Exception.h"
 #include "FileFinder.h"
@@ -33,7 +34,7 @@ bool FolderEntry::IsOpenDirectly() const
     return false;
 }
 
-std::shared_ptr<IModel> FolderEntry::GetModel() const
+std::shared_ptr<IModel> FolderEntry::GetModel()
 {
     auto tstrFullPath = GetFullPath();
     if (IsDirectory())
@@ -42,16 +43,10 @@ std::shared_ptr<IModel> FolderEntry::GetModel() const
     }
     else
     {
-        TString tstrExecutablePath
-            = wxStandardPaths::Get().GetExecutablePath();
-        tstrExecutablePath = tstrExecutablePath.substr(
-            0, tstrExecutablePath.find_last_of(wxFILE_SEP_PATH) + 1);
         auto result = make_shared<ArchiveModel>(
             nullptr,
             tstrFullPath + wxFILE_SEP_PATH,
             TString(),
-            SevenZipCore::MakeComPtr(
-            new SevenZipCore::Codecs(tstrExecutablePath)),
             tstrFullPath,
             nullptr);
         result->LoadChildren();

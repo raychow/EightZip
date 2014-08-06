@@ -29,14 +29,45 @@ typedef std::stringstream TStringStream;
 
 #endif
 
-std::wstring ConvertStringToWString(const std::string &value);
-std::string ConvertWStringToString(const std::wstring &value);
+template<typename T>
+std::wstring ConvertTStringToWString(T &&value)
+{
+#ifdef _UNICODE
+    return value;
+#else
+    return ConvertStringToWString(std::forward<T>(value));
+#endif
+}
 
-std::wstring ConvertTStringToWString(const TString &value);
-std::string ConvertTStringToString(const TString &value);
+template<typename T>
+std::string ConvertTStringToString(T &&value)
+{
+#ifdef _UNICODE
+    return ConvertWStringToString(std::forward<T>(value));
+#else
+    return value;
+#endif
+}
 
-std::wstring ConvertStringToTString(const std::string &value);
-std::wstring ConvertWStringToTString(const std::wstring &value);
+template<typename T>
+std::wstring ConvertStringToTString(T &&value)
+{
+#ifdef _UNICODE
+    return ConvertStringToWString(std::forward<T>(value));
+#else
+    return value;
+#endif
+}
+
+template<typename T>
+std::wstring ConvertWStringToTString(T &&value)
+{
+#ifdef _UNICODE
+    return value;
+#else
+    return ConvertWStringToString(std::forward<T>(value));
+#endif
+}
 
 class LocaleSwitcher
 {

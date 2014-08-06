@@ -36,7 +36,9 @@ protected:
     std::exception m_innerException;
 };
 
+EIGHT_ZIP_EXCEPTION(ArchiveException);
 EIGHT_ZIP_EXCEPTION(ModelException);
 EIGHT_ZIP_EXCEPTION(SystemException);
+EIGHT_ZIP_EXCEPTION(FileException);
 
 #endif // EXCEPTION_H

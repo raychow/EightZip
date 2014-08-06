@@ -1,8 +1,13 @@
 #include "stdwx.h"
 #include "ArchiveModel.h"
 
+#include <boost/filesystem.hpp>
+
+#include "CodecsLoader.h"
+#include "Exception.h"
 #include "FileInfo.h"
 #include "FolderModel.h"
+#include "TempFolder.h"
 
 using namespace std;
 
@@ -52,10 +57,10 @@ TString ArchiveEntry::GetItem(ItemType itemType) const
     catch (const std::exception &)
     {
     }
-    return wxT("");
+    return wxEmptyString;
 }
 
-std::shared_ptr<IModel> ArchiveEntry::GetModel() const
+std::shared_ptr<IModel> ArchiveEntry::GetModel()
 {
     if (IsDirectory())
     {
@@ -69,7 +74,7 @@ std::shared_ptr<IModel> ArchiveEntry::GetModel() const
     }
     else
     {
-        throw "Not implement yet.";
+        Open();
     }
 }
 
@@ -78,15 +83,19 @@ void ArchiveEntry::OpenExternal() const
 
 }
 
+void ArchiveEntry::Open()
+{
+    m_tempFolder.Create();
+}
+
 ArchiveModel::ArchiveModel(
     std::shared_ptr<IModel> spParent,
     TString tstrPath,
     TString tstrInternalPath,
-    shared_ptr<SevenZipCore::Codecs> cpCodecs,
     TString tstrTempFullPath,
     std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
     : m_upArchive(new SevenZipCore::Archive(
-    move(cpCodecs), move(tstrTempFullPath), move(cpCallback)))
+    CodecsLoader::GetInstance().GetCodecs(), move(tstrTempFullPath), move(cpCallback)))
     , m_spParent(move(spParent))
     , m_tstrInternalPath(move(tstrInternalPath))
 {

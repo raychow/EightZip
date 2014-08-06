@@ -1,4 +1,4 @@
-#include "Common.h"
+#include "CommonHelper.h"
 
 #include <algorithm>
 
@@ -243,7 +243,8 @@ namespace SevenZipCore
     time_t Helper::GetUnixTimeFromFileTime(const FILETIME &fileTime)
     {
         UINT64 un64FileTime =
-            (fileTime.dwHighDateTime << 32) + fileTime.dwLowDateTime;
+            (static_cast<UINT64>(fileTime.dwHighDateTime) << 32)
+            + fileTime.dwLowDateTime;
         // FILETIME representing the number of 100-nanosecond intervals since
         // January 1, 1601 (UTC), while time_t is defined as the number of
         // seconds that have elapsed since January 1, 1970 (UTC).
