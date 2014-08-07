@@ -158,8 +158,7 @@ ArchiveModel::ArchiveModel(
     , m_spParent(move(spParent))
 {
     m_spArchiveFolder = m_upArchive->GetRootFolder();
-    m_tstrPath = move(tstrVirtualPath);
-    m_tstrPath.push_back(wxFILE_SEP_PATH);
+    m_tstrPath = SevenZipCore::Helper::MakePathSlash(move(tstrVirtualPath));
 }
 
 ArchiveModel::ArchiveModel(
@@ -174,7 +173,7 @@ ArchiveModel::ArchiveModel(
     , m_spParent(move(spParent))
 {
     m_spArchiveFolder = m_upArchive->GetRootFolder();
-    m_tstrPath = tstrVirtualPath;
+    m_tstrPath = SevenZipCore::Helper::MakePathSlash(tstrVirtualPath);
 }
 
 ArchiveModel::ArchiveModel(
@@ -184,7 +183,7 @@ ArchiveModel::ArchiveModel(
     : m_spParent(move(spParent))
     , m_spArchiveFolder(move(spArchiveFolder))
 {
-    m_tstrPath = tstrPath;
+    m_tstrPath = SevenZipCore::Helper::MakePathSlash(move(tstrPath));
 }
 
 shared_ptr<IModel> ArchiveModel::GetParent() const
@@ -195,8 +194,7 @@ shared_ptr<IModel> ArchiveModel::GetParent() const
     }
     else
     {
-        auto tstrParent = m_tstrPath;
-        tstrParent.pop_back();
+        auto tstrParent = SevenZipCore::Helper::RemovePathSlash(m_tstrPath);
         return make_shared<FolderModel>(
             tstrParent.substr(0, tstrParent.rfind(wxFILE_SEP_PATH) + 1));
     }

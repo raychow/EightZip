@@ -88,32 +88,30 @@ namespace SevenZipCore
 
         for (const CodecFormat &format : vCodecFormat)
         {
-            m_cpArchive = format.CreateInArchive();
-            if (m_cpArchive)
+            try
             {
-                break;
+                m_cpArchive = format.CreateInArchive();
+                m_cpInStream->Seek(0, STREAM_SEEK_SET, nullptr);
+
+                IInArchiveAdapter archiveAdapter(m_cpArchive);
+
+                auto cpSetCompressCodecsInfo
+                    = archiveAdapter.QueryInterface<ISetCompressCodecsInfo>(
+                    IID_ISetCompressCodecsInfo);
+                if (cpSetCompressCodecsInfo)
+                {
+                    ISetCompressCodecsInfoAdapter(
+                        cpSetCompressCodecsInfo).SetCompressCodecsInfo(m_codecs);
+                }
+
+                archiveAdapter.Open(
+                    m_cpInStream.get(), MAX_CHECK_START_POSITION, m_cpCallback.get());
+                return;
+            }
+            catch (const SevenZipCoreException &)
+            {
             }
         }
-        if (!m_cpArchive)
-        {
-            throw ArchiveException("Cannot open the archive.");
-        }
-        m_cpInStream->Seek(0, STREAM_SEEK_SET, nullptr);
-
-        IInArchiveAdapter archiveAdapter(m_cpArchive);
-
-        auto cpSetCompressCodecsInfo
-            = archiveAdapter.QueryInterface<ISetCompressCodecsInfo>(
-            IID_ISetCompressCodecsInfo);
-        if (cpSetCompressCodecsInfo)
-        {
-            ISetCompressCodecsInfoAdapter(
-                cpSetCompressCodecsInfo).SetCompressCodecsInfo(m_codecs);
-        }
-
-        archiveAdapter.Open(
-            m_cpInStream.get(), MAX_CHECK_START_POSITION, m_cpCallback.get());
-
 
         // Error message does not seem to be used.
         //try
@@ -128,6 +126,8 @@ namespace SevenZipCore
         //}
 
         // Get default name of the archive.
+
+        throw ArchiveException("Cannot open the archive.");
     }
 
     void ArchiveEntry::__Close()

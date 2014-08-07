@@ -71,7 +71,7 @@ namespace SevenZipCore
         const GUID &classId, const GUID &interfaceId) const
     {
         void *pOutObject = nullptr;
-        if (S_OK != m_createObject(&classId, &interfaceId, &pOutObject))
+        if (S_OK != m_createObject(&classId, &interfaceId, &pOutObject) || !pOutObject)
         {
             throw LibraryException("The library cannot create object.");
         }
