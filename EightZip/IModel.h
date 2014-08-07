@@ -37,8 +37,8 @@ public:
     };
 
     virtual const TString &GetName() const PURE;
-    virtual const TString &GetPath() const PURE;
-    virtual TString GetFullPath() const PURE;
+    virtual const TString &GetFolder() const PURE;
+    virtual TString GetPath() const PURE;
     virtual int GetIconIndex() const PURE;
     virtual TString GetItem(ItemType itemType) const PURE;
     virtual bool IsDirectory() const PURE;

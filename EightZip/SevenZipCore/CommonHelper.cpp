@@ -50,6 +50,34 @@ namespace SevenZipCore
         return result;
     }
 
+    TString Helper::MakePathSlash(TString value)
+    {
+        if (!IsEndOfSlash(value))
+        {
+            value.push_back(FOLDER_SEPARATOR);
+        }
+        return value;
+    }
+
+    TString Helper::RemovePathSlash(TString value)
+    {
+        while (IsEndOfSlash(value))
+        {
+            value.pop_back();
+        }
+        return value;
+    }
+
+    bool Helper::IsEndOfSlash(const TString &value)
+    {
+        return !value.empty() && (
+            value.back() == FOLDER_SEPARATOR_POSIX
+#ifdef __WINDOWS__
+            || value.back() == FOLDER_SEPARATOR_WINDOWS
+#endif
+            );
+    }
+
     std::vector<TString> Helper::SplitString(const TString &tstrPath,
         const TString &tstrSeparators, bool isSkipEmptyPart /*= false*/)
     {
@@ -252,4 +280,5 @@ namespace SevenZipCore
             (un64FileTime - 116444736000000000) / 10000000
             );
     }
+
 }

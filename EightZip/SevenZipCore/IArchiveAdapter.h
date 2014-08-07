@@ -1,7 +1,7 @@
-// IArchiveWrapeer.h
+// IArchiveAdapter.h
 
-#ifndef SEVENZIPCORE_IARCHIVEWRAPEER_H
-#define SEVENZIPCORE_IARCHIVEWRAPEER_H
+#ifndef SEVENZIPCORE_IARCHIVEADAPTER_H
+#define SEVENZIPCORE_IARCHIVEADAPTER_H
 
 #include <memory>
 #include <vector>
@@ -145,9 +145,24 @@
         return tstrPath; \
     } \
 
+#define DECLARE_IINARCHIVEGETSTREAM_ADAPTER \
+    std::shared_ptr<ISequentialInStream> GetStream(UINT32 index) const; \
+
+#define IMPLEMENT_IINARCHIVEGETSTREAM_ADAPTER(target_name) \
+    std::shared_ptr<ISequentialInStream> target_name##Adapter::GetStream \
+        (UINT32 index) const \
+    { \
+        ISequentialInStream *pStream = nullptr; \
+        CHECK_OK(m_spTarget->GetStream(index, &pStream), \
+        ArchiveException, "Cannot get stream."); \
+        return MakeComPtr(pStream); \
+    } \
+
 namespace SevenZipCore
 {
     DECLARE_ADAPTER_CLASS1(IInArchive, DECLARE_IINARCHIVE_ADAPTER)
+    DECLARE_ADAPTER_CLASS1(IInArchiveGetStream,
+    DECLARE_IINARCHIVEGETSTREAM_ADAPTER)
 }
 
-#endif // SEVENZIPCORE_IARCHIVEWRAPEER_H
+#endif // SEVENZIPCORE_IARCHIVEADAPTER_H

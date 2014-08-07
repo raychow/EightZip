@@ -1,6 +1,7 @@
 #include "Archive.h"
 
 #include "CommonHelper.h"
+#include "IArchiveAdapter.h"
 
 using namespace std;
 
@@ -20,6 +21,16 @@ namespace SevenZipCore
         Open(move(tstrPath), move(cpCallback));
     }
 
+    Archive::Archive(
+        std::shared_ptr<Codecs> cpCodecs,
+        TString tstrPath,
+        shared_ptr<IInStream> cpStream,
+        shared_ptr<IArchiveOpenCallback> cpCallback)
+        : Archive(cpCodecs)
+    {
+        Open(move(tstrPath), move(cpStream), move(cpCallback));
+    }
+
     Archive::~Archive()
     {
         Close();
@@ -27,6 +38,14 @@ namespace SevenZipCore
 
     void Archive::Open(
         TString tstrPath,
+        shared_ptr<IArchiveOpenCallback> cpCallback)
+    {
+        Open(move(tstrPath), nullptr, move(cpCallback));
+    }
+
+    void Archive::Open(
+        TString tstrPath,
+        shared_ptr<IInStream> cpStream,
         shared_ptr<IArchiveOpenCallback> cpCallback)
     {
         if (!m_vspArchiveEntry.empty())
@@ -37,10 +56,9 @@ namespace SevenZipCore
         m_vspArchiveEntry.clear();
 
         m_vspArchiveEntry.push_back(make_shared<ArchiveEntry>(
-            *m_cpCodecs, tstrPath, move(cpCallback)));
+            *m_cpCodecs, tstrPath, cpStream, -1, move(cpCallback)));
         // Maybe open inner main stream in the PE file automatically (like 7zFM).
 
-        // TODO: if (m_cpStream)
         try
         {
             // TODO: Use InFile::GetTime instead.
@@ -74,7 +92,7 @@ namespace SevenZipCore
     {
         const auto &archiveEntry = *m_vspArchiveEntry.back();
         auto archive = archiveEntry.GetArchive();
-        m_spRootFolder = make_shared<ArchiveFolder>(TEXT(""), archive);
+        m_spRootFolder = make_shared<ArchiveFolder>(TEXT(""), GetArchiveEntry());
         IInArchiveAdapter archiveAdapter(archive);
         UINT32 un32ItemCount = archiveAdapter.GetNumberOfItems();
         TString tstrArchiveFileName = Helper::GetFileName(m_tstrPath);

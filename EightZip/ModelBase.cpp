@@ -11,7 +11,7 @@ int EntryBase::GetIconIndex() const
     if (-1 == m_nIconIndex)
     {
         m_nIconIndex = FileInfo::GetIconIndex(
-            GetFullPath(), IsDirectory(), false);
+            GetPath(), IsDirectory(), false);
     }
     return m_nIconIndex;
 }
@@ -130,7 +130,7 @@ bool EntryBase::IsOpenExternal() const
 
 void EntryBase::OpenExternal() const
 {
-    Helper::OpenFileExternal(GetFullPath());
+    Helper::OpenFileExternal(GetPath());
 }
 
 bool EntryBase::Compare(

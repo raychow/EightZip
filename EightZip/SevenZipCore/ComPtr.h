@@ -25,7 +25,10 @@ namespace SevenZipCore
         TStringStream tss;
         tss << TEXT("ComRelease: 0x") << std::hex << pCom << TEXT('\n');
         OutputDebugString(tss.str().c_str());
-        pCom->Release();
+        if (pCom)
+        {
+            pCom->Release();
+        }
     }
 
     template<typename T>
@@ -34,15 +37,25 @@ namespace SevenZipCore
         TStringStream tss;
         tss << TEXT("ComAddRef: 0x") << std::hex << pCom << TEXT('\n');
         OutputDebugString(tss.str().c_str());
-        pCom->AddRef();
+        if (pCom)
+        {
+            pCom->AddRef();
+        }
         return std::shared_ptr<T>(pCom, ComRelease<T>);
     }
 #else
     template<typename T>
     std::shared_ptr<T> MakeComPtr(T *pCom)
     {
-        pCom->AddRef();
-        return std::shared_ptr<T>(pCom, boost::mem_fn(&T::Release));
+        if (pCom)
+        {
+            pCom->AddRef();
+            return std::shared_ptr<T>(pCom, boost::mem_fn(&T::Release));
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 #endif
 }

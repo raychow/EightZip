@@ -7,7 +7,6 @@
 
 #include "Codecs.h"
 #include "ComPtr.h"
-#include "IArchiveAdapter.h"
 #include "IStream.h"
 #include "TString.h"
 
@@ -17,10 +16,6 @@ namespace SevenZipCore
     class ArchiveEntry
     {
     public:
-        ArchiveEntry(
-            Codecs &codecs,
-            TString tstrPath,
-            std::shared_ptr<IArchiveOpenCallback> cpCallback);
         ArchiveEntry(Codecs &codecs,
             TString tstrPath,
             std::shared_ptr<IInStream> cpStream,

@@ -5,7 +5,7 @@
 
 #include "Exception.h"
 
-void TempFolder::Create()
+void TempFolder::Create(TString tstrFileName /*= wxEmptyString*/)
 {
     if (!m_pathFolder.empty())
     {
@@ -15,7 +15,8 @@ void TempFolder::Create()
     auto tempPath = boost::filesystem::temp_directory_path(errorCode);
     if (!errorCode)
     {
-        tempPath += boost::filesystem::unique_path("8zip-%%%%-%%%%-%%%%", errorCode);
+        tempPath /= boost::filesystem::unique_path(
+            TString(wxT("8zip-%%%%-%%%%-%%%%")) + wxFILE_SEP_PATH, errorCode);
     }
     if (!errorCode)
     {
@@ -26,6 +27,7 @@ void TempFolder::Create()
         throw FileException("Cannot create the temp folder.");
     }
     m_pathFolder = tempPath;
+    SetFileName(tstrFileName);
 }
 
 void TempFolder::Delete()
@@ -41,4 +43,14 @@ void TempFolder::Delete()
         boost::filesystem::remove(m_pathFile, errorCode);
         m_pathFile.clear();
     }
+}
+
+void TempFolder::SetFileName(const TString &value)
+{
+    if (value.empty())
+    {
+        return;
+    }
+    m_pathFile = m_pathFolder;
+    m_pathFile /= value;
 }

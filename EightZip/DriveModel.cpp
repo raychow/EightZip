@@ -20,7 +20,7 @@ DriveEntry::DriveEntry(
 
 std::shared_ptr<IModel> DriveEntry::GetModel()
 {
-    return make_shared<FolderModel>(GetFullPath());
+    return make_shared<FolderModel>(GetPath());
 }
 
 DriveModel::DriveModel()

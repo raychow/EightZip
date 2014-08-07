@@ -9,6 +9,9 @@
 #endif
 #endif
 
+#define FOLDER_SEPARATOR_WINDOWS TEXT('\\')
+#define FOLDER_SEPARATOR_POSIX TEXT('/')
+
 #ifdef __WINDOWS__
 #define FOLDER_SEPARATOR TEXT('\\')
 #define FOLDER_SEPARATOR_STRING TEXT("\\")

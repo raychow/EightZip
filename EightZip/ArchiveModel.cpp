@@ -3,6 +3,10 @@
 
 #include <boost/filesystem.hpp>
 
+#include "SevenZipCore/CommonHelper.h"
+#include "SevenZipCore/IArchiveAdapter.h"
+#include "SevenZipCore/OpenCallback.h"
+
 #include "CodecsLoader.h"
 #include "Exception.h"
 #include "FileInfo.h"
@@ -15,13 +19,11 @@ ArchiveEntry::ArchiveEntry(
     weak_ptr<IModel> wpParent,
     shared_ptr<SevenZipCore::ArchiveFile> spArchiveFile,
     TString tstrPath,
-    TString tstrInternalPath,
     bool isDirectory)
     : m_wpParent(move(wpParent))
     , m_spArchiveFile(move(spArchiveFile))
-    , m_tstrInternalPath(move(tstrInternalPath))
 {
-    m_tstrPath = move(tstrPath);
+    m_tstrFolder = SevenZipCore::Helper::MakePathSlash(move(tstrPath));
     m_tstrName = m_spArchiveFile->GetName();
     m_isDirectory = isDirectory;
     m_un64Size = m_spArchiveFile->GetSize();
@@ -35,7 +37,7 @@ int ArchiveEntry::GetIconIndex() const
     if (-1 == m_nIconIndex)
     {
         m_nIconIndex = FileInfo::GetIconIndex(
-            GetFullPath(), IsDirectory(), true);
+            GetPath(), IsDirectory(), true);
     }
     return m_nIconIndex;
 }
@@ -54,27 +56,58 @@ TString ArchiveEntry::GetItem(ItemType itemType) const
             return EntryBase::GetItem(itemType);
         }
     }
-    catch (const std::exception &)
+    catch (const exception &)
     {
     }
     return wxEmptyString;
 }
 
-std::shared_ptr<IModel> ArchiveEntry::GetModel()
+shared_ptr<IModel> ArchiveEntry::GetModel()
 {
     if (IsDirectory())
     {
         auto result = make_shared<ArchiveModel>(
             m_wpParent.lock(),
-            GetFullPath() + wxFILE_SEP_PATH,
-            m_tstrInternalPath + GetName() + wxFILE_SEP_PATH,
+            GetPath(),
             dynamic_pointer_cast<SevenZipCore::ArchiveFolder>(m_spArchiveFile));
         result->LoadChildren();
         return result;
     }
     else
     {
-        Open();
+        m_tempFolder.Create(m_tstrName);
+        auto cpGetStream = SevenZipCore::IInArchiveAdapter(
+            m_spArchiveFile->GetArchiveEntry()->GetArchive()).QueryInterface<
+            SevenZipCore::IInArchiveGetStream>(SevenZipCore::IID_IInArchiveGetStream);
+        try
+        {
+            if (cpGetStream)
+            {
+                auto cpSubSeqStream = SevenZipCore::IInArchiveGetStreamAdapter
+                    (cpGetStream).GetStream(m_spArchiveFile->GetIndex());
+                if (cpSubSeqStream)
+                {
+                    auto cpSubStream = 
+                        SevenZipCore::Helper::QueryInterface<
+                        SevenZipCore::IInStream>(
+                        cpSubSeqStream, SevenZipCore::IID_IInStream);
+                    if (cpSubStream)
+                    {
+                        auto result = make_shared<ArchiveModel>(
+                            m_wpParent.lock(),
+                            GetPath(),
+                            cpSubStream,
+                            MakeComPtr(new SevenZipCore::OpenCallback));
+                        result->LoadChildren();
+                        return result;
+                    }
+                }
+            }
+        }
+        catch (const SevenZipCore::SevenZipCoreException &)
+        {
+
+        }
     }
 }
 
@@ -85,37 +118,76 @@ void ArchiveEntry::OpenExternal() const
 
 void ArchiveEntry::Open()
 {
-    m_tempFolder.Create();
+    //m_tempFolder.Create(m_tstrName);
+    //auto cpGetStream
+    //    = m_spArchiveFile->GetArchiveEntry()->GetArchiveGetStream();
+    //try
+    //{
+    //    if (cpGetStream)
+    //    {
+    //        auto cpSubStream = SevenZipCore::IInArchiveGetStreamAdapter
+    //            (cpGetStream).GetStream(m_spArchiveFile->GetIndex());
+    //        if (cpSubStream)
+    //        {
+    //            auto result = make_shared<ArchiveModel>(
+    //                m_wpParent.lock(),
+    //                m_tstrFolder,
+    //                m_tempFolder.GetFolderPath(),
+    //                nullptr);
+    //            result->LoadChildren();
+
+    //        }
+    //    }
+    //}
+    //catch (const SevenZipCore::SevenZipCoreException &)
+    //{
+
+    //}
 }
 
 ArchiveModel::ArchiveModel(
-    std::shared_ptr<IModel> spParent,
-    TString tstrPath,
-    TString tstrInternalPath,
-    TString tstrTempFullPath,
-    std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
+    shared_ptr<IModel> spParent,
+    TString tstrVirtualPath,
+    shared_ptr<SevenZipCore::IInStream> cpStream,
+    shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
     : m_upArchive(new SevenZipCore::Archive(
-    CodecsLoader::GetInstance().GetCodecs(), move(tstrTempFullPath), move(cpCallback)))
+    CodecsLoader::GetInstance().GetCodecs(),
+    tstrVirtualPath,
+    move(cpStream),
+    move(cpCallback)))
     , m_spParent(move(spParent))
-    , m_tstrInternalPath(move(tstrInternalPath))
 {
     m_spArchiveFolder = m_upArchive->GetRootFolder();
-    m_tstrPath = tstrPath;
+    m_tstrPath = move(tstrVirtualPath);
+    m_tstrPath.push_back(wxFILE_SEP_PATH);
 }
 
 ArchiveModel::ArchiveModel(
-    std::shared_ptr<IModel> spParent,
+    shared_ptr<IModel> spParent,
+    TString tstrVirtualPath,
+    TString tstrRealPath,
+    shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
+    : m_upArchive(new SevenZipCore::Archive(
+    CodecsLoader::GetInstance().GetCodecs(),
+    move(tstrRealPath),
+    move(cpCallback)))
+    , m_spParent(move(spParent))
+{
+    m_spArchiveFolder = m_upArchive->GetRootFolder();
+    m_tstrPath = tstrVirtualPath;
+}
+
+ArchiveModel::ArchiveModel(
+    shared_ptr<IModel> spParent,
     TString tstrPath,
-    TString tstrInternalPath,
     shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder)
     : m_spParent(move(spParent))
     , m_spArchiveFolder(move(spArchiveFolder))
-    , m_tstrInternalPath(move(tstrInternalPath))
 {
     m_tstrPath = tstrPath;
 }
 
-std::shared_ptr<IModel> ArchiveModel::GetParent() const
+shared_ptr<IModel> ArchiveModel::GetParent() const
 {
     if (m_spParent)
     {
@@ -130,7 +202,7 @@ std::shared_ptr<IModel> ArchiveModel::GetParent() const
     }
 }
 
-const std::vector<IEntry::ItemType> & ArchiveModel::GetSupportedItems() const
+const vector<IEntry::ItemType> & ArchiveModel::GetSupportedItems() const
 {
     static vector<IEntry::ItemType> vType = {
         IEntry::ItemType::Name,
@@ -152,7 +224,6 @@ void ArchiveModel::LoadChildren()
             shared_from_this(),
             folder,
             m_tstrPath,
-            m_tstrInternalPath,
             true));
     }
     for (const auto &file : m_spArchiveFolder->GetFiles())
@@ -161,7 +232,6 @@ void ArchiveModel::LoadChildren()
             shared_from_this(),
             file,
             m_tstrPath,
-            m_tstrInternalPath,
             false));
     }
 }

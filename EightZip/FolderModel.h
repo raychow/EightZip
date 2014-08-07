@@ -28,7 +28,7 @@ class FolderModel
     : public ModelBase
 {
 public:
-    FolderModel(TString tstrFullPath);
+    FolderModel(TString tstrPath);
 
     virtual std::shared_ptr<IModel> GetParent() const;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;

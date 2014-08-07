@@ -1,6 +1,8 @@
 #include "stdwx.h"
 #include "FolderModel.h"
 
+#include "SevenZipCore/CommonHelper.h"
+
 #include "ArchiveModel.h"
 #include "CodecsLoader.h"
 #include "DriveModel.h"
@@ -19,14 +21,14 @@ FolderEntry::FolderEntry(
     wxDateTime dtModified,
     wxDateTime dtCreated)
 {
-    m_tstrPath = move(tstrPath);
+    m_tstrFolder = SevenZipCore::Helper::MakePathSlash(move(tstrPath));
     m_tstrName = move(tstrName);
     m_isDirectory = isDirectory;
     m_un64Size = un64Size;
     m_dtAccessed = dtAccessed;
     m_dtModified = dtModified;
     m_dtCreated = dtCreated;
-    m_tstrType = FileInfo::GetType(GetFullPath(), IsDirectory());
+    m_tstrType = FileInfo::GetType(GetPath(), IsDirectory());
 }
 
 bool FolderEntry::IsOpenDirectly() const
@@ -36,18 +38,17 @@ bool FolderEntry::IsOpenDirectly() const
 
 std::shared_ptr<IModel> FolderEntry::GetModel()
 {
-    auto tstrFullPath = GetFullPath();
+    auto tstrPath = GetPath();
     if (IsDirectory())
     {
-        return make_shared<FolderModel>(tstrFullPath);
+        return make_shared<FolderModel>(tstrPath);
     }
     else
     {
         auto result = make_shared<ArchiveModel>(
             nullptr,
-            tstrFullPath + wxFILE_SEP_PATH,
-            TString(),
-            tstrFullPath,
+            tstrPath,
+            tstrPath,
             nullptr);
         result->LoadChildren();
         return result;
@@ -59,17 +60,12 @@ FolderModel::FolderModel(TString tstrPath)
     FileInfo fileInfo(tstrPath);
     if (fileInfo.IsOK())
     {
-        tstrPath = fileInfo.GetNormalizedPath();
-        while (!tstrPath.empty() && wxIsPathSeparator(tstrPath.back()))
-        {
-            tstrPath.pop_back();
-        }
-        m_tstrPath = tstrPath;
-        FileFinder finder(tstrPath);
+        m_tstrPath = SevenZipCore::Helper::RemovePathSlash(fileInfo.GetNormalizedPath());
+        FileFinder finder(m_tstrPath);
         while (finder.FindNext())
         {
             m_vspEntry.push_back(make_shared<FolderEntry>(
-                tstrPath + wxFILE_SEP_PATH,
+                m_tstrPath,
                 finder.GetFileName(),
                 finder.IsDirectory(),
                 finder.GetSize(),

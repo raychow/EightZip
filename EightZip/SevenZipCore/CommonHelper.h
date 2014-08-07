@@ -3,6 +3,7 @@
 #ifndef SEVENZIPCORE_COMMONHELPER_H
 #define SEVENZIPCORE_COMMONHELPER_H
 
+#include <memory>
 #include <vector>
 
 #include <boost/optional.hpp>
@@ -26,6 +27,9 @@ namespace SevenZipCore
         static TString ToUpper(const TString &value);
         static TString ToLower(const TString &value);
 
+        static TString MakePathSlash(TString value);
+        static TString RemovePathSlash(TString value);
+        static bool IsEndOfSlash(const TString &value);
         static std::vector<TString> SplitString(
             const TString &tstrPath,
             const TString &tstrSeparators,
@@ -45,6 +49,18 @@ namespace SevenZipCore
         static boost::optional<FILETIME> GetFileModifiedTime(TString tstrPath);
         static bool AutoRenamePath(TString &tstrPath);
         static time_t GetUnixTimeFromFileTime(const FILETIME &fileTime);
+
+        template<typename T, typename U>
+        static std::shared_ptr<T> QueryInterface(U p, REFGUID iid)
+        {
+            T *pResult = nullptr;
+            if (S_OK == p->QueryInterface(
+                iid, reinterpret_cast<void **>(&pResult)))
+            {
+                return MakeComPtr(pResult);
+            }
+            return nullptr;
+        }
     };
 }
 

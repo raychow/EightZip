@@ -10,6 +10,7 @@
 #include "Archive.h"
 #include "COM.h"
 #include "IArchive.h"
+#include "IArchiveAdapter.h"
 
 namespace SevenZipCore
 {
@@ -33,7 +34,6 @@ namespace SevenZipCore
             UINT32 index,
             ISequentialOutStream **outStream,
             INT32 askExtractMode);
-
 
         STDMETHOD(PrepareOperation)(INT32 askExtractMode);
         STDMETHOD(SetOperationResult)(INT32 resultEOperationResult);

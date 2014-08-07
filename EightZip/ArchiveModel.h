@@ -18,7 +18,6 @@ public:
         std::weak_ptr<IModel> wpParent,
         std::shared_ptr<SevenZipCore::ArchiveFile> spArchiveFile,
         TString tstrPath,
-        TString tstrRealtivePath,
         bool isDirectory);
     virtual ~ArchiveEntry() {}
 
@@ -30,12 +29,9 @@ public:
 
     virtual void OpenExternal() const;
 
-    virtual TString GetInternalPath() const { return m_tstrInternalPath; }
-
 private:
     std::weak_ptr<IModel> m_wpParent;
     std::shared_ptr<SevenZipCore::ArchiveFile> m_spArchiveFile;
-    TString m_tstrInternalPath;
     TempFolder m_tempFolder;
 
     bool m_canOpenInternal = false;
@@ -46,16 +42,22 @@ class ArchiveModel
     , public std::enable_shared_from_this<ArchiveModel>
 {
 public:
+    // For stream.
+    // Virtual path should be a file path and not end with a slash.
     ArchiveModel(
         std::shared_ptr<IModel> spParent,
-        TString tstrPath,
-        TString tstrInternalPath,
-        TString tstrTempFullPath,
+        TString tstrVirtualPath,
+        std::shared_ptr<SevenZipCore::IInStream> cpStream,
+        std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback);
+    // For temp file.
+    ArchiveModel(
+        std::shared_ptr<IModel> spParent,
+        TString tstrVirtualPath,
+        TString tstrRealPath,
         std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback);
     ArchiveModel(
         std::shared_ptr<IModel> spParent,
         TString tstrPath,
-        TString tstrInternalPath,
         std::shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder);
     virtual ~ArchiveModel() {}
 
@@ -71,7 +73,6 @@ private:
     std::shared_ptr<SevenZipCore::ArchiveFolder> m_spArchiveFolder;
     std::unique_ptr<SevenZipCore::Archive> m_upArchive;
 
-    TString m_tstrInternalPath;
 };
 
 #endif // ARCHIVEMODEL_H

@@ -8,7 +8,7 @@
 
 #include <boost/optional.hpp>
 
-#include "IArchive.h"
+#include "ArchiveEntry.h"
 #include "Property.h"
 #include "TString.h"
 
@@ -31,16 +31,13 @@ namespace SevenZipCore
     public:
         ArchiveFile() {};
         ArchiveFile(
-            const boost::optional<UINT> &ounIndex,
+            UINT unIndex,
             TString tstrName,
-            std::shared_ptr<IInArchive> wpArchive,
+            std::shared_ptr<ArchiveEntry> spArchiveEntry,
             std::weak_ptr<ArchiveFolder> wpParent);
 
-        const boost::optional<UINT> &GetIndex() const { return m_ounIndex; }
-        void SetIndex(const boost::optional<UINT> &value)
-        {
-            m_ounIndex = value;
-        }
+        const UINT GetIndex() const { return m_unIndex; }
+        void SetIndex(UINT value) { m_unIndex = value; }
 
         const TString &GetName() const { return m_tstrName; }
         void SetName(TString value) { m_tstrName = move(value); }
@@ -51,15 +48,20 @@ namespace SevenZipCore
             m_wpParent = move(value);
         }
 
+        std::shared_ptr<ArchiveEntry> GetArchiveEntry() const
+        {
+            return m_spArchiveEntry;
+        }
+
         virtual UINT64 GetSize() const;
         virtual UINT64 GetPackedSize() const;
         virtual const boost::optional<UINT32> &GetCRC() const;
 
         void Calculate() const;
     protected:
-        boost::optional<UINT> m_ounIndex;
+        UINT m_unIndex;
         TString m_tstrName;
-        std::shared_ptr<IInArchive> m_cpArchive;
+        std::shared_ptr<ArchiveEntry> m_spArchiveEntry;
         std::weak_ptr<ArchiveFolder> m_wpParent;
 
         std::unique_ptr<ArchiveInformation> m_upInformation
@@ -74,13 +76,13 @@ namespace SevenZipCore
     public:
         ArchiveFolder(
             TString tstrName,
-            std::shared_ptr<IInArchive> cpArchive,
+            std::shared_ptr<ArchiveEntry> spArchiveEntry,
             std::weak_ptr<ArchiveFolder> wpParent
             = std::weak_ptr<ArchiveFolder>());
         ArchiveFolder(
-            boost::optional<UINT> ounIndex,
+            UINT unIndex,
             TString tstrName,
-            std::shared_ptr<IInArchive> cpArchive,
+            std::shared_ptr<ArchiveEntry> spArchiveEntry,
             std::weak_ptr<ArchiveFolder> wpParent
             = std::weak_ptr<ArchiveFolder>());
 
@@ -116,7 +118,7 @@ namespace SevenZipCore
         UINT GetSubFolderCount();
         UINT GetSubFileCount();
 
-        bool IsRealFolder() const { return m_ounIndex; }
+        bool IsRealFolder() const { return m_unIndex != UINT_MAX; }
 
     protected:
         bool m_isInformationValid = false;
@@ -127,7 +129,7 @@ namespace SevenZipCore
         void _Calculate() const;
 
         std::shared_ptr<ArchiveFolder> __AddFolder(
-            const boost::optional<UINT> &ounIndex,
+            UINT unIndex,
             TString tstrName,
             std::weak_ptr<ArchiveFolder> wpParent);
     };

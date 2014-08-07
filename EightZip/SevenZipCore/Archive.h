@@ -23,10 +23,19 @@ namespace SevenZipCore
             std::shared_ptr<Codecs> cpCodecs,
             TString tstrPath,
             std::shared_ptr<IArchiveOpenCallback> cpCallback);
+        Archive(
+            std::shared_ptr<Codecs> cpCodecs,
+            TString tstrPath,
+            std::shared_ptr<IInStream> cpStream,
+            std::shared_ptr<IArchiveOpenCallback> cpCallback);
         virtual ~Archive();
 
         void Open(
             TString tstrPath,
+            std::shared_ptr<IArchiveOpenCallback> cpCallback);
+        void Open(
+            TString tstrPath,
+            std::shared_ptr<IInStream> cpStream,
             std::shared_ptr<IArchiveOpenCallback> cpCallback);
         void Close();
 
@@ -53,6 +62,7 @@ namespace SevenZipCore
         boost::optional<FILETIME> m_oftModified;
 
         void __LoadArchiveList();
+
     };
 }
 

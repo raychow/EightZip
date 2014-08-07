@@ -17,25 +17,19 @@ namespace SevenZipCore
     ArchiveEntry::ArchiveEntry(
         Codecs &codecs,
         TString tstrPath,
-        std::shared_ptr<IArchiveOpenCallback> cpCallback)
-        : m_codecs(codecs)
-        , m_tstrPath(move(tstrPath))
-        , m_cpCallback(move(cpCallback))
-    {
-        __OpenFile();
-    }
-
-    ArchiveEntry::ArchiveEntry(
-        Codecs &codecs,
-        TString tstrPath,
         shared_ptr<IInStream> cpStream,
-        int nSubFileIndex, std::shared_ptr<IArchiveOpenCallback> cpCallback)
+        int nSubFileIndex,
+        std::shared_ptr<IArchiveOpenCallback> cpCallback)
         : m_codecs(codecs)
         , m_tstrPath(move(tstrPath))
         , m_cpInStream(cpStream)
         , m_nSubfileIndex(nSubFileIndex)
         , m_cpCallback(move(cpCallback))
     {
+        if (!m_cpInStream)
+        {
+            __OpenFile();
+        }
         __OpenStream();
     }
 
@@ -52,11 +46,7 @@ namespace SevenZipCore
 
     void ArchiveEntry::__OpenFile()
     {
-        // if stream
-        //   open stream
-        // else
         m_cpInStream = MakeComPtr(new InFileStream(m_tstrPath, false));
-        __OpenStream();
     }
 
     void ArchiveEntry::__OpenStream()

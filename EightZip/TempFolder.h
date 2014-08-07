@@ -15,12 +15,22 @@ public:
     TempFolder() {}
     ~TempFolder() {}
 
-    void Create();
+    void Create(TString tstrFileName = wxEmptyString);
     void Delete();
 
-    const TString GetFileName() const { return ConvertWStringToTString(m_pathFile.wstring()); }
-    void SetFileName(const TString &value) { m_pathFile = value; }
-    const TString GetFolderPath() const { return ConvertWStringToTString(m_pathFolder.wstring()); }
+    const TString GetFileName() const
+    {
+        return ConvertWStringToTString(m_pathFile.filename().wstring());
+    }
+    const TString GetFilePath() const
+    {
+        return ConvertWStringToTString(m_pathFile.wstring());
+    }
+    void SetFileName(const TString &value);
+    const TString GetFolderPath() const
+    {
+        return ConvertWStringToTString(m_pathFolder.wstring());
+    }
 
 private:
     boost::filesystem::path m_pathFile;

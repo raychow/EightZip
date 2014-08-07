@@ -18,8 +18,8 @@ class EntryBase
 {
 public:
     virtual const TString &GetName() const { return m_tstrName; }
-    virtual const TString &GetPath() const { return m_tstrPath; }
-    virtual TString GetFullPath() const { return GetPath() + GetName(); }
+    virtual const TString &GetFolder() const { return m_tstrFolder; }
+    virtual TString GetPath() const { return GetFolder() + GetName(); }
     virtual int GetIconIndex() const;
     TString GetItem(ItemType itemType) const;
     virtual bool IsDirectory() const { return m_isDirectory; }
@@ -33,7 +33,7 @@ protected:
     // File name with extension.
     TString m_tstrName;
     // File path without filename, always with trailing separator.
-    TString m_tstrPath;
+    TString m_tstrFolder;
     mutable int m_nIconIndex = -1;
     wxULongLong_t m_un64Size = 0;
     wxULongLong_t m_un64PackedSize = 0;

@@ -5,6 +5,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/system/error_code.hpp>
 
+#include "IArchiveAdapter.h"
 #include "CommonHelper.h"
 #include "FileStream.h"
 
