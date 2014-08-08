@@ -86,14 +86,16 @@ namespace SevenZipCore
 
     std::shared_ptr<IInArchive> CodecFormat::CreateInArchive() const
     {
-        return MakeComPtr(m_codecLibrary.CreateObject<IInArchive>(
-            m_classId, IID_IInArchive));
+        auto result = MakeComPtr(m_codecLibrary.CreateObject<IInArchive>(
+            m_classId, IID_IInArchive), false);
+        return result;
     }
 
     std::shared_ptr<IOutArchive> CodecFormat::CreateOutArchive() const
     {
-        return MakeComPtr(m_codecLibrary.CreateObject<IOutArchive>(
-            m_classId, IID_IOutArchive));
+        auto result = MakeComPtr(m_codecLibrary.CreateObject<IOutArchive>(
+            m_classId, IID_IOutArchive), false);
+        return result;
     }
 
     void CodecFormat::__SplitString(const TString &tstrSource,

@@ -56,7 +56,7 @@ namespace SevenZipCore
             if (S_OK == p->QueryInterface(
                 iid, reinterpret_cast<void **>(&pResult)))
             {
-                return MakeComPtr(pResult);
+                return MakeComPtr(pResult, false);
             }
             return nullptr;
         }

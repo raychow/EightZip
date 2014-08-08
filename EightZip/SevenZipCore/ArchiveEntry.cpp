@@ -140,10 +140,10 @@ namespace SevenZipCore
         {
             try
             {
-                m_cpInArchive = format.CreateInArchive();
+                auto cpInArchive = format.CreateInArchive();
                 m_cpInStream->Seek(0, STREAM_SEEK_SET, nullptr);
 
-                IInArchiveAdapter archiveAdapter(m_cpInArchive);
+                IInArchiveAdapter archiveAdapter(cpInArchive);
 
                 auto cpSetCompressCodecsInfo
                     = archiveAdapter.QueryInterface<ISetCompressCodecsInfo>(
@@ -156,6 +156,7 @@ namespace SevenZipCore
 
                 archiveAdapter.Open(
                     m_cpInStream.get(), MAX_CHECK_START_POSITION, m_cpCallback.get());
+                m_cpInArchive = cpInArchive;
                 return;
             }
             catch (const SevenZipCoreException &)

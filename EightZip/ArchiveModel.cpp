@@ -86,10 +86,10 @@ shared_ptr<IModel> ArchiveEntry::GetModel()
         auto spArchiveEntry = m_spArchiveFile->GetArchiveEntry();
         auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter(
             spArchiveEntry->GetInArchive());
-        auto cpGetStream = inArchiveAdapter.QueryInterface<
-            SevenZipCore::IInArchiveGetStream>(SevenZipCore::IID_IInArchiveGetStream);
         try
         {
+            auto cpGetStream = inArchiveAdapter.QueryInterface<
+                SevenZipCore::IInArchiveGetStream>(SevenZipCore::IID_IInArchiveGetStream);
             if (cpGetStream)
             {
                 auto cpSubSeqStream = SevenZipCore::IInArchiveGetStreamAdapter

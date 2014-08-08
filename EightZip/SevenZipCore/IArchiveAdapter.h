@@ -155,7 +155,7 @@
         ISequentialInStream *pStream = nullptr; \
         CHECK_OK(m_spTarget->GetStream(index, &pStream), \
         ArchiveException, "Cannot get stream."); \
-        return MakeComPtr(pStream); \
+        return MakeComPtr(pStream, false); \
     } \
 
 namespace SevenZipCore

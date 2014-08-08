@@ -24,7 +24,7 @@
         if (S_OK == m_spTarget->QueryInterface( \
             iid, reinterpret_cast<void **>(&pResult))) \
         { \
-            return MakeComPtr(pResult); \
+            return MakeComPtr(pResult, false); \
         } \
         return nullptr; \
     } \

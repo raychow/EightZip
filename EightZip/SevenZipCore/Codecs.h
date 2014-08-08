@@ -142,7 +142,41 @@ namespace SevenZipCore
         STDMETHOD(CreateDecoder)(
             UINT32 unIndex, const GUID *interfaceId, void **coder);
 
+#ifdef _DEBUG
+        QUERYINTERFACE_BEGIN
+            QUERYINTERFACE_ENTRY_UNKNOWN(ICompressCodecsInfo)
+            QUERYINTERFACE_ENTRY(ICompressCodecsInfo)
+            QUERYINTERFACE_END
+    public: 
+            STDMETHOD_(ULONG, AddRef)() 
+        { 
+        TStringStream tss; 
+        tss << TEXT("AddRef: 0x") << std::hex << this << std::dec;
+        tss << " (" << m_ulRefCount << " -> " << (m_ulRefCount + 1) << ")"; 
+        tss << TEXT('\n'); 
+        OutputDebugString(tss.str().c_str()); 
+        return ++m_ulRefCount; 
+    } 
+    STDMETHOD_(ULONG, Release)()
+        { 
+        TStringStream tss; 
+        tss << TEXT("Release: 0x") << std::hex << this << std::dec; 
+        tss << " (" << m_ulRefCount << " -> " << (m_ulRefCount - 1) << ")"; 
+        tss << TEXT('\n'); 
+        OutputDebugString(tss.str().c_str()); 
+        if (--m_ulRefCount) 
+        { 
+        return m_ulRefCount; 
+        }
+        delete this; \
+        return 0;
+        }
+    private:
+             ULONG m_ulRefCount = 0;
+
+#else
         IUNKNOWN_IMP1(ICompressCodecsInfo)
+#endif
 
     private:
         std::vector<std::unique_ptr<CodecLibrary>> m_vupCodecLibrary;
