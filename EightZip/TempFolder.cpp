@@ -27,30 +27,24 @@ void TempFolder::Create(TString tstrFileName /*= wxEmptyString*/)
         throw FileException("Cannot create the temp folder.");
     }
     m_pathFolder = tempPath;
-    SetFileName(tstrFileName);
+    if (!tstrFileName.empty())
+    {
+        m_pathFile = m_pathFolder;
+        m_pathFile /= tstrFileName;
+    }
 }
 
 void TempFolder::Delete()
 {
     boost::system::error_code errorCode;
-    if (!m_pathFolder.empty())
-    {
-        boost::filesystem::remove(m_pathFolder, errorCode);
-        m_pathFolder.clear();
-    }
     if (!m_pathFile.empty())
     {
         boost::filesystem::remove(m_pathFile, errorCode);
         m_pathFile.clear();
     }
-}
-
-void TempFolder::SetFileName(const TString &value)
-{
-    if (value.empty())
+    if (!m_pathFolder.empty())
     {
-        return;
+        boost::filesystem::remove(m_pathFolder, errorCode);
+        m_pathFolder.clear();
     }
-    m_pathFile = m_pathFolder;
-    m_pathFile /= value;
 }

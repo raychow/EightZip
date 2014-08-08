@@ -2,6 +2,8 @@
 #include "FolderModel.h"
 
 #include "SevenZipCore/CommonHelper.h"
+#include "SevenZipCore/ComPtr.h"
+#include "SevenZipCore/OpenCallback.h"
 
 #include "ArchiveModel.h"
 #include "CodecsLoader.h"
@@ -50,7 +52,7 @@ std::shared_ptr<IModel> FolderEntry::GetModel()
             tstrPath,
             wxEmptyString,
             tstrPath,
-            nullptr);
+            SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
         result->LoadChildren();
         return result;
     }

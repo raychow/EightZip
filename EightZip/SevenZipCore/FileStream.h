@@ -17,6 +17,14 @@
 #define _SH_SECURE      0x80    /* secure mode */
 #endif
 
+#define DECLARE_OUTFILESTREAM_ADAPTER \
+    DECLARE_IOUTSTREAM_ADAPTER \
+    void Close(); \
+
+#define IMPLEMENT_OUTFILESTREAM_ADAPTER(target_name) \
+    IMPLEMENT_IOUTSTREAM_ADAPTER(target_name) \
+    void target_name##Adapter::Close() { m_spTarget->Close(); } \
+
 namespace SevenZipCore
 {
     class InFileStream
@@ -63,6 +71,7 @@ namespace SevenZipCore
         virtual ~OutFileStream() {}
 
         void Open(const TString &tstrPath, bool isTruncate);
+        void Close();
 
         STDMETHOD(Write)(
             const void *pData, UINT32 unSize, UINT32 *punProcessedSize);
@@ -89,7 +98,7 @@ namespace SevenZipCore
 
     DECLARE_ADAPTER_CLASS1(
         OutFileStream,
-        DECLARE_IOUTSTREAM_ADAPTER)
+        DECLARE_OUTFILESTREAM_ADAPTER)
 }
 
 #endif // SEVENZIPCORE_FILESTREAM_H

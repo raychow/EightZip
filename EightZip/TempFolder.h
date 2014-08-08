@@ -12,7 +12,7 @@ using namespace std;
 class TempFolder
 {
 public:
-    TempFolder() {}
+    TempFolder(TString tstrFileName = wxEmptyString) { Create(tstrFileName); }
     ~TempFolder() { Delete(); }
 
     void Create(TString tstrFileName = wxEmptyString);
@@ -27,7 +27,10 @@ public:
     {
         return ConvertWStringToTString(m_pathFile.wstring());
     }
-    void SetFileName(const TString &value);
+    void SetFilePath(const TString &value)
+    {
+        m_pathFile = value;
+    }
     const TString GetFolderPath() const
     {
         return ConvertWStringToTString(m_pathFolder.wstring());

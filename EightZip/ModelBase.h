@@ -24,7 +24,7 @@ public:
     TString GetItem(ItemType itemType) const;
     virtual bool IsDirectory() const { return m_isDirectory; }
     virtual bool IsOpenExternal() const;
-    virtual void OpenExternal() const;
+    virtual void OpenExternal();
 
     virtual bool Compare(
         const IEntry &otherEntry, ItemType itemType, bool isAscending) const;

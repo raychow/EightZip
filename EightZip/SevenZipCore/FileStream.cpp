@@ -103,6 +103,11 @@ namespace SevenZipCore
          m_un64ProcessedSize = 0;
     }
 
+    void OutFileStream::Close()
+    {
+        m_file.Close();
+    }
+
     STDMETHODIMP OutFileStream::Write(
         const void *pData, UINT32 unSize, UINT32 *punProcessedSize)
     {
@@ -189,5 +194,6 @@ namespace SevenZipCore
     }
 
     IMPLEMENT_ADAPTER_CONSTRUCTOR(OutFileStream)
-    IMPLEMENT_IOUTSTREAM_ADAPTER(OutFileStream)
+    IMPLEMENT_OUTFILESTREAM_ADAPTER(OutFileStream)
+
 }

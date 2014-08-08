@@ -23,7 +23,7 @@ namespace SevenZipCore
             bool isStandardOutMode,
             bool isTestMode,
             bool isCRCMode,
-            TString tstrExtractPath,
+            TString tstrExtractFolder,
             TString tstrCurrentBeginPath,
             ExtractPathMode pathMode,
             ExtractOverwriteMode overwriteMode);
@@ -38,7 +38,10 @@ namespace SevenZipCore
         STDMETHOD(PrepareOperation)(INT32 askExtractMode);
         STDMETHOD(SetOperationResult)(INT32 resultEOperationResult);
 
-        IUNKNOWN_IMP
+        const TString &GetExtractFolder() const { return m_tstrExtractFolder; }
+        const TString &GetExtractPath() const{ return m_tstrExtractPath; }
+
+        IUNKNOWN_IMP1(IArchiveExtractCallback)
 
     private:
         std::shared_ptr<Archive> m_spArchive;
@@ -46,7 +49,7 @@ namespace SevenZipCore
         bool m_isTestMode;
         bool m_isCRCMode;
         bool m_isExtractMode;
-        TString m_tstrExtractPath;
+        TString m_tstrExtractFolder;
         std::vector<TString> m_vtstrCurrentBeginPathPart;
         UINT64 m_un64Total;
         UINT32 m_nindex;
@@ -62,7 +65,7 @@ namespace SevenZipCore
         ExtractPathMode m_pathMode;
         ExtractOverwriteMode m_overwriteMode;
 
-        TString m_tstrRealPath;
+        TString m_tstrExtractPath;
         std::shared_ptr<ISequentialOutStream> m_cpOutStream;
 
         static boost::optional<FILETIME> __GetTime(

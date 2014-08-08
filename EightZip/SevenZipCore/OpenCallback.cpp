@@ -9,11 +9,6 @@ using namespace boost;
 
 namespace SevenZipCore
 {
-    OpenCallback::~OpenCallback()
-    {
-
-    }
-
     void OpenCallback::SetArchiveTotal(
         boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes)
     {
@@ -93,4 +88,5 @@ namespace SevenZipCore
             return E_FAIL;
         }
     }
+
 }

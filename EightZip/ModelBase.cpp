@@ -128,7 +128,7 @@ bool EntryBase::IsOpenExternal() const
         tstrExtension);
 }
 
-void EntryBase::OpenExternal() const
+void EntryBase::OpenExternal()
 {
     Helper::OpenFileExternal(GetPath());
 }

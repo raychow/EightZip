@@ -8,8 +8,6 @@
 #include <functional>
 #include <memory>
 
-#include <boost/mem_fn.hpp>
-
 #include "Platform.h"
 
 #ifdef _DEBUG
@@ -50,7 +48,7 @@ namespace SevenZipCore
         if (pCom)
         {
             pCom->AddRef();
-            return std::shared_ptr<T>(pCom, boost::mem_fn(&T::Release));
+            return std::shared_ptr<T>(pCom, std::mem_fn(&T::Release));
         }
         else
         {

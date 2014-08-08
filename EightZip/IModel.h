@@ -44,7 +44,7 @@ public:
     virtual bool IsDirectory() const PURE;
     virtual std::shared_ptr<IModel> GetModel() PURE;
     virtual bool IsOpenExternal() const PURE;
-    virtual void OpenExternal() const PURE;
+    virtual void OpenExternal() PURE;
 
     virtual bool Compare(
         const IEntry &otherEntry,

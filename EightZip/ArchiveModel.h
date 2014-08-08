@@ -35,16 +35,17 @@ public:
     virtual TString GetItem(ItemType itemType) const;
     virtual std::shared_ptr<IModel> GetModel();
 
-    void Open();
-
-    virtual void OpenExternal() const;
+    virtual void OpenExternal();
 
 private:
     std::weak_ptr<ArchiveModel> m_wpParent;
     std::shared_ptr<SevenZipCore::ArchiveFile> m_spArchiveFile;
-    TempFolder m_tempFolder;
+    std::unique_ptr<TempFolder> m_upTempFolder;
 
     bool m_canOpenInternal = false;
+
+    void __Extract();
+
 };
 
 class ArchiveModel
@@ -60,7 +61,6 @@ public:
         TString tstrInternalPath,
         std::shared_ptr<SevenZipCore::IInStream> cpStream,
         std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback);
-    // For temp file.
     ArchiveModel(
         std::shared_ptr<IModel> spParent,
         TString tstrVirtualPath,

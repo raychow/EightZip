@@ -8,7 +8,7 @@
 class Helper
 {
 public:
-    static void OpenFileExternal(TString &tstrPath);
+    static void OpenFileExternal(const TString &tstrPath);
 };
 
 #endif // HELPER_H

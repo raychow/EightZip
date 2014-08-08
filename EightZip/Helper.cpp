@@ -3,7 +3,7 @@
 
 #include "Exception.h"
 
-void Helper::OpenFileExternal(TString &tstrPath)
+void Helper::OpenFileExternal(const TString &tstrPath)
 {
 #ifdef __WXMSW__
     if ((int)::ShellExecute(

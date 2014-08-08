@@ -21,7 +21,7 @@ namespace SevenZipCore
         bool isStandardOutMode,
         bool isTestMode,
         bool isCRCMode,
-        TString tstrExtractPath,
+        TString tstrExtractFolder,
         TString tstrCurrentBeginPath,
         ExtractPathMode pathMode,
         ExtractOverwriteMode overwriteMode)
@@ -29,7 +29,7 @@ namespace SevenZipCore
         , m_isStandardOutMode(isStandardOutMode)
         , m_isTestMode(isTestMode)
         , m_isCRCMode(isCRCMode)
-        , m_tstrExtractPath(move(tstrExtractPath))
+        , m_tstrExtractFolder(Helper::MakePathSlash(move(tstrExtractFolder)))
         , m_vtstrCurrentBeginPathPart(Helper::SplitString(
         move(tstrCurrentBeginPath), FOLDER_POSSIBLE_SEPARATOR, true))
         , m_pathMode(pathMode)
@@ -166,7 +166,7 @@ namespace SevenZipCore
                     //  Used for extracting the folder with sub directories.
                     if (!vtstrPathPart.empty())
                     {
-                        auto tstrDirectoryrPath = m_tstrExtractPath
+                        auto tstrDirectoryrPath = m_tstrExtractFolder
                             + Helper::JoinString(vtstrPathPart,
                             FOLDER_SEPARATOR_STRING);
                         boost::filesystem::create_directories(
@@ -186,14 +186,14 @@ namespace SevenZipCore
                         }
                     }
                 }
-                auto tstrFullPath = m_tstrExtractPath + tstrFilteredPath;
+                auto tstrFullPath = m_tstrExtractFolder + tstrFilteredPath;
                 boost::system::error_code errorCode;
                 if (m_isDirectory)
                 {
-                    m_tstrRealPath = move(tstrFullPath);
+                    m_tstrExtractPath = move(tstrFullPath);
                     if (isAnti)
                     {
-                        boost::filesystem::remove(m_tstrRealPath, errorCode);
+                        boost::filesystem::remove(m_tstrExtractPath, errorCode);
                     }
                     return S_OK;
                 }
@@ -292,7 +292,7 @@ namespace SevenZipCore
                     m_cpOutStream->AddRef();
                     *outStream = m_cpOutStream.get();
                 }
-                m_tstrRealPath = tstrFullPath;
+                m_tstrExtractPath = tstrFullPath;
             }
             else
             {
@@ -354,6 +354,8 @@ namespace SevenZipCore
                     m_oftAccessed ? &*m_oftAccessed : nullptr,
                     m_oftModified ? &*m_oftModified : nullptr);
                 //m_oun64Size = streamAdapter.GetProcessedSize();
+                streamAdapter.Close();
+                m_cpOutStream.reset();
             }
 
             return S_OK;
