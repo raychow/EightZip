@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include <Windows.h>
+#include "Platform.h"
 
 #include "COM.h"
 #include "Library.h"

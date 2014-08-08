@@ -7,6 +7,8 @@
 #ifndef __WINDOWS__
 #define __WINDOWS__
 #endif
+
+#include <Windows.h>
 #endif
 
 #define FOLDER_SEPARATOR_WINDOWS TEXT('\\')

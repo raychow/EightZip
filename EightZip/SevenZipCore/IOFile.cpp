@@ -2,9 +2,7 @@
 
 #include <cassert>
 
-#ifdef __WINDOWS__
-#include <Windows.h>
-#else
+#ifndef __WINDOWS__
 // Use 64bit data type for file offset.
 #define _FILE_OFFSET_BITS 64
 #define _LARGEFILE64_SOURCE

@@ -48,6 +48,7 @@ std::shared_ptr<IModel> FolderEntry::GetModel()
         auto result = make_shared<ArchiveModel>(
             nullptr,
             tstrPath,
+            wxEmptyString,
             tstrPath,
             nullptr);
         result->LoadChildren();

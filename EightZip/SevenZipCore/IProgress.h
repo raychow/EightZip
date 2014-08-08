@@ -1,7 +1,7 @@
 #ifndef SEVENZIPCORE_IPROGRESS_H
 #define SEVENZIPCORE_IPROGRESS_H
 
-#include <Windows.h>
+#include "Platform.h"
 
 #include "IDecl.h"
 

@@ -5,8 +5,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/system/error_code.hpp>
 
-#include "IArchiveAdapter.h"
+#include "ArchiveEntry.h"
 #include "CommonHelper.h"
+#include "ComPtr.h"
+#include "Exception.h"
+#include "IArchiveAdapter.h"
 #include "FileStream.h"
 
 using namespace std;
@@ -19,7 +22,7 @@ namespace SevenZipCore
         bool isTestMode,
         bool isCRCMode,
         TString tstrExtractPath,
-        TString tstrInternalPath,
+        TString tstrCurrentBeginPath,
         ExtractPathMode pathMode,
         ExtractOverwriteMode overwriteMode)
         : m_spArchive(move(spArchive))
@@ -27,8 +30,8 @@ namespace SevenZipCore
         , m_isTestMode(isTestMode)
         , m_isCRCMode(isCRCMode)
         , m_tstrExtractPath(move(tstrExtractPath))
-        , m_vtstrInternalPathPart(Helper::SplitString(move(tstrInternalPath),
-            FOLDER_POSSIBLE_SEPARATOR, true))
+        , m_vtstrCurrentBeginPathPart(Helper::SplitString(
+        move(tstrCurrentBeginPath), FOLDER_POSSIBLE_SEPARATOR, true))
         , m_pathMode(pathMode)
         , m_overwriteMode(overwriteMode)
     {
@@ -56,16 +59,16 @@ namespace SevenZipCore
             *outStream = nullptr;
             m_nindex = index;
 
-            IInArchiveAdapter archiveAdapter(
-                m_spArchive->GetArchiveEntry()->GetArchive());
-            m_tstrInternalPath = archiveAdapter.GetItemPath(index);
+            IInArchiveAdapter inArchiveAdapter(
+                m_spArchive->GetArchiveEntry()->GetInArchive());
+            m_tstrInternalPath = inArchiveAdapter.GetItemPath(index);
             m_isDirectory = PropertyHelper::GetBool(
-                archiveAdapter.GetProperty(index, PropertyId::IsDir), false);
+                inArchiveAdapter.GetProperty(index, PropertyId::IsDir), false);
 
             try
             {
                 m_oun64Position.reset(PropertyHelper::GetUInt64(
-                    archiveAdapter.GetProperty(index, PropertyId::Position)));
+                    inArchiveAdapter.GetProperty(index, PropertyId::Position)));
             }
             catch (const PropertyException &ex)
             {
@@ -78,7 +81,7 @@ namespace SevenZipCore
                     throw;
                 }
             }
-            m_isEncrypted = PropertyHelper::GetBool(archiveAdapter.GetProperty(
+            m_isEncrypted = PropertyHelper::GetBool(inArchiveAdapter.GetProperty(
                 index, PropertyId::Encrypted), false);
 
             if (static_cast<INT32>(ExtractAskMode::Extract) == askExtractMode
@@ -93,7 +96,7 @@ namespace SevenZipCore
                 try
                 {
                     m_ounAttribute.reset(PropertyHelper::GetUInt32(
-                        archiveAdapter.GetProperty(
+                        inArchiveAdapter.GetProperty(
                         index, PropertyId::Attribute))
                         );
                 }
@@ -110,15 +113,15 @@ namespace SevenZipCore
                 }
 
                 m_oftCreated = __GetTime(
-                    archiveAdapter, index, PropertyId::Created);
+                    inArchiveAdapter, index, PropertyId::Created);
                 m_oftAccessed = __GetTime(
-                    archiveAdapter, index, PropertyId::Accessed);
+                    inArchiveAdapter, index, PropertyId::Accessed);
                 m_oftModified = __GetTime(
-                    archiveAdapter, index, PropertyId::Modified);
+                    inArchiveAdapter, index, PropertyId::Modified);
 
                 // TODO: What does isAnti mean?
                 bool isAnti = PropertyHelper::GetBool(
-                    archiveAdapter.GetProperty(index, PropertyId::IsAnti),
+                    inArchiveAdapter.GetProperty(index, PropertyId::IsAnti),
                     false);
                 auto vtstrPathPart = Helper::SplitString(
                     m_tstrInternalPath,
@@ -133,16 +136,16 @@ namespace SevenZipCore
                 case ExtractPathMode::FullPathNames:
                     break;
                 case ExtractPathMode::CurrentPathNames:
-                    if (m_vtstrInternalPathPart.size() >= vtstrPathPart.size()
-                        || !equal(m_vtstrInternalPathPart.cbegin(),
-                        m_vtstrInternalPathPart.cend(),
+                    if (m_vtstrCurrentBeginPathPart.size() >= vtstrPathPart.size()
+                        || !equal(m_vtstrCurrentBeginPathPart.cbegin(),
+                        m_vtstrCurrentBeginPathPart.cend(),
                         vtstrPathPart.cbegin()))
                     {
                         return E_FAIL;
                     }
                     vtstrPathPart.erase(
                         vtstrPathPart.begin(),
-                        vtstrPathPart.begin() + m_vtstrInternalPathPart.size());
+                        vtstrPathPart.begin() + m_vtstrCurrentBeginPathPart.size());
                     break;
                 case ExtractPathMode::NoPathNames:
                     vtstrPathPart = { vtstrPathPart.back() };
@@ -208,7 +211,7 @@ namespace SevenZipCore
                         try
                         {
                             oun64Size.reset(PropertyHelper::GetConvertedUInt64(
-                                archiveAdapter.GetProperty(
+                                inArchiveAdapter.GetProperty(
                                 m_nindex, PropertyId::Size)));
                         }
                         catch (const PropertyException &)
@@ -284,6 +287,9 @@ namespace SevenZipCore
                     {
                         streamAdapter.Seek(*m_oun64Position, STREAM_SEEK_SET);
                     }
+                    // The archive handler does not add ref for out stream,
+                    // but still release it.
+                    m_cpOutStream->AddRef();
                     *outStream = m_cpOutStream.get();
                 }
                 m_tstrRealPath = tstrFullPath;

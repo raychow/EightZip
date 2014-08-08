@@ -6,28 +6,25 @@
 #include <memory>
 #include <vector>
 
-#include "ArchiveEntry.h"
-#include "ArchiveFile.h"
-#include "Codecs.h"
-#include "IArchive.h"
+#include <boost/optional.hpp>
+
+#include "Platform.h"
 #include "TString.h"
 
 namespace SevenZipCore
 {
+    class ArchiveEntry;
+    class ArchiveFolder;
+    class Codecs;
+    struct IArchiveOpenCallback;
+    struct IInStream;
+
     // CArchiveLink
     class Archive
+        : public std::enable_shared_from_this<Archive>
     {
     public:
         Archive(std::shared_ptr<Codecs> cpCodecs);
-        Archive(
-            std::shared_ptr<Codecs> cpCodecs,
-            TString tstrPath,
-            std::shared_ptr<IArchiveOpenCallback> cpCallback);
-        Archive(
-            std::shared_ptr<Codecs> cpCodecs,
-            TString tstrPath,
-            std::shared_ptr<IInStream> cpStream,
-            std::shared_ptr<IArchiveOpenCallback> cpCallback);
         virtual ~Archive();
 
         void Open(
@@ -60,8 +57,6 @@ namespace SevenZipCore
         std::vector<std::shared_ptr<ArchiveEntry>> m_vspArchiveEntry;
         std::shared_ptr<ArchiveFolder> m_spRootFolder;
         boost::optional<FILETIME> m_oftModified;
-
-        void __LoadArchiveList();
 
     };
 }

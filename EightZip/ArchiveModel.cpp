@@ -3,7 +3,12 @@
 
 #include <boost/filesystem.hpp>
 
+#include "SevenZipCore/Archive.h"
+#include "SevenZipCore/ArchiveExtractCallback.h"
+#include "SevenZipCore/ArchiveFile.h"
 #include "SevenZipCore/CommonHelper.h"
+#include "SevenZipCore/ComPtr.h"
+#include "SevenZipCore/IArchive.h"
 #include "SevenZipCore/IArchiveAdapter.h"
 #include "SevenZipCore/OpenCallback.h"
 
@@ -16,7 +21,7 @@
 using namespace std;
 
 ArchiveEntry::ArchiveEntry(
-    weak_ptr<IModel> wpParent,
+    weak_ptr<ArchiveModel> wpParent,
     shared_ptr<SevenZipCore::ArchiveFile> spArchiveFile,
     TString tstrPath,
     bool isDirectory)
@@ -64,27 +69,33 @@ TString ArchiveEntry::GetItem(ItemType itemType) const
 
 shared_ptr<IModel> ArchiveEntry::GetModel()
 {
+    auto spParent = m_wpParent.lock();
+    assert(spParent);
     if (IsDirectory())
     {
         auto result = make_shared<ArchiveModel>(
-            m_wpParent.lock(),
+            spParent,
             GetPath(),
+            spParent->GetInternalPath() + GetName(),
             dynamic_pointer_cast<SevenZipCore::ArchiveFolder>(m_spArchiveFile));
         result->LoadChildren();
         return result;
     }
     else
     {
+        auto spArchiveEntry = m_spArchiveFile->GetArchiveEntry();
         m_tempFolder.Create(m_tstrName);
-        auto cpGetStream = SevenZipCore::IInArchiveAdapter(
-            m_spArchiveFile->GetArchiveEntry()->GetArchive()).QueryInterface<
+        auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter(
+            spArchiveEntry->GetInArchive());
+        auto unIndex = m_spArchiveFile->GetIndex();
+        auto cpGetStream = inArchiveAdapter.QueryInterface<
             SevenZipCore::IInArchiveGetStream>(SevenZipCore::IID_IInArchiveGetStream);
         try
         {
             if (cpGetStream)
             {
                 auto cpSubSeqStream = SevenZipCore::IInArchiveGetStreamAdapter
-                    (cpGetStream).GetStream(m_spArchiveFile->GetIndex());
+                    (cpGetStream).GetStream(unIndex);
                 if (cpSubSeqStream)
                 {
                     auto cpSubStream = 
@@ -96,6 +107,7 @@ shared_ptr<IModel> ArchiveEntry::GetModel()
                         auto result = make_shared<ArchiveModel>(
                             m_wpParent.lock(),
                             GetPath(),
+                            TString(),
                             cpSubStream,
                             MakeComPtr(new SevenZipCore::OpenCallback));
                         result->LoadChildren();
@@ -106,8 +118,21 @@ shared_ptr<IModel> ArchiveEntry::GetModel()
         }
         catch (const SevenZipCore::SevenZipCoreException &)
         {
-
         }
+        auto cpArchiveExtractCallback = SevenZipCore::MakeComPtr(
+            new SevenZipCore::ArchiveExtractCallback(
+            spArchiveEntry->GetArchive(),
+            false,
+            false,
+            false,
+            m_tempFolder.GetFolderPath(),
+            spParent->GetInternalPath(),
+            SevenZipCore::ExtractPathMode::CurrentPathNames,
+            SevenZipCore::ExtractOverwriteMode::AskBefore));
+        inArchiveAdapter.Extract(
+            vector<UINT>(1, unIndex),
+            false,
+            cpArchiveExtractCallback.get());
     }
 }
 
@@ -148,39 +173,45 @@ void ArchiveEntry::Open()
 ArchiveModel::ArchiveModel(
     shared_ptr<IModel> spParent,
     TString tstrVirtualPath,
+    TString tstrInternalPath,
     shared_ptr<SevenZipCore::IInStream> cpStream,
     shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
-    : m_upArchive(new SevenZipCore::Archive(
-    CodecsLoader::GetInstance().GetCodecs(),
-    tstrVirtualPath,
-    move(cpStream),
-    move(cpCallback)))
+    : m_tstrInternalPath(
+    SevenZipCore::Helper::MakePathSlash(move(tstrInternalPath)))
+    , m_spArchive(make_shared<SevenZipCore::Archive>(
+    CodecsLoader::GetInstance().GetCodecs()))
     , m_spParent(move(spParent))
 {
-    m_spArchiveFolder = m_upArchive->GetRootFolder();
     m_tstrPath = SevenZipCore::Helper::MakePathSlash(move(tstrVirtualPath));
+    m_spArchive->Open(tstrVirtualPath, move(cpStream), move(cpCallback));
+    m_spArchiveFolder = m_spArchive->GetRootFolder();
 }
 
 ArchiveModel::ArchiveModel(
     shared_ptr<IModel> spParent,
     TString tstrVirtualPath,
+    TString tstrInternalPath,
     TString tstrRealPath,
     shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
-    : m_upArchive(new SevenZipCore::Archive(
-    CodecsLoader::GetInstance().GetCodecs(),
-    move(tstrRealPath),
-    move(cpCallback)))
+    : m_tstrInternalPath(
+    SevenZipCore::Helper::MakePathSlash(move(tstrInternalPath)))
+    , m_spArchive(make_shared<SevenZipCore::Archive>(
+    CodecsLoader::GetInstance().GetCodecs()))
     , m_spParent(move(spParent))
 {
-    m_spArchiveFolder = m_upArchive->GetRootFolder();
     m_tstrPath = SevenZipCore::Helper::MakePathSlash(tstrVirtualPath);
+    m_spArchive->Open(move(tstrRealPath), move(cpCallback));
+    m_spArchiveFolder = m_spArchive->GetRootFolder();
 }
 
 ArchiveModel::ArchiveModel(
     shared_ptr<IModel> spParent,
     TString tstrPath,
+    TString tstrInternalPath,
     shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder)
-    : m_spParent(move(spParent))
+    : m_tstrInternalPath(
+    SevenZipCore::Helper::MakePathSlash(move(tstrInternalPath)))
+    , m_spParent(move(spParent))
     , m_spArchiveFolder(move(spArchiveFolder))
 {
     m_tstrPath = SevenZipCore::Helper::MakePathSlash(move(tstrPath));

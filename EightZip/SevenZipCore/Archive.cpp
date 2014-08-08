@@ -1,6 +1,10 @@
 #include "Archive.h"
 
+#include "ArchiveEntry.h"
+#include "ArchiveFile.h"
+#include "Codecs.h"
 #include "CommonHelper.h"
+#include "IArchive.h"
 #include "IArchiveAdapter.h"
 
 using namespace std;
@@ -10,25 +14,6 @@ namespace SevenZipCore
     Archive::Archive(std::shared_ptr<Codecs> cpCodecs)
         : m_cpCodecs(cpCodecs)
     {
-    }
-
-    Archive::Archive(
-        std::shared_ptr<Codecs> cpCodecs,
-        TString tstrPath,
-        shared_ptr<IArchiveOpenCallback> cpCallback)
-        : Archive(cpCodecs)
-    {
-        Open(move(tstrPath), move(cpCallback));
-    }
-
-    Archive::Archive(
-        std::shared_ptr<Codecs> cpCodecs,
-        TString tstrPath,
-        shared_ptr<IInStream> cpStream,
-        shared_ptr<IArchiveOpenCallback> cpCallback)
-        : Archive(cpCodecs)
-    {
-        Open(move(tstrPath), move(cpStream), move(cpCallback));
     }
 
     Archive::~Archive()
@@ -56,7 +41,12 @@ namespace SevenZipCore
         m_vspArchiveEntry.clear();
 
         m_vspArchiveEntry.push_back(make_shared<ArchiveEntry>(
-            *m_cpCodecs, tstrPath, cpStream, -1, move(cpCallback)));
+            shared_from_this(),
+            m_cpCodecs,
+            tstrPath,
+            cpStream,
+            -1,
+            move(cpCallback)));
         // Maybe open inner main stream in the PE file automatically (like 7zFM).
 
         try
@@ -69,7 +59,7 @@ namespace SevenZipCore
         }
 
         m_tstrPath = move(tstrPath);
-        __LoadArchiveList();
+        m_spRootFolder = GetArchiveEntry()->GetRootFolder();
     }
 
     void Archive::Close()
@@ -86,50 +76,6 @@ namespace SevenZipCore
             return nullptr;
         }
         return m_vspArchiveEntry.back();
-    }
-
-    void Archive::__LoadArchiveList()
-    {
-        const auto &archiveEntry = *m_vspArchiveEntry.back();
-        auto archive = archiveEntry.GetArchive();
-        m_spRootFolder = make_shared<ArchiveFolder>(TEXT(""), GetArchiveEntry());
-        IInArchiveAdapter archiveAdapter(archive);
-        UINT32 un32ItemCount = archiveAdapter.GetNumberOfItems();
-        TString tstrArchiveFileName = Helper::GetFileName(m_tstrPath);
-        for (UINT32 i = 0; i != un32ItemCount; ++i)
-        {
-            shared_ptr<ArchiveFolder> spCurrentFolder = m_spRootFolder;
-            TString tstrItemPath = archiveAdapter.GetItemPath(i);
-            auto vtstrFolder = Helper::SplitString(
-                tstrItemPath,
-                FOLDER_POSSIBLE_SEPARATOR,
-                true);
-            const auto tstrBack = vtstrFolder.back();
-            vtstrFolder.pop_back();
-            for (const auto &strFolder : vtstrFolder)
-            {
-                if (strFolder.empty())
-                {
-                    continue;
-                }
-                spCurrentFolder = spCurrentFolder->AddFolder(
-                    strFolder, spCurrentFolder);
-            }
-            if (tstrBack.empty())
-            {
-                continue;
-            }
-            if (PropertyHelper::GetBool(archiveAdapter.GetProperty(
-                i, PropertyId::IsDir), false))
-            {
-                spCurrentFolder->AddFolder(i, tstrBack, spCurrentFolder);
-            }
-            else
-            {
-                spCurrentFolder->AddFile(i, tstrBack, spCurrentFolder);
-            }
-        }
-        m_spRootFolder->Calculate();
     }
 
 }

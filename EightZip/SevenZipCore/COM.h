@@ -3,7 +3,7 @@
 #ifndef SEVENZIPCORE_COM_H
 #define SEVENZIPCORE_COM_H
 
-#include <Windows.h>
+#include "Platform.h"
 
 #ifdef _DEBUG
 #include "TString.h"

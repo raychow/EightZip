@@ -1,6 +1,6 @@
 #include "Property.h"
 
-#include <Windows.h>
+#include "Platform.h"
 
 #include "Exception.h"
 

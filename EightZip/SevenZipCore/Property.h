@@ -5,7 +5,7 @@
 
 #include <vector>
 
-#include <Windows.h>
+#include "Platform.h"
 
 #include "TString.h"
 

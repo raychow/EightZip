@@ -4,23 +4,30 @@
 #include <cassert>
 #include <vector>
 
+#include "Archive.h"
+#include "ArchiveFile.h"
+#include "Codecs.h"
 #include "CommonHelper.h"
+#include "ComPtr.h"
 #include "Exception.h"
 #include "FileStream.h"
 #include "IArchiveAdapter.h"
 #include "ICoderAdapter.h"
+#include "IStream.h"
 
 using namespace std;
 
 namespace SevenZipCore
 {
     ArchiveEntry::ArchiveEntry(
-        Codecs &codecs,
+        weak_ptr<Archive> wpArchive,
+        shared_ptr<Codecs> cpCodecs,
         TString tstrPath,
         shared_ptr<IInStream> cpStream,
         int nSubFileIndex,
-        std::shared_ptr<IArchiveOpenCallback> cpCallback)
-        : m_codecs(codecs)
+        shared_ptr<IArchiveOpenCallback> cpCallback)
+        : m_wpArchive(wpArchive)
+        , m_cpCodecs(cpCodecs)
         , m_tstrPath(move(tstrPath))
         , m_cpInStream(cpStream)
         , m_nSubfileIndex(nSubFileIndex)
@@ -44,6 +51,49 @@ namespace SevenZipCore
         }
     }
 
+    shared_ptr<ArchiveFolder> ArchiveEntry::GetRootFolder()
+    {
+        auto result = make_shared<ArchiveFolder>(TEXT(""), shared_from_this());
+        IInArchiveAdapter archiveAdapter(m_cpInArchive);
+        UINT32 un32ItemCount = archiveAdapter.GetNumberOfItems();
+        TString tstrArchiveFileName = Helper::GetFileName(m_tstrPath);
+        for (UINT32 i = 0; i != un32ItemCount; ++i)
+        {
+            shared_ptr<ArchiveFolder> spCurrentFolder = result;
+            TString tstrItemPath = archiveAdapter.GetItemPath(i);
+            auto vtstrFolder = Helper::SplitString(
+                tstrItemPath,
+                FOLDER_POSSIBLE_SEPARATOR,
+                true);
+            const auto tstrBack = vtstrFolder.back();
+            vtstrFolder.pop_back();
+            for (const auto &strFolder : vtstrFolder)
+            {
+                if (strFolder.empty())
+                {
+                    continue;
+                }
+                spCurrentFolder = spCurrentFolder->AddFolder(
+                    strFolder, spCurrentFolder);
+            }
+            if (tstrBack.empty())
+            {
+                continue;
+            }
+            if (PropertyHelper::GetBool(archiveAdapter.GetProperty(
+                i, PropertyId::IsDir), false))
+            {
+                spCurrentFolder->AddFolder(i, tstrBack, spCurrentFolder);
+            }
+            else
+            {
+                spCurrentFolder->AddFile(i, tstrBack, spCurrentFolder);
+            }
+        }
+        result->Calculate();
+        return result;
+    }
+
     void ArchiveEntry::__OpenFile()
     {
         m_cpInStream = MakeComPtr(new InFileStream(m_tstrPath, false));
@@ -55,7 +105,7 @@ namespace SevenZipCore
         TString tstrFileExtension = Helper::GetFileExtension(m_tstrPath);
         vector<reference_wrapper<const CodecFormat>> vCodecFormat;
         vector<reference_wrapper<const CodecFormat>> vOtherCodecFormat;
-        for (const auto &format : m_codecs.GetFormats())
+        for (const auto &format : m_cpCodecs->GetFormats())
         {
             const auto &vupExtensionInfo = format->GetExtensions();
             if (find_if(
@@ -90,10 +140,10 @@ namespace SevenZipCore
         {
             try
             {
-                m_cpArchive = format.CreateInArchive();
+                m_cpInArchive = format.CreateInArchive();
                 m_cpInStream->Seek(0, STREAM_SEEK_SET, nullptr);
 
-                IInArchiveAdapter archiveAdapter(m_cpArchive);
+                IInArchiveAdapter archiveAdapter(m_cpInArchive);
 
                 auto cpSetCompressCodecsInfo
                     = archiveAdapter.QueryInterface<ISetCompressCodecsInfo>(
@@ -101,7 +151,7 @@ namespace SevenZipCore
                 if (cpSetCompressCodecsInfo)
                 {
                     ISetCompressCodecsInfoAdapter(
-                        cpSetCompressCodecsInfo).SetCompressCodecsInfo(m_codecs);
+                        cpSetCompressCodecsInfo).SetCompressCodecsInfo(*m_cpCodecs);
                 }
 
                 archiveAdapter.Open(
@@ -132,9 +182,9 @@ namespace SevenZipCore
 
     void ArchiveEntry::__Close()
     {
-        if (m_cpArchive)
+        if (m_cpInArchive)
         {
-            IInArchiveAdapter(m_cpArchive).Close();
+            IInArchiveAdapter(m_cpInArchive).Close();
         }
     }
 

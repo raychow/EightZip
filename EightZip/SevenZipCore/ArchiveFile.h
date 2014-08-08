@@ -33,7 +33,7 @@ namespace SevenZipCore
         ArchiveFile(
             UINT unIndex,
             TString tstrName,
-            std::shared_ptr<ArchiveEntry> spArchiveEntry,
+            std::weak_ptr<ArchiveEntry> wpArchiveEntry,
             std::weak_ptr<ArchiveFolder> wpParent);
 
         const UINT GetIndex() const { return m_unIndex; }
@@ -42,7 +42,7 @@ namespace SevenZipCore
         const TString &GetName() const { return m_tstrName; }
         void SetName(TString value) { m_tstrName = move(value); }
 
-        std::weak_ptr<ArchiveFolder> GetParent() const { return m_wpParent; }
+        std::shared_ptr<ArchiveFolder> GetParent() const { return m_wpParent.lock(); }
         void SetParent(std::weak_ptr<ArchiveFolder> value)
         {
             m_wpParent = move(value);
@@ -50,7 +50,7 @@ namespace SevenZipCore
 
         std::shared_ptr<ArchiveEntry> GetArchiveEntry() const
         {
-            return m_spArchiveEntry;
+            return m_wpArchiveEntry.lock();
         }
 
         virtual UINT64 GetSize() const;
@@ -61,7 +61,7 @@ namespace SevenZipCore
     protected:
         UINT m_unIndex;
         TString m_tstrName;
-        std::shared_ptr<ArchiveEntry> m_spArchiveEntry;
+        std::weak_ptr<ArchiveEntry> m_wpArchiveEntry;
         std::weak_ptr<ArchiveFolder> m_wpParent;
 
         std::unique_ptr<ArchiveInformation> m_upInformation
@@ -76,13 +76,13 @@ namespace SevenZipCore
     public:
         ArchiveFolder(
             TString tstrName,
-            std::shared_ptr<ArchiveEntry> spArchiveEntry,
+            std::weak_ptr<ArchiveEntry> wpArchiveEntry,
             std::weak_ptr<ArchiveFolder> wpParent
             = std::weak_ptr<ArchiveFolder>());
         ArchiveFolder(
             UINT unIndex,
             TString tstrName,
-            std::shared_ptr<ArchiveEntry> spArchiveEntry,
+            std::weak_ptr<ArchiveEntry> wpArchiveEntry,
             std::weak_ptr<ArchiveFolder> wpParent
             = std::weak_ptr<ArchiveFolder>());
 

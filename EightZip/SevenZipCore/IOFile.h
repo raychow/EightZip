@@ -4,6 +4,7 @@
 #define SEVENZIPCORE_IOFILE_H
 
 #include "Platform.h"
+
 #include "SmartPointer.h"
 #include "TString.h"
 

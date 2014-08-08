@@ -3,7 +3,7 @@
 #ifndef SEVENZIPCORE_PROPERTYVARIANT_H
 #define SEVENZIPCORE_PROPERTYVARIANT_H
 
-#include <Windows.h>
+#include "Platform.h"
 
 namespace SevenZipCore
 {

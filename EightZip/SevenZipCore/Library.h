@@ -5,7 +5,7 @@
 
 #include <memory>
 
-#include <Windows.h>
+#include "Platform.h"
 
 #include "Exception.h"
 #include "TString.h"

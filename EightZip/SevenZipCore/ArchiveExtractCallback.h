@@ -24,7 +24,7 @@ namespace SevenZipCore
             bool isTestMode,
             bool isCRCMode,
             TString tstrExtractPath,
-            TString tstrInternalPath,
+            TString tstrCurrentBeginPath,
             ExtractPathMode pathMode,
             ExtractOverwriteMode overwriteMode);
 
@@ -47,7 +47,7 @@ namespace SevenZipCore
         bool m_isCRCMode;
         bool m_isExtractMode;
         TString m_tstrExtractPath;
-        std::vector<TString> m_vtstrInternalPathPart;
+        std::vector<TString> m_vtstrCurrentBeginPathPart;
         UINT64 m_un64Total;
         UINT32 m_nindex;
         bool m_isEncrypted;

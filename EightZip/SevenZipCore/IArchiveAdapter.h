@@ -21,7 +21,7 @@
     PROPVARIANT GetProperty(UINT32 index, PropertyId propID) const; \
     void Extract( \
         const std::vector<UINT32> &indices, \
-        INT32 testMode, \
+        bool testMode, \
         IArchiveExtractCallback *extractCallback) const; \
     PROPVARIANT GetArchiveProperty(PropertyId propID) const; \
     UINT32 GetNumberOfProperties() const; \
@@ -76,13 +76,13 @@
     } \
     void target_name##Adapter::Extract( \
         const std::vector<UINT32> &indices, \
-        INT32 testMode, \
+        bool testMode, \
         IArchiveExtractCallback *extractCallback) const \
     { \
         CHECK_OK(m_spTarget->Extract( \
             indices.data(), \
             indices.size(), \
-            testMode, \
+            testMode ? 1 : 0, \
             extractCallback), \
             ArchiveException, \
             "Can not extract files from the archive."); \

@@ -13,10 +13,11 @@ class TempFolder
 {
 public:
     TempFolder() {}
-    ~TempFolder() {}
+    ~TempFolder() { Delete(); }
 
     void Create(TString tstrFileName = wxEmptyString);
     void Delete();
+    bool IsCreated() const { return !m_pathFolder.empty(); }
 
     const TString GetFileName() const
     {

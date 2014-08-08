@@ -14,11 +14,11 @@ namespace SevenZipCore
     ArchiveFile::ArchiveFile(
         UINT unIndex,
         TString tstrName,
-        shared_ptr<ArchiveEntry> spArchiveEntry,
+        weak_ptr<ArchiveEntry> wpArchiveEntry,
         weak_ptr<ArchiveFolder> wpParent)
         : m_unIndex(unIndex)
         , m_tstrName(move(tstrName))
-        , m_spArchiveEntry(move(spArchiveEntry))
+        , m_wpArchiveEntry(move(wpArchiveEntry))
         , m_wpParent(move(wpParent))
         , m_upInformation(new ArchiveInformation())
     {
@@ -54,12 +54,13 @@ namespace SevenZipCore
         {
             return;
         }
-        IInArchiveAdapter archiveAdapter(m_spArchiveEntry->GetArchive());
+        IInArchiveAdapter inArchiveAdapter(
+            m_wpArchiveEntry.lock()->GetInArchive());
         m_upInformation->Size = PropertyHelper::GetConvertedUInt64(
-            archiveAdapter.GetProperty(m_unIndex, PropertyId::Size), 0);
+            inArchiveAdapter.GetProperty(m_unIndex, PropertyId::Size), 0);
         m_upInformation->PackedSize = PropertyHelper::GetConvertedUInt64(
-            archiveAdapter.GetProperty(m_unIndex, PropertyId::PackSize), 0);
-        auto property = archiveAdapter.GetProperty(
+            inArchiveAdapter.GetProperty(m_unIndex, PropertyId::PackSize), 0);
+        auto property = inArchiveAdapter.GetProperty(
             m_unIndex, PropertyId::CRC);
         try
         {
@@ -75,18 +76,18 @@ namespace SevenZipCore
 
     ArchiveFolder::ArchiveFolder(
         TString tstrName,
-        shared_ptr<ArchiveEntry> spArchiveEntry,
+        weak_ptr<ArchiveEntry> wpArchiveEntry,
         weak_ptr<ArchiveFolder> wpParent /*= nullptr*/)
-        : ArchiveFolder(UINT_MAX, tstrName, spArchiveEntry, wpParent)
+        : ArchiveFolder(UINT_MAX, tstrName, wpArchiveEntry, wpParent)
     {
     }
 
     ArchiveFolder::ArchiveFolder(
         UINT unIndex,
         TString tstrName,
-        shared_ptr<ArchiveEntry> spArchiveEntry,
+        weak_ptr<ArchiveEntry> wpArchiveEntry,
         weak_ptr<ArchiveFolder> wpParent /*= nullptr*/)
-        : ArchiveFile(unIndex, tstrName, spArchiveEntry, wpParent)
+        : ArchiveFile(unIndex, tstrName, wpArchiveEntry, wpParent)
     {
     }
 
@@ -113,7 +114,7 @@ namespace SevenZipCore
         m_isInformationValid = false;
         auto spFile = make_shared<ArchiveFile>(
             unIndex, move(tstrName),
-            m_spArchiveEntry,
+            m_wpArchiveEntry,
             move(wpParent));
         m_vspFile.push_back(move(spFile));
         return spFile;
@@ -186,7 +187,7 @@ namespace SevenZipCore
         if (iter == m_vspFolder.end() || (*iter)->GetName() != tstrName)
         {
             auto spFolder = make_shared<ArchiveFolder>(
-                unIndex, move(tstrName), m_spArchiveEntry, move(wpParent));
+                unIndex, move(tstrName), m_wpArchiveEntry, move(wpParent));
             iter = m_vspFolder.insert(iter, move(spFolder));
         }
         if (unIndex != UINT_MAX)

@@ -6,7 +6,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/optional.hpp>
 
-#include <Windows.h>
+#include "Platform.h"
 
 #include "Exception.h"
 #include "SmartPointer.h"
@@ -87,14 +87,17 @@ namespace SevenZipCore
         while ((stPosition = tstrPath.find_first_of(
             tstrSeparators, stPosition + 1)) != string::npos)
         {
-            if (0 != stPosition - stLastPosition)
+            if (!isSkipEmptyPart || 0 != stPosition - stLastPosition)
             {
                 vtstrResult.push_back(tstrPath.substr(
                     stLastPosition, stPosition - stLastPosition));
             }
             stLastPosition = stPosition + 1;
         }
-        vtstrResult.push_back(tstrPath.substr(stLastPosition));
+        if (!isSkipEmptyPart || 0 != tstrPath.size() - stLastPosition)
+        {
+            vtstrResult.push_back(tstrPath.substr(stLastPosition));
+        }
         return vtstrResult;
     }
 

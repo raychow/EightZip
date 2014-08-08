@@ -8,10 +8,6 @@
 #include "Platform.h"
 
 #ifdef __WINDOWS__
-#include <Windows.h>
-#endif
-
-#ifdef __WINDOWS__
 
 class HandleCloser
 {

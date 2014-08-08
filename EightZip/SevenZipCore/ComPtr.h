@@ -10,7 +10,7 @@
 
 #include <boost/mem_fn.hpp>
 
-#include <Windows.h>
+#include "Platform.h"
 
 #ifdef _DEBUG
 #include "TString.h"
