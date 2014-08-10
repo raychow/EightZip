@@ -28,14 +28,14 @@ public:
     void NavigateTo(TString tstrPath);
 
 private:
-    wxToolBar *m_pToolBar = nullptr;
-    wxComboBox *m_pComboBox = nullptr;
+    wxToolBar *m_pParentFolderToolBar = nullptr;
+    wxComboBox *m_pAddressComboBox = nullptr;
     FileListCtrl *m_pListCtrl = nullptr;
 
     std::shared_ptr<IModel> m_spModel;
 
     void __Create();
-    void __CreatePath(wxBoxSizer *pMainSizer);
+    void __CreateAddressBar(wxBoxSizer *pMainSizer);
     void __CreateExplorer(wxBoxSizer *pSizerMain);
 
     void __SetModel(std::shared_ptr<IModel> spModel);

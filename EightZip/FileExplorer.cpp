@@ -28,34 +28,34 @@ void FileExplorer::__Create()
 {
     auto *pSizerMain = new wxBoxSizer(wxVERTICAL);
 
-    __CreatePath(pSizerMain);
+    __CreateAddressBar(pSizerMain);
     __CreateExplorer(pSizerMain);
 
     SetSizer(pSizerMain);
 }
 
-void FileExplorer::__CreatePath(wxBoxSizer *pSizerMain)
+void FileExplorer::__CreateAddressBar(wxBoxSizer *pSizerMain)
 {
-    auto *pSizerPath = new wxBoxSizer(wxHORIZONTAL);
-    m_pToolBar = new wxToolBar(this, wxID_ANY);
-    m_pToolBar->SetWindowStyle(wxTB_DEFAULT_STYLE | wxTB_NODIVIDER);
-    m_pToolBar->AddTool(
+    auto *pSizerAddress = new wxBoxSizer(wxHORIZONTAL);
+    m_pParentFolderToolBar = new wxToolBar(this, wxID_ANY);
+    m_pParentFolderToolBar->SetWindowStyle(wxTB_DEFAULT_STYLE | wxTB_NODIVIDER);
+    m_pParentFolderToolBar->AddTool(
         ID_PARENT_FOLDER, _("Parent Folder"), wxICON16(ICON_PARENT_FOLDER));
-    m_pToolBar->Realize();
-    pSizerPath->Add(m_pToolBar, wxSizerFlags().Center());
-    m_pComboBox = new wxComboBox(this, wxID_ANY);
-    m_pComboBox->SetWindowStyle(wxTE_PROCESS_ENTER);
-    pSizerPath->Add(
-        m_pComboBox, wxSizerFlags().Proportion(1).Border(wxLEFT, 3));
+    m_pParentFolderToolBar->Realize();
+    pSizerAddress->Add(m_pParentFolderToolBar, wxSizerFlags().Center());
+    m_pAddressComboBox = new wxComboBox(this, wxID_ANY);
+    m_pAddressComboBox->SetWindowStyle(wxTE_PROCESS_ENTER);
+    pSizerAddress->Add(
+        m_pAddressComboBox, wxSizerFlags().Proportion(1).Border(wxALL, 2));
 
-    pSizerMain->Add(pSizerPath, wxSizerFlags().Expand().Proportion(0));
+    pSizerMain->Add(pSizerAddress, wxSizerFlags().Expand().Proportion(0));
 
-    m_pToolBar->Bind(
+    m_pParentFolderToolBar->Bind(
         wxEVT_TOOL,
         &FileExplorer::__OnParentFolderClick,
         this,
         ID_PARENT_FOLDER);
-    m_pComboBox->Bind(
+    m_pAddressComboBox->Bind(
         wxEVT_TEXT_ENTER,
         &FileExplorer::__OnPathComboBoxEnter,
         this);
@@ -65,7 +65,7 @@ void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
 {
     // TODO: Catch exception.
     m_pListCtrl = new FileListCtrl(this);
-    __SetModel(make_shared<FolderModel>(wxT("D:\\Test\\")));
+    __SetModel(make_shared<FolderModel>(wxT("C:\\")));
     
     pSizerMain->Add(m_pListCtrl, wxSizerFlags().Expand().Proportion(1));
 
@@ -82,7 +82,7 @@ void FileExplorer::__SetModel(std::shared_ptr<IModel> spModel)
     {
         tstrPath.push_back(wxFILE_SEP_PATH);
     }
-    m_pComboBox->SetValue(tstrPath);
+    m_pAddressComboBox->SetValue(tstrPath);
 }
 
 void FileExplorer::__OnParentFolderClick(wxCommandEvent &event)
@@ -93,7 +93,7 @@ void FileExplorer::__OnParentFolderClick(wxCommandEvent &event)
     }
     if (!m_spModel->HasParent())
     {
-        m_pToolBar->EnableTool(ID_PARENT_FOLDER, false);
+        m_pParentFolderToolBar->EnableTool(ID_PARENT_FOLDER, false);
     }
 }
 
@@ -110,7 +110,7 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
         try
         {
             __SetModel(spEntry->GetModel());
-            m_pToolBar->EnableTool(ID_PARENT_FOLDER, true);
+            m_pParentFolderToolBar->EnableTool(ID_PARENT_FOLDER, true);
             return;
         }
         catch (const ModelException &)

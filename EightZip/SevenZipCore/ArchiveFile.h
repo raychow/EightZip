@@ -35,6 +35,7 @@ namespace SevenZipCore
             TString tstrName,
             std::weak_ptr<ArchiveEntry> wpArchiveEntry,
             std::weak_ptr<ArchiveFolder> wpParent);
+        virtual ~ArchiveFile() {}
 
         const UINT GetIndex() const { return m_unIndex; }
         void SetIndex(UINT value) { m_unIndex = value; }
@@ -85,6 +86,7 @@ namespace SevenZipCore
             std::weak_ptr<ArchiveEntry> wpArchiveEntry,
             std::weak_ptr<ArchiveFolder> wpParent
             = std::weak_ptr<ArchiveFolder>());
+        virtual ~ArchiveFolder() {}
 
         std::shared_ptr<ArchiveFolder> AddFolder(
             TString tstrName,

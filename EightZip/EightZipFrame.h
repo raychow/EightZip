@@ -9,20 +9,24 @@ class EightZipFrame
 public:
     enum
     {
-        ID_OPEN = wxID_HIGHEST + 1,
-        ID_EXIT
+        ID_FILE_OPEN = wxID_HIGHEST + 1,
+        ID_FILE_EXIT,
+        ID_COMMAND_ADD,
+        ID_COMMAND_EXTRACT,
+        ID_PARENT_FOLDER
     };
 
     EightZipFrame(const wxString &title);
     virtual ~EightZipFrame();
 
 private:
+    void __Create();
     void __CreateMenu();
-    void __CreateToolBar();
+    void __CreateToolBar(wxBoxSizer *pSizerMain);
+    void __CreateFileExplorer(wxBoxSizer *pSizerMain);
 
     void __OnExitClick(wxCommandEvent &WXUNUSED(event));
-    void __Create();
-    wxAuiManager m_auiManager;
+
 };
 
 #endif // EIGHTZIPFRAME_H
