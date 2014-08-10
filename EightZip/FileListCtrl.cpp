@@ -3,6 +3,10 @@
 
 using namespace std;
 
+BEGIN_EVENT_TABLE(FileListCtrl, wxListCtrl)
+EVT_ERASE_BACKGROUND(FileListCtrl::OnEraseBackground)
+END_EVENT_TABLE()
+
 FileListCtrl::FileListCtrl(
     wxWindow *parent,
     wxWindowID id /*= wxID_ANY*/,
@@ -96,6 +100,57 @@ void FileListCtrl::Sort(int nColumn, bool isAscending)
 int FileListCtrl::GetModelIndex(int nListItemIndex) const
 {
     return m_vnChildrenMap.at(nListItemIndex);
+}
+
+void FileListCtrl::OnEraseBackground(wxEraseEvent &event)
+{
+    // to prevent flickering, erase only content *outside* of the 
+    // actual list items stuff
+    if (GetItemCount() > 0)
+    {
+        wxDC * dc = event.GetDC();
+        assert(dc);
+
+        // get some info
+        wxCoord width = 0, height = 0;
+        GetClientSize(&width, &height);
+
+        wxCoord x, y, w, h;
+        dc->SetClippingRegion(0, 0, width, height);
+        dc->GetClippingBox(&x, &y, &w, &h);
+
+        long top_item = GetTopItem();
+        long bottom_item = top_item + GetCountPerPage();
+        if (bottom_item >= GetItemCount()) {
+            bottom_item = GetItemCount() - 1;
+        }
+
+        // trick: we want to exclude a couple pixels
+        // on the left side thus use wxLIST_RECT_LABEL
+        // for the top rect and wxLIST_RECT_BOUNDS for bottom rect
+        wxRect top_rect, bottom_rect;
+        GetItemRect(top_item, top_rect, wxLIST_RECT_LABEL);
+        GetItemRect(bottom_item, bottom_rect, wxLIST_RECT_BOUNDS);
+
+        // set the new clipping region and do erasing
+        wxRect items_rect(top_rect.GetLeftTop(), bottom_rect.GetBottomRight());
+        wxRegion reg(wxRegion(x, y, w, h));
+        reg.Subtract(items_rect);
+        dc->DestroyClippingRegion();
+        dc->SetDeviceClippingRegion(reg);
+
+        // do erasing
+        dc->SetBackground(wxBrush(GetBackgroundColour(), wxSOLID));
+        dc->Clear();
+
+        // restore old clipping region
+        dc->DestroyClippingRegion();
+        dc->SetDeviceClippingRegion(wxRegion(x, y, w, h));
+    }
+    else
+    {
+        event.Skip();
+    }
 }
 
 wxString FileListCtrl::OnGetItemText(long item, long column) const
