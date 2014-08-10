@@ -89,7 +89,9 @@
     <ClInclude Include="ArchiveModel.h" />
     <ClInclude Include="CodecsLoader.h" />
     <ClInclude Include="DriveModel.h" />
+    <ClInclude Include="EightZipConfig.h" />
     <ClInclude Include="Exception.h" />
+    <ClInclude Include="ExtractDialog.h" />
     <ClInclude Include="FileFinder.h" />
     <ClInclude Include="EightZipFrame.h" />
     <ClInclude Include="EightZipApp.h" />
@@ -136,6 +138,8 @@
     <ClCompile Include="ArchiveModel.cpp" />
     <ClCompile Include="CodecsLoader.cpp" />
     <ClCompile Include="DriveModel.cpp" />
+    <ClCompile Include="EightZipConfig.cpp" />
+    <ClCompile Include="ExtractDialog.cpp" />
     <ClCompile Include="FileFinder.cpp" />
     <ClCompile Include="EightZipFrame.cpp" />
     <ClCompile Include="EightZipApp.cpp" />

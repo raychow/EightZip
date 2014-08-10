@@ -16,17 +16,29 @@ public:
         ID_PARENT_FOLDER
     };
 
-    EightZipFrame(const wxString &title);
+    EightZipFrame();
+
     virtual ~EightZipFrame();
 
 private:
+    bool m_isLastMaxmized = false;
+    wxPoint m_lastPosition;
+    wxSize m_lastSize;
+
     void __Create();
     void __CreateMenu();
     void __CreateToolBar(wxBoxSizer *pSizerMain);
     void __CreateFileExplorer(wxBoxSizer *pSizerMain);
+    void __RevertSize();
 
-    void __OnExitClick(wxCommandEvent &WXUNUSED(event));
+    void __OnFileExitClick(wxCommandEvent &WXUNUSED(event));
+    void __OnCommandExtractClick(wxCommandEvent &WXUNUSED(event));
 
+    void __OnMove(wxMoveEvent& event);
+    void __OnSize(wxSizeEvent& event);
+    void __UpdateLastLayout();
+
+    void __UpdateConfig();
 };
 
 #endif // EIGHTZIPFRAME_H

@@ -156,6 +156,12 @@
     <ClInclude Include="TempFolder.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ExtractDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EightZipConfig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -249,6 +255,12 @@
       <Filter>源文件\SevenZipCore</Filter>
     </ClCompile>
     <ClCompile Include="TempFolder.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EightZipConfig.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

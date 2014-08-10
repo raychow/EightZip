@@ -118,7 +118,7 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
             wxMessageBox(
                 wxString::Format(_("Cannot access \"%s\"."),
                 spEntry->GetPath()),
-                EIGHT_ZIP_NAME,
+                EIGHTZIP_NAME,
                 wxOK | wxICON_ERROR);
             return;
         }
@@ -137,7 +137,7 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
         wxMessageBox(
             wxString::Format(_("Cannot open \"%s\"."),
             spEntry->GetPath()),
-            EIGHT_ZIP_NAME,
+            EIGHTZIP_NAME,
             wxOK | wxICON_ERROR);
     }
 }

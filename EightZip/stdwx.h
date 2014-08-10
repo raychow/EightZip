@@ -19,6 +19,7 @@
 
 #include <wx/aui/aui.h>
 #include <wx/dir.h>
+#include <wx/fileconf.h>
 #include <wx/filename.h>
 #include <wx/listctrl.h>
 #include <wx/stdpaths.h>
@@ -49,6 +50,7 @@
 #define wxICON16(X) wxIcon(wxT(#X), wxICON_DEFAULT_TYPE, 16, 16)
 #endif // platform
 
-#define EIGHT_ZIP_NAME _("EightZip")
+#define EIGHTZIP_PROJECT_NAME wxT("EightZip")
+#define EIGHTZIP_NAME _("Eight Zip")
 
 #endif // STDWX_H

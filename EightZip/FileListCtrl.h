@@ -28,10 +28,6 @@ public:
 
     int GetModelIndex(int nListItemIndex) const;
 
-    // Flicker-free drawing.
-    // See also: http://wiki.wxwidgets.org/Flicker-Free_Drawing
-    void OnEraseBackground(wxEraseEvent &event);
-
 protected:
     virtual wxString OnGetItemText(long item, long column) const;
     virtual int OnGetItemImage(long item) const;
@@ -44,9 +40,11 @@ private:
     int m_nSortColumn = -1;
     bool m_isSortAscending = false;
 
-    void __OnListColumnClick(wxListEvent &event);
+    // Flicker-free drawing.
+    // See also: http://wiki.wxwidgets.org/Flicker-Free_Drawing
+    void __OnEraseBackground(wxEraseEvent &event);
 
-    DECLARE_EVENT_TABLE()
+    void __OnListColumnClick(wxListEvent &event);
 
 };
 

@@ -8,16 +8,14 @@ using namespace std;
 
 namespace SevenZipCore
 {
-    bool PropertyHelper::GetBool(const PROPVARIANT &property)
+    bool PropertyHelper::GetBool(const PROPVARIANT &property, bool defaultValue)
     {
         switch (property.vt)
         {
         case VT_BOOL:
             return property.boolVal != VARIANT_FALSE;
         case VT_EMPTY:
-            throw PropertyException(
-                PropertyErrorCode::EMPTY_VALUE,
-                "Get a empty value when read property.");
+            return defaultValue;
         default:
             throw PropertyException(
                 PropertyErrorCode::INVALID_VALUE_TYPE,
@@ -25,18 +23,18 @@ namespace SevenZipCore
         }
     }
 
-    IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(bool, GetBool)
+    IMPLEMENT_PROPERTY_HELPER_WITHOUT_DEFAULT_VALUE(bool, GetBool)
 
-    TString PropertyHelper::GetString(const PROPVARIANT &property)
+    TString PropertyHelper::GetString(
+    const PROPVARIANT &property,
+    TString defaultValue)
     {
         switch (property.vt)
         {
         case VT_BSTR:
             return property.bstrVal;
         case VT_EMPTY:
-            throw PropertyException(
-                PropertyErrorCode::EMPTY_VALUE,
-                "Get a empty value when read property.");
+            return defaultValue;
         default:
             throw PropertyException(
                 PropertyErrorCode::INVALID_VALUE_TYPE,
@@ -44,18 +42,16 @@ namespace SevenZipCore
         }
     }
 
-    IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(TString, GetString)
+    IMPLEMENT_PROPERTY_HELPER_WITHOUT_DEFAULT_VALUE(TString, GetString)
 
-    GUID PropertyHelper::GetGUID(const PROPVARIANT &property)
+    GUID PropertyHelper::GetGUID(const PROPVARIANT &property, GUID defaultValue)
     {
         switch (property.vt)
         {
         case VT_BSTR:
             return *(const GUID*)property.bstrVal;
         case VT_EMPTY:
-            throw PropertyException(
-                PropertyErrorCode::EMPTY_VALUE,
-                "Get a empty value when read property.");
+            return defaultValue;
         default:
             throw PropertyException(
                 PropertyErrorCode::INVALID_VALUE_TYPE,
@@ -63,9 +59,11 @@ namespace SevenZipCore
         }
     }
 
-    IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(GUID, GetGUID)
+    IMPLEMENT_PROPERTY_HELPER_WITHOUT_DEFAULT_VALUE(GUID, GetGUID)
 
-    vector<BYTE> PropertyHelper::GetBytes(const PROPVARIANT &property)
+    vector<BYTE> PropertyHelper::GetBytes(
+    const PROPVARIANT &property,
+    vector<BYTE> defaultValue)
     {
         vector<BYTE> result;
         switch (property.vt)
@@ -77,9 +75,7 @@ namespace SevenZipCore
                 + ::SysStringByteLen(property.bstrVal));
             break;
         case VT_EMPTY:
-            throw PropertyException(
-                PropertyErrorCode::EMPTY_VALUE,
-                "Get a empty value when read property.");
+            return defaultValue;
         default:
             throw PropertyException(
                 PropertyErrorCode::INVALID_VALUE_TYPE,
@@ -88,18 +84,16 @@ namespace SevenZipCore
         return result;
     }
 
-    IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(std::vector<BYTE>, GetBytes)
+    IMPLEMENT_PROPERTY_HELPER_WITHOUT_DEFAULT_VALUE(std::vector<BYTE>, GetBytes)
 
-    BYTE PropertyHelper::GetByte(const PROPVARIANT &property)
+    BYTE PropertyHelper::GetByte(const PROPVARIANT &property, BYTE defaultValue)
     {
         switch (property.vt)
         {
         case VT_UI1:
             return property.bVal;
         case VT_EMPTY:
-            throw PropertyException(
-                PropertyErrorCode::EMPTY_VALUE,
-                "Get a empty value when read property.");
+            return defaultValue;
         default:
             throw PropertyException(
                 PropertyErrorCode::INVALID_VALUE_TYPE,
@@ -107,18 +101,18 @@ namespace SevenZipCore
         }
     }
 
-    IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(BYTE, GetByte)
+    IMPLEMENT_PROPERTY_HELPER_WITHOUT_DEFAULT_VALUE(BYTE, GetByte)
 
-    USHORT PropertyHelper::GetUShort(const PROPVARIANT &property)
+    USHORT PropertyHelper::GetUShort(
+    const PROPVARIANT &property,
+    USHORT defaultValue)
     {
         switch (property.vt)
         {
         case VT_UI2:
             return property.uiVal;
         case VT_EMPTY:
-            throw PropertyException(
-                PropertyErrorCode::EMPTY_VALUE,
-                "Get a empty value when read property.");
+            return defaultValue;
         default:
             throw PropertyException(
                 PropertyErrorCode::INVALID_VALUE_TYPE,
@@ -126,18 +120,18 @@ namespace SevenZipCore
         }
     }
 
-    IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(USHORT, GetUShort)
+    IMPLEMENT_PROPERTY_HELPER_WITHOUT_DEFAULT_VALUE(USHORT, GetUShort)
 
-    UINT32 PropertyHelper::GetUInt32(const PROPVARIANT &property)
+    UINT32 PropertyHelper::GetUInt32(
+    const PROPVARIANT &property,
+    UINT32 defaultValue)
     {
         switch (property.vt)
         {
         case VT_UI4:
             return property.ulVal;
         case VT_EMPTY:
-            throw PropertyException(
-                PropertyErrorCode::EMPTY_VALUE,
-                "Get a empty value when read property.");
+            return defaultValue;
         default:
             throw PropertyException(
                 PropertyErrorCode::INVALID_VALUE_TYPE,
@@ -145,18 +139,18 @@ namespace SevenZipCore
         }
     }
 
-    IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(UINT32, GetUInt32)
+    IMPLEMENT_PROPERTY_HELPER_WITHOUT_DEFAULT_VALUE(UINT32, GetUInt32)
 
-    UINT64 PropertyHelper::GetUInt64(const PROPVARIANT &property)
+    UINT64 PropertyHelper::GetUInt64(
+    const PROPVARIANT &property,
+    UINT64 defaultValue)
     {
         switch (property.vt)
         {
         case VT_UI8:
             return property.uhVal.QuadPart;
         case VT_EMPTY:
-            throw PropertyException(
-                PropertyErrorCode::EMPTY_VALUE,
-                "Get a empty value when read property.");
+            return defaultValue;
         default:
             throw PropertyException(
                 PropertyErrorCode::INVALID_VALUE_TYPE,
@@ -164,9 +158,11 @@ namespace SevenZipCore
         }
     }
 
-    IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(UINT64, GetUInt64)
+    IMPLEMENT_PROPERTY_HELPER_WITHOUT_DEFAULT_VALUE(UINT64, GetUInt64)
 
-    UINT64 PropertyHelper::GetConvertedUInt64(const PROPVARIANT &property)
+    UINT64 PropertyHelper::GetConvertedUInt64(
+    const PROPVARIANT &property,
+    UINT64 defaultValue)
     {
         switch (property.vt)
         {
@@ -179,9 +175,7 @@ namespace SevenZipCore
         case VT_UI8:
             return property.uhVal.QuadPart;
         case VT_EMPTY:
-            throw PropertyException(
-                PropertyErrorCode::EMPTY_VALUE,
-                "Get a empty value when read property.");
+            return defaultValue;
         default:
             throw PropertyException(
                 PropertyErrorCode::INVALID_VALUE_TYPE,
@@ -189,9 +183,11 @@ namespace SevenZipCore
         }
     }
 
-    IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(UINT64, GetConvertedUInt64)
+    IMPLEMENT_PROPERTY_HELPER_WITHOUT_DEFAULT_VALUE(UINT64, GetConvertedUInt64)
 
-    FILETIME PropertyHelper::GetFileTime(const PROPVARIANT &property)
+    FILETIME PropertyHelper::GetFileTime(
+    const PROPVARIANT &property,
+    FILETIME defaultValue)
     {
         switch (property.vt)
         {
@@ -205,9 +201,7 @@ namespace SevenZipCore
                 PropertyErrorCode::EMPTY_VALUE,
                 "Get a empty value when read property.");
         case VT_EMPTY:
-            throw PropertyException(
-                PropertyErrorCode::EMPTY_VALUE,
-                "Get a empty value when read property.");
+            return defaultValue;
         default:
             throw PropertyException(
                 PropertyErrorCode::INVALID_VALUE_TYPE,
@@ -215,5 +209,5 @@ namespace SevenZipCore
         }
     }
 
-    IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(FILETIME, GetFileTime)
+    IMPLEMENT_PROPERTY_HELPER_WITHOUT_DEFAULT_VALUE(FILETIME, GetFileTime)
 }

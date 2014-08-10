@@ -85,21 +85,16 @@ namespace SevenZipCore
     static type name(const PROPVARIANT &property); \
     static type name(const PROPVARIANT &property, type defaultValue);
 
-#define IMPLEMENT_PROPERTY_HELPER_WITH_DEFAULT_VALUE(type, name) \
-    type PropertyHelper::name(const PROPVARIANT &property, type defaultValue) \
+#define IMPLEMENT_PROPERTY_HELPER_WITHOUT_DEFAULT_VALUE(type, name) \
+    type PropertyHelper::name(const PROPVARIANT &property) \
     { \
-        try \
+        if (VT_EMPTY == property.vt) \
         { \
-            return name(property); \
+            throw PropertyException( \
+                PropertyErrorCode::EMPTY_VALUE, \
+                "Get a empty value when read property."); \
         } \
-        catch (const PropertyException &ex) \
-        { \
-            if (PropertyErrorCode::EMPTY_VALUE == ex.GetErrorCode()) \
-            { \
-                return defaultValue; \
-            } \
-            throw; \
-        } \
+        return name(property, type()); \
     }
 
     class PropertyHelper

@@ -10,7 +10,7 @@ IMPLEMENT_APP(EightZipApp)
 bool EightZipApp::OnInit()
 {
     wxImage::AddHandler(new wxPNGHandler);
-    EightZipFrame *eightZip = new EightZipFrame(wxT("Eight Zip"));
+    EightZipFrame *eightZip = new EightZipFrame();
     eightZip->Show(true);
 
     return true;
