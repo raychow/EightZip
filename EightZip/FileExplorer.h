@@ -27,6 +27,14 @@ public:
 
     void NavigateTo(TString tstrPath);
 
+    std::shared_ptr<IModel> GetModel() const { return m_spModel; }
+    
+    int GetSelectedIndex() const;
+    std::vector<int> GetSelectedIndexes() const;
+    int GetSelectedEntryIndex() const;
+    std::vector<int> GetSelectedEntryIndexes() const;
+    std::shared_ptr<IEntry> GetEntry(int nIndex) const;
+
 private:
     wxToolBar *m_pParentFolderToolBar = nullptr;
     wxComboBox *m_pAddressComboBox = nullptr;

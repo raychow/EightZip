@@ -21,6 +21,7 @@ public:
 
     virtual bool IsOpenDirectly() const;
     virtual std::shared_ptr<IModel> GetModel();
+    virtual bool CanExtract() const;
 
 };
 

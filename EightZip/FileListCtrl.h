@@ -26,7 +26,7 @@ public:
 
     void Sort(int nColumn, bool isAscending);
 
-    int GetModelIndex(int nListItemIndex) const;
+    int GetEntryIndex(int nListItemIndex) const;
 
 protected:
     virtual wxString OnGetItemText(long item, long column) const;

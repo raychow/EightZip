@@ -3,6 +3,8 @@
 #ifndef EIGHTZIPFRAME_H
 #define EIGHTZIPFRAME_H
 
+class FileExplorer;
+
 class EightZipFrame
     : public wxFrame
 {
@@ -21,6 +23,8 @@ public:
     virtual ~EightZipFrame();
 
 private:
+    FileExplorer *m_pFileExplorer = nullptr;
+
     bool m_isLastMaxmized = false;
     wxPoint m_lastPosition;
     wxSize m_lastSize;

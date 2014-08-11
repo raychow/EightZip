@@ -162,6 +162,12 @@
     <ClInclude Include="EightZipConfig.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="EightDirDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EightFilePicker.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -261,6 +267,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="EightZipConfig.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EightDirDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EightFilePicker.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

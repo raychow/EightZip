@@ -24,6 +24,61 @@ void FileExplorer::NavigateTo(TString tstrPath)
 {
 }
 
+int FileExplorer::GetSelectedIndex() const
+{
+    return m_pListCtrl->GetNextItem(-1,
+        wxLIST_NEXT_ALL,
+        wxLIST_STATE_SELECTED);
+}
+
+std::vector<int> FileExplorer::GetSelectedIndexes() const
+{
+    int index = -1;
+    vector<int> result;
+
+    while (true)
+    {
+        index = m_pListCtrl->GetNextItem(index,
+            wxLIST_NEXT_ALL,
+            wxLIST_STATE_SELECTED);
+        result.push_back(index);
+
+        if (index == -1)
+        {
+            return result;
+        }
+    }
+}
+
+int FileExplorer::GetSelectedEntryIndex() const
+{
+    return m_pListCtrl->GetEntryIndex(GetSelectedIndex());
+}
+
+std::vector<int> FileExplorer::GetSelectedEntryIndexes() const
+{
+    auto result = GetSelectedIndexes();
+    for (auto &index : result)
+    {
+        index = m_pListCtrl->GetEntryIndex(index);
+    }
+    return result;
+}
+
+std::shared_ptr<IEntry> FileExplorer::GetEntry(int nIndex) const
+{
+    if (0 > nIndex || !m_spModel)
+    {
+        return nullptr;
+    }
+    auto entries = m_spModel->GetEntries();
+    if (nIndex > static_cast<int>(entries.size()))
+    {
+        return nullptr;
+    }
+    return entries.at(nIndex);
+}
+
 void FileExplorer::__Create()
 {
     auto *pSizerMain = new wxBoxSizer(wxVERTICAL);
@@ -103,8 +158,7 @@ void FileExplorer::__OnPathComboBoxEnter(wxCommandEvent &event)
 
 void FileExplorer::__OnListItemActivated(wxListEvent &event)
 {
-    const auto &spEntry = m_spModel->GetEntries().at(
-        m_pListCtrl->GetModelIndex(event.GetIndex()));
+    const auto spEntry = GetEntry(m_pListCtrl->GetEntryIndex(event.GetIndex()));
     if (!spEntry->IsOpenExternal())
     {
         try

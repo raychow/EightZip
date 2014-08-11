@@ -94,8 +94,12 @@ void FileListCtrl::Sort(int nColumn, bool isAscending)
     Refresh(false);
 }
 
-int FileListCtrl::GetModelIndex(int nListItemIndex) const
+int FileListCtrl::GetEntryIndex(int nListItemIndex) const
 {
+    if (0 > nListItemIndex || static_cast<int>(m_vnChildrenMap.size()) <= nListItemIndex)
+    {
+        return -1;
+    }
     return m_vnChildrenMap.at(nListItemIndex);
 }
 

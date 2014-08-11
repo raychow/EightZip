@@ -1,6 +1,7 @@
 #include "stdwx.h"
 #include "FolderModel.h"
 
+#include "SevenZipCore/ArchiveEntry.h"
 #include "SevenZipCore/CommonHelper.h"
 #include "SevenZipCore/ComPtr.h"
 #include "SevenZipCore/OpenCallback.h"
@@ -55,6 +56,33 @@ std::shared_ptr<IModel> FolderEntry::GetModel()
             SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
         result->LoadChildren();
         return result;
+    }
+}
+
+bool FolderEntry::CanExtract() const
+{
+    if (IsDirectory())
+    {
+        return false;
+    }
+    else
+    {
+        auto tstrPath = GetPath();
+        try
+        {
+            SevenZipCore::ArchiveEntry(
+                weak_ptr<SevenZipCore::Archive>(),
+                CodecsLoader::GetInstance().GetCodecs(),
+                tstrPath,
+                nullptr,
+                -1,
+                SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
+            return true;
+        }
+        catch (const SevenZipCore::SevenZipCoreException &)
+        {
+            return false;
+        }
     }
 }
 

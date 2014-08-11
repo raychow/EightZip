@@ -34,6 +34,7 @@ public:
     virtual int GetIconIndex() const;
     virtual TString GetItem(ItemType itemType) const;
     virtual std::shared_ptr<IModel> GetModel();
+    virtual bool CanExtract() const { return true; }
 
     virtual void OpenExternal();
 

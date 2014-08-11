@@ -8,7 +8,7 @@ using namespace std;
 namespace SevenZipCore
 {
     void InFileStream::Open(const TString &tstrPath, bool isShareWrite)
-{
+    {
         m_file.Open(tstrPath, isShareWrite);
     }
 

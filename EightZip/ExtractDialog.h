@@ -15,6 +15,12 @@ public:
         const wxSize& size = wxDefaultSize,
         long style = wxDEFAULT_DIALOG_STYLE,
         const wxString& name = wxDialogNameStr);
+
+    ~ExtractDialog() {}
+
+private:
+    void __Create();
+
 };
 
 #endif // EXTRACTDIALOG_H

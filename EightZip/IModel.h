@@ -45,6 +45,7 @@ public:
     virtual std::shared_ptr<IModel> GetModel() PURE;
     virtual bool IsOpenExternal() const PURE;
     virtual void OpenExternal() PURE;
+    virtual bool CanExtract() const PURE;
 
     virtual bool Compare(
         const IEntry &otherEntry,

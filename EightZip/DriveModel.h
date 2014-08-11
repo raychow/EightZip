@@ -20,6 +20,7 @@ public:
 
     virtual std::shared_ptr<IModel> GetModel();
     virtual bool IsOpenExternal() { return false; }
+    virtual bool CanExtract() const { return false; }
 
 };
 

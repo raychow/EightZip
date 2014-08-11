@@ -70,9 +70,9 @@ void EightZipFrame::__CreateToolBar(wxBoxSizer *pSizerMain)
 
 void EightZipFrame::__CreateFileExplorer(wxBoxSizer *pSizerMain)
 {
-    auto *pFileExplorer = new FileExplorer(this);
+    m_pFileExplorer = new FileExplorer(this);
 
-    pSizerMain->Add(pFileExplorer, wxSizerFlags().Expand().Proportion(1));
+    pSizerMain->Add(m_pFileExplorer, wxSizerFlags().Expand().Proportion(1));
 }
 
 void EightZipFrame::__RevertSize()
@@ -105,8 +105,20 @@ void EightZipFrame::__OnFileExitClick(wxCommandEvent &WXUNUSED(event))
 
 void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
 {
-    auto *pDialog = new ExtractDialog(this, wxID_ANY, _T("Extract"));
-    pDialog->ShowModal();
+    auto entry = m_pFileExplorer->GetEntry(
+        m_pFileExplorer->GetSelectedEntryIndex());
+    if (!entry)
+    {
+        return;
+    }
+    if (!entry->CanExtract())
+    {
+        wxMessageBox(
+            wxString::Format(_("Cannot extract \"%s\"."), entry->GetPath()),
+            EIGHTZIP_NAME);
+        return;
+    }
+    ExtractDialog(nullptr, wxID_ANY, _T("Extract")).ShowModal();
 }
 
 void EightZipFrame::__OnMove(wxMoveEvent& event)
