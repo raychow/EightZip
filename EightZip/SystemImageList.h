@@ -8,6 +8,7 @@ class SystemImageList
 {
 public:
     SystemImageList(bool isSmallIcon);
+
 };
 
 #endif // SYSTEMIMAGELIST_H

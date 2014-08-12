@@ -9,14 +9,19 @@
 
 EightZipFrame::EightZipFrame()
     : wxFrame(nullptr, wxID_ANY, EIGHTZIP_NAME)
+    , m_windowStateManager(this,
+    ConfigIndex::EightZipLocationX,
+    ConfigIndex::EightZipLocationY,
+    ConfigIndex::EightZipWidth,
+    ConfigIndex::EightZipHeight,
+    ConfigIndex::EightZipIsMaximized)
 {
     __Create();
-    ExtractDialog(nullptr, wxID_ANY, _T("Extract")).ShowModal();
 }
 
 EightZipFrame::~EightZipFrame()
 {
-    __UpdateConfig();
+    m_windowStateManager.Destroy();
     EightZipConfig::DestroyInstance();
 }
 
@@ -32,8 +37,6 @@ void EightZipFrame::__Create()
     __CreateFileExplorer(pSizerMain);
 
     SetSizer(pSizerMain);
-
-    __RevertSize();
 }
 
 void EightZipFrame::__CreateMenu()
@@ -76,29 +79,6 @@ void EightZipFrame::__CreateFileExplorer(wxBoxSizer *pSizerMain)
     pSizerMain->Add(m_pFileExplorer, wxSizerFlags().Expand().Proportion(1));
 }
 
-void EightZipFrame::__RevertSize()
-{
-    Bind(wxEVT_MOVE, &EightZipFrame::__OnMove, this);
-    Bind(wxEVT_SIZE, &EightZipFrame::__OnSize, this);
-
-    auto &config = EightZipConfig::GetInstance();
-    SetSize(
-        config.Get(ConfigIndex::Width, 1000),
-        config.Get(ConfigIndex::Height, 560));
-    int nX;
-    int nY;
-    if (config.Get(ConfigIndex::LocationX, &nX)
-        && config.Get(ConfigIndex::LocationY, &nY))
-    {
-        SetPosition(wxPoint(nX, nY));
-    }
-    else
-    {
-        Center();
-    }
-    Maximize(config.Get(ConfigIndex::IsMaximized, false));
-}
-
 void EightZipFrame::__OnFileExitClick(wxCommandEvent &WXUNUSED(event))
 {
     Close(TRUE);
@@ -120,39 +100,4 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
         return;
     }
     ExtractDialog(nullptr, wxID_ANY, _T("Extract")).ShowModal();
-}
-
-void EightZipFrame::__OnMove(wxMoveEvent& event)
-{
-    __UpdateLastLayout();
-    event.Skip();
-}
-
-void EightZipFrame::__OnSize(wxSizeEvent& event)
-{
-    __UpdateLastLayout();
-    event.Skip();
-}
-
-void EightZipFrame::__UpdateLastLayout()
-{
-    if (!IsIconized())
-    {
-        m_isLastMaxmized = IsMaximized();
-        if (!m_isLastMaxmized)
-        {
-            m_lastPosition = GetPosition();
-            m_lastSize = GetSize();
-        }
-    }
-}
-
-void EightZipFrame::__UpdateConfig()
-{
-    auto &config = EightZipConfig::GetInstance();
-    config.Set(ConfigIndex::LocationX, m_lastPosition.x);
-    config.Set(ConfigIndex::LocationY, m_lastPosition.y);
-    config.Set(ConfigIndex::Width, m_lastSize.GetWidth());
-    config.Set(ConfigIndex::Height, m_lastSize.GetHeight());
-    config.Set(ConfigIndex::IsMaximized, m_isLastMaxmized);
 }

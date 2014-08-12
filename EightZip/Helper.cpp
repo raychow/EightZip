@@ -23,13 +23,7 @@ wxSizer *Helper::AlignBorder(wxSizer *pSizer)
     int nCount = pSizer->GetItemCount();
     if (nCount)
     {
-        //auto pSizerFirst = pSizer->GetItem(static_cast<size_t>(0));
         auto pSizerLast = pSizer->GetItem(nCount - 1);
-        //auto nBorderFirst = pSizerFirst->GetBorder();
-        //if ((pSizerFirst->GetFlag() & wxLEFT) && SIZER_BORDER > nBorderFirst)
-        //{
-        //    pSizer->InsertSpacer(0, SIZER_BORDER - pSizerFirst->GetBorder());
-        //}
         auto nBorderLast = pSizerLast->GetBorder();
         if ((pSizerLast->GetFlag() & wxRIGHT) && SIZER_BORDER > nBorderLast)
         {

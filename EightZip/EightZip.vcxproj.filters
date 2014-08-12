@@ -165,6 +165,9 @@
     <ClInclude Include="EightDirDialog.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="WindowStateManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -267,6 +270,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="EightDirDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowStateManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

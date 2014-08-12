@@ -3,6 +3,8 @@
 #ifndef EXTRACTDIALOG_H
 #define EXTRACTDIALOG_H
 
+#include "WindowStateManager.h"
+
 class ExtractDialog
     : public wxDialog
 {
@@ -19,7 +21,10 @@ public:
     ~ExtractDialog() {}
 
 private:
+    WindowStateManager m_windowStateManager;
+
     wxComboBox *m_pComboBoxPath = nullptr;
+    wxCheckBox *m_pCheckBoxLaunchFolder = nullptr;
 
     void __Create();
 

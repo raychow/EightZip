@@ -13,6 +13,12 @@ ExtractDialog::ExtractDialog(
     long style /*= wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER*/,
     const wxString& name /*= wxDialogNameStr*/)
     : wxDialog(parent, id, title, pos, size, style, name)
+    , m_windowStateManager(this,
+    ConfigIndex::ExtractLocationX,
+    ConfigIndex::ExtractLocationY,
+    ConfigIndex::ExtractWidth,
+    ConfigIndex::ExtractHeight,
+    ConfigIndex::ExtractIsMaximized)
 {
     __Create();
 }
@@ -24,27 +30,34 @@ void ExtractDialog::__Create()
     pSizerMain->Add(new wxStaticText(
         this,
         wxID_ANY,
-        _("Destination:")),
+        _("&Destination:")),
         TOP_LEFT_SIZERFLAGS());
 
-    // Path
     auto *pSizerPath = new wxBoxSizer(wxHORIZONTAL);
-    
     m_pComboBoxPath = new wxComboBox(this, wxID_ANY);
     m_pComboBoxPath->AutoCompleteDirectories();
     pSizerPath->Add(m_pComboBoxPath, TOP_LEFT_SIZERFLAGS_(1).Center());
-
-    auto *pButtonBrowse = new wxButton(this, wxID_ANY, _("Browse"));
+    auto *pButtonBrowse = new wxButton(this, wxID_ANY, _("&Browse"));
     pButtonBrowse->Bind(wxEVT_BUTTON, &ExtractDialog::__OnBrowseClick, this);
     pSizerPath->Add(pButtonBrowse, TOP_HORIZON_SIZERFLAGS());
-
     pSizerMain->Add(pSizerPath, wxSizerFlags().Expand());
-    pSizerMain->AddStretchSpacer(1);
 
-    pSizerMain->Add(Helper::AlignBorder(
+    m_pCheckBoxLaunchFolder = new wxCheckBox(this, wxID_ANY,
+        _("&Launch the folder after extracting"));
+    pSizerMain->Add(m_pCheckBoxLaunchFolder, TOP_LEFT_SIZERFLAGS());
+
+    pSizerMain->AddStretchSpacer();
+
+    auto *pSizerDialogButton = new wxBoxSizer(wxHORIZONTAL);
+    auto *pButtonMore = new wxButton(this, wxID_ANY, _T("&More"));
+    pSizerDialogButton->Add(pButtonMore, BOTTOM_LEFT_SIZERFLAGS());
+    pSizerDialogButton->AddStretchSpacer();
+    pSizerDialogButton->Add(Helper::AlignBorder(
         CreateStdDialogButtonSizer(wxOK | wxCLOSE)),
-        BOTTOM_SIZERFLAGS().Expand());
+        BOTTOM_SIZERFLAGS());
+    pSizerMain->Add(pSizerDialogButton, wxSizerFlags().Expand());
 
+    SetMinClientSize(wxSize(400, 150));
     SetSizer(pSizerMain);
 }
 

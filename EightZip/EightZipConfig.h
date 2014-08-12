@@ -7,11 +7,16 @@
 
 enum struct ConfigIndex
 {
-    LocationX = 0,
-    LocationY,
-    Width,
-    Height,
-    IsMaximized,
+    EightZipLocationX = 0,
+    EightZipLocationY,
+    EightZipWidth,
+    EightZipHeight,
+    EightZipIsMaximized,
+    ExtractLocationX,
+    ExtractLocationY,
+    ExtractWidth,
+    ExtractHeight,
+    ExtractIsMaximized,
     Path,
 
     ConfigCount
@@ -20,12 +25,12 @@ enum struct ConfigIndex
 class EightZipConfig
 {
 public:
-    bool Get(ConfigIndex index, bool defaultValue) const;
-    bool Get(ConfigIndex index, bool *pValue) const;
-    int Get(ConfigIndex index, int defaultValue) const;
-    bool Get(ConfigIndex index, int *pValue) const;
-    wxString Get(ConfigIndex index, const wxString &defaultValue) const;
-    bool Get(ConfigIndex index, wxString *pValue) const;
+    bool GetBoolean(ConfigIndex index) const;
+    bool GetBoolean(ConfigIndex index, bool *pValue) const;
+    int GetInteger(ConfigIndex index) const;
+    bool GetInteger(ConfigIndex index, int *pValue) const;
+    wxString GetString(ConfigIndex index) const;
+    bool GetString(ConfigIndex index, wxString *pValue) const;
 
     void Set(ConfigIndex index, bool value);
     void Set(ConfigIndex index, int value);
@@ -36,6 +41,7 @@ public:
     ~EightZipConfig() { Save(); }
 
     static EightZipConfig &GetInstance();
+    // Must call before the wxApp destructor.
     static void DestroyInstance();
 
 private:

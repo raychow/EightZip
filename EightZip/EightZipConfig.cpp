@@ -4,11 +4,16 @@
 std::unique_ptr<EightZipConfig> EightZipConfig::m_upInstance;
 
 const EightZipConfig::Definition EightZipConfig::m_definitions[] = {
-    { "Layout/LocationX", ConfigType::Integer, ConfigIndex::LocationX },
-    { "Layout/LocationY", ConfigType::Integer, ConfigIndex::LocationY },
-    { "Layout/Width", ConfigType::Integer, ConfigIndex::Width, 1000 },
-    { "Layout/Height", ConfigType::Integer, ConfigIndex::Height, 560 },
-    { "Layout/IsMaximized", ConfigType::Boolean, ConfigIndex::IsMaximized, true },
+    { "Layout/EightZipLocationX", ConfigType::Integer, ConfigIndex::EightZipLocationX },
+    { "Layout/EightZipLocationY", ConfigType::Integer, ConfigIndex::EightZipLocationY },
+    { "Layout/EightZipWidth", ConfigType::Integer, ConfigIndex::EightZipWidth, 1000 },
+    { "Layout/EightZipHeight", ConfigType::Integer, ConfigIndex::EightZipHeight, 560 },
+    { "Layout/EightZipIsMaximized", ConfigType::Boolean, ConfigIndex::EightZipIsMaximized, false },
+    { "Layout/ExtractLocationX", ConfigType::Integer, ConfigIndex::ExtractLocationX },
+    { "Layout/ExtractLocationY", ConfigType::Integer, ConfigIndex::ExtractLocationY },
+    { "Layout/ExtractWidth", ConfigType::Integer, ConfigIndex::ExtractWidth, 500 },
+    { "Layout/ExtractHeight", ConfigType::Integer, ConfigIndex::ExtractHeight, 240 },
+    { "Layout/ExtractIsMaximized", ConfigType::Boolean, ConfigIndex::ExtractIsMaximized, false },
     { "Path", ConfigType::String, ConfigIndex::Path, wxFILE_SEP_PATH }
 };
 
@@ -57,17 +62,17 @@ EightZipConfig::EightZipConfig()
     }
 }
 
-bool EightZipConfig::Get(ConfigIndex index, bool defaultValue) const
+bool EightZipConfig::GetBoolean(ConfigIndex index) const
 {
     bool result = false;
-    if (!Get(index, &result))
+    if (!GetBoolean(index, &result))
     {
-        return defaultValue;
+        return m_definitions[static_cast<int>(index)].DefaultValue.GetBoolean();
     }
     return result;
 }
 
-bool EightZipConfig::Get(ConfigIndex index, bool *pValue) const
+bool EightZipConfig::GetBoolean(ConfigIndex index, bool *pValue) const
 {
     assert(m_definitions[static_cast<int>(index)].Type == ConfigType::Boolean);
     const auto &config = m_configs[static_cast<int>(index)];
@@ -82,17 +87,17 @@ bool EightZipConfig::Get(ConfigIndex index, bool *pValue) const
     return false;
 }
 
-int EightZipConfig::Get(ConfigIndex index, int defaultValue) const
+int EightZipConfig::GetInteger(ConfigIndex index) const
 {
     int result = 0;
-    if (!Get(index, &result))
+    if (!GetInteger(index, &result))
     {
-        return defaultValue;
+        return m_definitions[static_cast<int>(index)].DefaultValue.GetInt();
     }
     return result;
 }
 
-bool EightZipConfig::Get(ConfigIndex index, int *pValue) const
+bool EightZipConfig::GetInteger(ConfigIndex index, int *pValue) const
 {
     assert(m_definitions[static_cast<int>(index)].Type == ConfigType::Integer);
     const auto &config = m_configs[static_cast<int>(index)];
@@ -107,17 +112,17 @@ bool EightZipConfig::Get(ConfigIndex index, int *pValue) const
     return false;
 }
 
-wxString EightZipConfig::Get(ConfigIndex index, const wxString &defaultValue) const
+wxString EightZipConfig::GetString(ConfigIndex index) const
 {
     wxString result;
-    if (!Get(index, &result))
+    if (!GetString(index, &result))
     {
-        return defaultValue;
+        return m_definitions[static_cast<int>(index)].DefaultValue.GetString();
     }
     return result;
 }
 
-bool EightZipConfig::Get(ConfigIndex index, wxString *pValue) const
+bool EightZipConfig::GetString(ConfigIndex index, wxString *pValue) const
 {
     assert(m_definitions[static_cast<int>(index)].Type == ConfigType::String);
     const auto &config = m_configs[static_cast<int>(index)];

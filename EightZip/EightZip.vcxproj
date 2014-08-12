@@ -134,6 +134,7 @@
     <ClInclude Include="stdwx.h" />
     <ClInclude Include="SystemImageList.h" />
     <ClInclude Include="TempFolder.h" />
+    <ClInclude Include="WindowStateManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArchiveModel.cpp" />
@@ -253,6 +254,7 @@
     </ClCompile>
     <ClCompile Include="SystemImageList.cpp" />
     <ClCompile Include="TempFolder.cpp" />
+    <ClCompile Include="WindowStateManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="EightZip.rc">
