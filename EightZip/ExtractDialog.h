@@ -13,13 +13,17 @@ public:
         const wxString& title,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
-        long style = wxDEFAULT_DIALOG_STYLE,
+        long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER,
         const wxString& name = wxDialogNameStr);
 
     ~ExtractDialog() {}
 
 private:
+    wxComboBox *m_pComboBoxPath = nullptr;
+
     void __Create();
+
+    void __OnBrowseClick(wxCommandEvent &WXUNUSED(event));
 
 };
 

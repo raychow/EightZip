@@ -11,6 +11,7 @@ EightZipFrame::EightZipFrame()
     : wxFrame(nullptr, wxID_ANY, EIGHTZIP_NAME)
 {
     __Create();
+    ExtractDialog(nullptr, wxID_ANY, _T("Extract")).ShowModal();
 }
 
 EightZipFrame::~EightZipFrame()

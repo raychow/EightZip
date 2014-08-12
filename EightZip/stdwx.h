@@ -53,4 +53,44 @@
 #define EIGHTZIP_PROJECT_NAME wxT("EightZip")
 #define EIGHTZIP_NAME _("Eight Zip")
 
+#define SIZER_BORDER 10
+#define SIZERFLAGS() wxSizerFlags().Border(wxALL, SIZER_BORDER)
+#define SIZERFLAGS_(x) wxSizerFlags(x).Border(wxALL, SIZER_BORDER)
+#define HORIZON_SIZERFLAGS() \
+wxSizerFlags().Border(wxLEFT | wxRIGHT, SIZER_BORDER)
+#define HORIZON_SIZERFLAGS_(x) \
+wxSizerFlags(x).Border(wxLEFT | wxRIGHT, SIZER_BORDER)
+#define TOP_SIZERFLAGS() wxSizerFlags().Border(wxTOP, SIZER_BORDER)
+#define TOP_SIZERFLAGS_(x) wxSizerFlags(x).Border(wxTOP, SIZER_BORDER)
+#define BOTTOM_SIZERFLAGS() wxSizerFlags().Border(wxBOTTOM, SIZER_BORDER)
+#define BOTTOM_SIZERFLAGS_(x) wxSizerFlags(x).Border(wxBOTTOM, SIZER_BORDER)
+#define LEFT_SIZERFLAGS wxSizerFlags().Border(wxLEFT, SIZER_BORDER)
+#define LEFT_SIZERFLAGS_(x) wxSizerFlags(x).Border(wxLEFT, SIZER_BORDER)
+#define RIGHT_SIZERFLAGS wxSizerFlags().Border(wxRIGHT, SIZER_BORDER)
+#define RIGHT_SIZERFLAGS_(x) wxSizerFlags(x).Border(wxRIGHT, SIZER_BORDER)
+#define TOP_LEFT_SIZERFLAGS() \
+wxSizerFlags().Border(wxTOP | wxLEFT, SIZER_BORDER)
+#define TOP_LEFT_SIZERFLAGS_(x) \
+wxSizerFlags(x).Border(wxTOP | wxLEFT, SIZER_BORDER)
+#define TOP_RIGHT_SIZERFLAGS() \
+wxSizerFlags().Border(wxTOP | wxRIGHT, SIZER_BORDER)
+#define TOP_RIGHT_SIZERFLAGS_(x) \
+wxSizerFlags(x).Border(wxTOP | wxRIGHT, SIZER_BORDER)
+#define TOP_HORIZON_SIZERFLAGS() \
+wxSizerFlags().Border(wxTOP | wxLEFT | wxRIGHT, SIZER_BORDER)
+#define TOP_HORIZON_SIZERFLAGS_(x) \
+wxSizerFlags(x).Border(wxTOP | wxLEFT | wxRIGHT, SIZER_BORDER)
+#define BOTTOM_LEFT_SIZERFLAGS() \
+wxSizerFlags().Border(wxBOTTOM | wxLEFT, SIZER_BORDER)
+#define BOTTOM_LEFT_SIZERFLAGS_(x) \
+wxSizerFlags(x).Border(wxBOTTOM | wxLEFT, SIZER_BORDER)
+#define BOTTOM_RIGHT_SIZERFLAGS() \
+wxSizerFlags().Border(wxBOTTOM | wxRIGHT, SIZER_BORDER)
+#define BOTTOM_RIGHT_SIZERFLAGS_(x) \
+wxSizerFlags(x).Border(wxBOTTOM | wxRIGHT, SIZER_BORDER)
+#define BOTTOM_HORIZON_SIZERFLAGS() \
+wxSizerFlags().Border(wxBOTTOM | wxLEFT | wxRIGHT, SIZER_BORDER)
+#define BOTTOM_HORIZON_SIZERFLAGS_(x) \
+wxSizerFlags(x).Border(wxBOTTOM | wxLEFT | wxRIGHT, SIZER_BORDER)
+
 #endif // STDWX_H
