@@ -104,7 +104,15 @@ int EightDirDialog::__ShowIFileDialog(WXHWND owner)
             NULL,
             wxIID_PPV_ARGS(IShellItem,
             &folder));
-        if (SUCCEEDED(hr))
+        if (FAILED(hr))
+        {
+            if (HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND) != hr)
+            {
+                wxLogApiError(wxS("SHCreateItemFromParsingName"), hr);
+                return wxID_NONE;
+            }
+        }
+        else
         {
             hr = fileDialog->SetFolder(folder);
             if (FAILED(hr))
@@ -112,11 +120,6 @@ int EightDirDialog::__ShowIFileDialog(WXHWND owner)
                 wxLogApiError(wxS("IFileDialog::SetFolder"), hr);
                 return wxID_NONE;
             }
-        }
-        else if (HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND) != hr)
-        {
-            wxLogApiError(wxS("SHCreateItemFromParsingName"), hr);
-            return wxID_NONE;
         }
     }
 
