@@ -1,7 +1,11 @@
 #include "stdwx.h"
 #include "Helper.h"
 
+#include <memory>
+
 #include "Exception.h"
+
+using namespace std;
 
 void Helper::OpenFileExternal(const TString &tstrPath)
 {
@@ -61,4 +65,33 @@ FileAttributes Helper::GetFileAttributes(TString tstrPath)
     }
 #endif
     return status;
+}
+
+TString Helper::GetCanonicalPath(TString tstrPath)
+{
+#ifdef __WXMSW__
+    int nBufferSize = ::GetFullPathName(tstrPath.c_str(), 0, nullptr, nullptr);
+    if (!nBufferSize)
+    {
+        return tstrPath;
+    }
+    unique_ptr<wxChar[]> uptchFullPath(new wxChar[nBufferSize]);
+    if (!::GetFullPathName(
+        tstrPath.c_str(), nBufferSize, uptchFullPath.get(), nullptr))
+    {
+        return tstrPath;
+    }
+    nBufferSize = ::GetLongPathName(uptchFullPath.get(), nullptr, 0);
+    if (!nBufferSize)
+    {
+        return uptchFullPath.get();
+    }
+    unique_ptr<wxChar[]> uptchLongPath(new wxChar[nBufferSize]);
+    if (!::GetLongPathName(
+        uptchFullPath.get(), uptchLongPath.get(), nBufferSize))
+    {
+        return uptchFullPath.get();
+    }
+    return uptchLongPath.get();
+#endif
 }

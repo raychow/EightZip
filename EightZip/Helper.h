@@ -53,6 +53,8 @@ public:
     static void OpenFileExternal(const TString &tstrPath);
     static wxSizer *AlignBorder(wxSizer *pSizer);
     static FileAttributes GetFileAttributes(TString tstrPath);
+    static TString GetCanonicalPath(TString tstrPath);
+
 };
 
 #endif // HELPER_H

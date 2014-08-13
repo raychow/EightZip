@@ -1,7 +1,7 @@
 #include "stdwx.h"
 #include "FileInfo.h"
 
-#include <memory>
+#include "Helper.h"
 
 using namespace std;
 
@@ -24,31 +24,7 @@ TString FileInfo::GetCanonicalPath() const
     }
     if (m_tstrCanonicalPath.empty())
     {
-#ifdef __WXMSW__
-        int nBufferSize = ::GetFullPathName(m_tstrPath.c_str(), 0, nullptr, nullptr);
-        if (!nBufferSize)
-        {
-            return m_tstrPath;
-        }
-        unique_ptr<wxChar[]> uptchFullPath(new wxChar[nBufferSize]);
-        if (!::GetFullPathName(
-            m_tstrPath.c_str(), nBufferSize, uptchFullPath.get(), nullptr))
-        {
-            return m_tstrPath;
-        }
-        nBufferSize = ::GetLongPathName(uptchFullPath.get(), nullptr, 0);
-        if (!nBufferSize)
-        {
-            return uptchFullPath.get();
-        }
-        unique_ptr<wxChar[]> uptchLongPath(new wxChar[nBufferSize]);
-        if (!::GetLongPathName(
-            uptchFullPath.get(), uptchLongPath.get(), nBufferSize))
-        {
-            return uptchFullPath.get();
-        }
-        m_tstrCanonicalPath = uptchLongPath.get();
-#endif
+        m_tstrCanonicalPath = Helper::GetCanonicalPath(m_tstrPath);
     }
     return m_tstrCanonicalPath;
 }
