@@ -16,30 +16,41 @@ FileInfo::FileInfo(TString tstrPath)
 #endif
 }
 
-TString FileInfo::GetNormalizedPath() const
+TString FileInfo::GetCanonicalPath() const
 {
     if (!IsOK())
     {
         return wxEmptyString;
     }
-    if (m_tstrNormalizedPath.empty())
+    if (m_tstrCanonicalPath.empty())
     {
 #ifdef __WXMSW__
-        int nBufferSize = ::GetLongPathName(m_tstrPath.c_str(), nullptr, 0);
-        if (nBufferSize)
+        int nBufferSize = ::GetFullPathName(m_tstrPath.c_str(), 0, nullptr, nullptr);
+        if (!nBufferSize)
         {
-            unique_ptr<wxChar[]> uptchBuffer(new wxChar[nBufferSize]);
-            if (::GetLongPathName(
-                m_tstrPath.c_str(), uptchBuffer.get(), nBufferSize))
-            {
-                m_tstrNormalizedPath = uptchBuffer.get();
-                return m_tstrNormalizedPath;
-            }
+            return m_tstrPath;
         }
-        m_tstrNormalizedPath.clear();
+        unique_ptr<wxChar[]> uptchFullPath(new wxChar[nBufferSize]);
+        if (!::GetFullPathName(
+            m_tstrPath.c_str(), nBufferSize, uptchFullPath.get(), nullptr))
+        {
+            return m_tstrPath;
+        }
+        nBufferSize = ::GetLongPathName(uptchFullPath.get(), nullptr, 0);
+        if (!nBufferSize)
+        {
+            return uptchFullPath.get();
+        }
+        unique_ptr<wxChar[]> uptchLongPath(new wxChar[nBufferSize]);
+        if (!::GetLongPathName(
+            uptchFullPath.get(), uptchLongPath.get(), nBufferSize))
+        {
+            return uptchFullPath.get();
+        }
+        m_tstrCanonicalPath = uptchLongPath.get();
 #endif
     }
-    return m_tstrNormalizedPath;
+    return m_tstrCanonicalPath;
 }
 
 TString FileInfo::GetType(

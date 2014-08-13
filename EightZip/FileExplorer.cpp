@@ -1,6 +1,8 @@
 #include "stdwx.h"
 #include "FileExplorer.h"
 
+#include <boost/filesystem.hpp>
+
 #include "SevenZipCore/Exception.h"
 
 #include "Exception.h"
@@ -65,6 +67,11 @@ std::vector<int> FileExplorer::GetSelectedEntryIndexes() const
     return result;
 }
 
+std::shared_ptr<IEntry> FileExplorer::GetSelectedEntry() const
+{
+    return GetEntry(GetSelectedEntryIndex());
+}
+
 std::shared_ptr<IEntry> FileExplorer::GetEntry(int nIndex) const
 {
     if (0 > nIndex || !m_spModel)
@@ -77,6 +84,16 @@ std::shared_ptr<IEntry> FileExplorer::GetEntry(int nIndex) const
         return nullptr;
     }
     return entries.at(nIndex);
+}
+
+bool FileExplorer::CanExtract() const
+{
+    if (m_spModel->IsArchive())
+    {
+        return true;
+    }
+    auto entry = GetEntry(GetSelectedEntryIndex());
+    return entry && entry->CanExtract();
 }
 
 void FileExplorer::__Create()
@@ -99,6 +116,9 @@ void FileExplorer::__CreateAddressBar(wxBoxSizer *pSizerMain)
     m_pParentFolderToolBar->Realize();
     pSizerAddress->Add(m_pParentFolderToolBar, wxSizerFlags().Center());
     m_pAddressComboBox = new wxComboBox(this, wxID_ANY);
+    m_pAddressComboBox->AutoCompleteFileNames();
+    m_pAddressComboBox->Bind(
+        wxEVT_KEY_DOWN, &FileExplorer::__OnPathComboBoxKeyDown, this);
     m_pAddressComboBox->SetWindowStyle(wxTE_PROCESS_ENTER);
     pSizerAddress->Add(
         m_pAddressComboBox, wxSizerFlags().Proportion(1).Border(wxALL, 2));
@@ -110,10 +130,10 @@ void FileExplorer::__CreateAddressBar(wxBoxSizer *pSizerMain)
         &FileExplorer::__OnParentFolderClick,
         this,
         ID_PARENT_FOLDER);
-    m_pAddressComboBox->Bind(
-        wxEVT_TEXT_ENTER,
-        &FileExplorer::__OnPathComboBoxEnter,
-        this);
+    //m_pAddressComboBox->Bind(
+    //    wxEVT_TEXT_ENTER,
+    //    &FileExplorer::__OnPathComboBoxEnter,
+    //    this);
 }
 
 void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
@@ -138,6 +158,8 @@ void FileExplorer::__SetModel(std::shared_ptr<IModel> spModel)
         tstrPath.push_back(wxFILE_SEP_PATH);
     }
     m_pAddressComboBox->SetValue(tstrPath);
+    m_pAddressComboBox->SelectAll();
+    m_pParentFolderToolBar->EnableTool(ID_PARENT_FOLDER, m_spModel->HasParent());
 }
 
 void FileExplorer::__OnParentFolderClick(wxCommandEvent &event)
@@ -146,14 +168,16 @@ void FileExplorer::__OnParentFolderClick(wxCommandEvent &event)
     {
         __SetModel(m_spModel->GetParent());
     }
-    if (!m_spModel->HasParent())
-    {
-        m_pParentFolderToolBar->EnableTool(ID_PARENT_FOLDER, false);
-    }
 }
 
-void FileExplorer::__OnPathComboBoxEnter(wxCommandEvent &event)
+void FileExplorer::__OnPathComboBoxKeyDown(wxKeyEvent& event)
 {
+    if (event.GetKeyCode() == WXK_RETURN)
+    {
+        __SetModel(GetModelFromPath(
+            m_pAddressComboBox->GetValue().ToStdWstring()));
+    }
+    event.Skip();
 }
 
 void FileExplorer::__OnListItemActivated(wxListEvent &event)
@@ -164,7 +188,6 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
         try
         {
             __SetModel(spEntry->GetModel());
-            m_pParentFolderToolBar->EnableTool(ID_PARENT_FOLDER, true);
             return;
         }
         catch (const ModelException &)
@@ -194,4 +217,28 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
             EIGHTZIP_NAME,
             wxOK | wxICON_ERROR);
     }
+}
+
+void FileExplorer::Extract(TString tstrPath)
+{
+    try
+    {
+        auto spModel = m_spModel;
+        while (spModel && spModel->IsArchive())
+        {
+            spModel = spModel->GetParent();
+        }
+        assert(spModel);
+        auto path = boost::filesystem::absolute(tstrPath, spModel->GetPath());
+        boost::filesystem::create_directories(path);
+        path = boost::filesystem::canonical(path);
+
+    }
+    catch (const boost::system::system_error &)
+    {
+        wxMessageBox(wxString::Format(
+            _("Can not access or create folder \"\"."),
+            tstrPath));
+    }
+
 }

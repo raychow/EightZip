@@ -52,8 +52,12 @@ void ExtractDialog::__Create()
     auto *pButtonMore = new wxButton(this, wxID_ANY, _T("&More"));
     pSizerDialogButton->Add(pButtonMore, BOTTOM_LEFT_SIZERFLAGS());
     pSizerDialogButton->AddStretchSpacer();
+    //auto *pSizerStdDialogButton = new wxStdDialogButtonSizer();
+    //pSizerDialogButton->Add(new wxButton(this, wxID_ANY, _("Extract")));
+    //pSizerDialogButton->Add(new wxButton(this, wxID_ANY, _("Cancel")));
+
     pSizerDialogButton->Add(Helper::AlignBorder(
-        CreateStdDialogButtonSizer(wxOK | wxCLOSE)),
+        CreateStdDialogButtonSizer(wxOK | wxCANCEL)),
         BOTTOM_SIZERFLAGS());
     pSizerMain->Add(pSizerDialogButton, wxSizerFlags().Expand());
 

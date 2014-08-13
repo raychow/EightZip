@@ -63,6 +63,7 @@ public:
     virtual std::shared_ptr<IModel> GetParent() const PURE;
     virtual const EntryVector &GetEntries() const PURE;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const PURE;
+    virtual bool IsArchive() const PURE;
 
 };
 

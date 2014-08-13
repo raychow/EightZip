@@ -25,7 +25,6 @@ std::shared_ptr<IModel> DriveEntry::GetModel()
 
 DriveModel::DriveModel()
 {
-#ifdef __WXMSW__
     for (auto tstrDrive : __GetDrives())
     {
         wxULongLong_t un64TotalNumberOfBytes;
@@ -46,7 +45,6 @@ DriveModel::DriveModel()
             un64TotalNumberOfFreeBytes,
             FileInfo::GetType(tstrDrive, true, false)));
     }
-#endif
 }
 
 std::shared_ptr<IModel> DriveModel::GetParent() const
@@ -65,7 +63,6 @@ const vector<IEntry::ItemType> &DriveModel::GetSupportedItems() const
     return vType;
 }
 
-#ifdef __WXMSW__
 vector<TString> DriveModel::__GetDrives()
 {
     vector<TString> result;
@@ -86,4 +83,3 @@ vector<TString> DriveModel::__GetDrives()
     }
     return result;
 }
-#endif

@@ -77,7 +77,8 @@ public:
 
     virtual std::shared_ptr<IModel> GetParent() const;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
-    
+    virtual bool IsArchive() const { return true; }
+
     const TString &GetInternalPath() const { return m_tstrInternalPath; }
 
     // Should call LoadChildren() manually since shared_from_this() is not

@@ -3,6 +3,8 @@
 #ifndef EXTRACTDIALOG_H
 #define EXTRACTDIALOG_H
 
+#include "SevenZipCore/TString.h"
+
 #include "WindowStateManager.h"
 
 class ExtractDialog
@@ -19,6 +21,11 @@ public:
         const wxString& name = wxDialogNameStr);
 
     ~ExtractDialog() {}
+
+    TString GetPath() const
+    {
+        return m_pComboBoxPath->GetValue().ToStdWstring();
+    }
 
 private:
     WindowStateManager m_windowStateManager;

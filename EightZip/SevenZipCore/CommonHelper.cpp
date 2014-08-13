@@ -52,7 +52,7 @@ namespace SevenZipCore
 
     TString Helper::MakePathSlash(TString value)
     {
-        if (!IsEndOfSlash(value))
+        if (value.empty() || !IsEndOfSlash(value))
         {
             value.push_back(FOLDER_SEPARATOR);
         }
@@ -61,7 +61,7 @@ namespace SevenZipCore
 
     TString Helper::RemovePathSlash(TString value)
     {
-        while (IsEndOfSlash(value))
+        while (!value.empty() && IsEndOfSlash(value))
         {
             value.pop_back();
         }

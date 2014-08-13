@@ -67,4 +67,6 @@ protected:
 
 };
 
+std::shared_ptr<IModel> GetModelFromPath(TString tstrPath);
+
 #endif // MODELBASE_H

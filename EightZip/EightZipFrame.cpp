@@ -86,18 +86,27 @@ void EightZipFrame::__OnFileExitClick(wxCommandEvent &WXUNUSED(event))
 
 void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
 {
-    auto entry = m_pFileExplorer->GetEntry(
-        m_pFileExplorer->GetSelectedEntryIndex());
-    if (!entry)
+    if (!m_pFileExplorer->CanExtract())
     {
-        return;
-    }
-    if (!entry->CanExtract())
-    {
+        auto entry = m_pFileExplorer->GetSelectedEntry();
+        TString tstrPath;
+        if (entry)
+        {
+            tstrPath = entry->GetPath();
+        }
+        else
+        {
+            tstrPath = m_pFileExplorer->GetModel()->GetPath() + wxFILE_SEP_PATH;
+        }
         wxMessageBox(
-            wxString::Format(_("Cannot extract \"%s\"."), entry->GetPath()),
+            wxString::Format(_("Cannot extract \"%s\"."), tstrPath),
             EIGHTZIP_NAME);
         return;
     }
-    ExtractDialog(nullptr, wxID_ANY, _T("Extract")).ShowModal();
+    ExtractDialog dialog(nullptr, wxID_ANY, _T("Extract"));
+    if (dialog.ShowModal() != wxID_OK)
+    {
+        return;
+    }
+    m_pFileExplorer->Extract(dialog.GetPath());
 }

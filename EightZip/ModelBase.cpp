@@ -1,7 +1,14 @@
 #include "stdwx.h"
 #include "ModelBase.h"
 
+#include "SevenZipCore/CommonHelper.h"
+#include "SevenZipCore/ComPtr.h"
+#include "SevenZipCore/OpenCallback.h"
+
+#include "ArchiveModel.h"
+#include "DriveModel.h"
 #include "FileInfo.h"
+#include "FolderModel.h"
 #include "Helper.h"
 
 using namespace std;
@@ -183,5 +190,42 @@ bool EntryBase::_LocaleCompare(
     default:
         return false;
     }
+#endif
+}
+
+std::shared_ptr<IModel> GetModelFromPath(TString tstrPath)
+{
+    tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));
+    while (!tstrPath.empty())
+    {
+        auto attributes = Helper::GetFileAttributes(tstrPath);
+        if (attributes.IsDirectory())
+        {
+            return make_shared<FolderModel>(
+                SevenZipCore::Helper::MakePathSlash(tstrPath));
+        }
+        else if (attributes.IsFile())
+        {
+            auto spModel = make_shared<ArchiveModel>(
+                nullptr,
+                tstrPath,
+                wxEmptyString,
+                tstrPath,
+                SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
+            spModel->LoadChildren();
+            return spModel;
+        }
+        auto szLocation = tstrPath.find_last_of(FOLDER_POSSIBLE_SEPARATOR);
+        if (TString::npos == szLocation)
+        {
+            break;
+        }
+        tstrPath = SevenZipCore::Helper::RemovePathSlash(
+            tstrPath.substr(0, szLocation));
+    }
+#ifdef __WXMSW__
+    return make_shared<DriveModel>();
+#else
+    return make_shared<FolderModel>(wxT("/"));
 #endif
 }

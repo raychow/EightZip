@@ -33,7 +33,11 @@ public:
     std::vector<int> GetSelectedIndexes() const;
     int GetSelectedEntryIndex() const;
     std::vector<int> GetSelectedEntryIndexes() const;
+    std::shared_ptr<IEntry> GetSelectedEntry() const;
     std::shared_ptr<IEntry> GetEntry(int nIndex) const;
+    bool CanExtract() const;
+
+    void Extract(TString tstrPath);
 
 private:
     wxToolBar *m_pParentFolderToolBar = nullptr;
@@ -49,9 +53,8 @@ private:
     void __SetModel(std::shared_ptr<IModel> spModel);
 
     void __OnParentFolderClick(wxCommandEvent &event);
-    void __OnPathComboBoxEnter(wxCommandEvent& event);
+    void __OnPathComboBoxKeyDown(wxKeyEvent& event);
     void __OnListItemActivated(wxListEvent &event);
-
 };
 
 #endif // FILEEXPLORER_H

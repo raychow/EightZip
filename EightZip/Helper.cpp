@@ -33,3 +33,32 @@ wxSizer *Helper::AlignBorder(wxSizer *pSizer)
 #endif
     return pSizer;
 }
+
+FileAttributes Helper::GetFileAttributes(TString tstrPath)
+{
+    FileAttributes status;
+#ifdef __WXMSW__
+    //if (TRUE != ::PathFileExists(tstrPath.c_str()))
+    //{
+    //    return status;
+    //}
+    auto dwAttributes = ::GetFileAttributes(tstrPath.c_str());
+    if (INVALID_FILE_ATTRIBUTES == dwAttributes)
+    {
+        return status;
+    }
+    if (dwAttributes & FILE_ATTRIBUTE_DIRECTORY)
+    {
+        status.Directory();
+    }
+    else
+    {
+        status.File();
+    }
+    if (dwAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
+    {
+        status.SymbolicLink();
+    }
+#endif
+    return status;
+}

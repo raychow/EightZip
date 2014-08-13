@@ -91,7 +91,7 @@ FolderModel::FolderModel(TString tstrPath)
     FileInfo fileInfo(tstrPath);
     if (fileInfo.IsOK())
     {
-        m_tstrPath = SevenZipCore::Helper::RemovePathSlash(fileInfo.GetNormalizedPath());
+        m_tstrPath = SevenZipCore::Helper::RemovePathSlash(fileInfo.GetCanonicalPath());
         FileFinder finder(m_tstrPath);
         while (finder.FindNext())
         {

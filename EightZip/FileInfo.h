@@ -18,7 +18,7 @@ public:
 
     bool IsOK() const { return m_isOK; }
 
-    TString GetNormalizedPath() const;
+    TString GetCanonicalPath() const;
     bool IsDirectory() const
     {
         return 0 != (m_fileAttributeData.dwFileAttributes
@@ -57,7 +57,7 @@ public:
 
 private:
     TString m_tstrPath;
-    mutable TString m_tstrNormalizedPath;
+    mutable TString m_tstrCanonicalPath;
     bool m_isOK;
 
     WIN32_FILE_ATTRIBUTE_DATA m_fileAttributeData;
