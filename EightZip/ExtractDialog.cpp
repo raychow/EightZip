@@ -1,6 +1,8 @@
 #include "stdwx.h"
 #include "ExtractDialog.h"
 
+#include <wx/filepicker.h>
+
 #include "EightDirDialog.h"
 #include "Helper.h"
 
@@ -41,6 +43,7 @@ void ExtractDialog::__Create()
     pButtonBrowse->Bind(wxEVT_BUTTON, &ExtractDialog::__OnBrowseClick, this);
     pSizerPath->Add(pButtonBrowse, TOP_HORIZON_SIZERFLAGS());
     pSizerMain->Add(pSizerPath, wxSizerFlags().Expand());
+
 
     m_pCheckBoxLaunchFolder = new wxCheckBox(this, wxID_ANY,
         _("&Launch the folder after extracting"));

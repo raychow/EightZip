@@ -54,6 +54,10 @@ public:
     static wxSizer *AlignBorder(wxSizer *pSizer);
     static FileAttributes GetFileAttributes(TString tstrPath);
     static TString GetCanonicalPath(TString tstrPath);
+    static int GetCommonPrefixLength(const TString &tstr1,
+        const TString &tstr2,
+        bool isCaseSensitive = false);
+    static bool IsPathEqual(const TString &tstrLeft, const TString &tstrRight);
 
 };
 

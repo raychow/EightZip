@@ -88,10 +88,18 @@ bool FolderEntry::CanExtract() const
 
 FolderModel::FolderModel(TString tstrPath)
 {
-    FileInfo fileInfo(tstrPath);
+    FileInfo fileInfo(SevenZipCore::Helper::RemovePathSlash(move(tstrPath)));
     if (fileInfo.IsOK())
     {
-        m_tstrPath = SevenZipCore::Helper::RemovePathSlash(fileInfo.GetCanonicalPath());
+        m_tstrPath = fileInfo.GetCanonicalPath();
+#ifdef __WXMSW__
+        if (m_tstrPath.size() == 2 && m_tstrPath.back() == '.')
+#else
+        if (m_tstrPath.empty())
+#endif
+        {
+            m_tstrPath.push_back(wxFILE_SEP_PATH);
+        }
         FileFinder finder(m_tstrPath);
         while (finder.FindNext())
         {
@@ -114,10 +122,15 @@ FolderModel::FolderModel(TString tstrPath)
 std::shared_ptr<IModel> FolderModel::GetParent() const
 {
     auto tstrParentPath = m_tstrPath.substr(
-        0, m_tstrPath.find_last_of(wxFILE_SEP_PATH) + 1);
+        0, SevenZipCore::Helper::RemovePathSlash(m_tstrPath).find_last_of(
+        wxFILE_SEP_PATH) + 1);
     if (tstrParentPath.empty())
     {
+#ifdef __WXMSW__
         return make_shared<DriveModel>();
+#else
+        return make_shared<FolderModel>("/");
+#endif
     }
     else
     {

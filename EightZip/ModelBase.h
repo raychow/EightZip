@@ -56,7 +56,7 @@ class ModelBase
 {
 public:
     virtual const TString &GetPath() const { return m_tstrPath; }
-    virtual bool HasParent() const { return !GetPath().empty(); }
+    virtual bool HasParent() const;
     virtual const EntryVector &GetEntries() const { return m_vspEntry; }
 
 protected:
@@ -68,5 +68,6 @@ protected:
 };
 
 std::shared_ptr<IModel> GetModelFromPath(TString tstrPath);
+std::shared_ptr<IModel> GetModelFromPath(std::shared_ptr<IModel> spModel, TString tstrPath);
 
 #endif // MODELBASE_H

@@ -35,6 +35,7 @@ public:
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
     virtual bool IsArchive() const { return false; }
 
+
 };
 
 #endif // FILESYSTEMMODEL_H

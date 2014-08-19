@@ -4,6 +4,7 @@
 #include "SevenZipCore/CommonHelper.h"
 #include "SevenZipCore/ComPtr.h"
 #include "SevenZipCore/OpenCallback.h"
+#include "SevenZipCore/Platform.h"
 
 #include "ArchiveModel.h"
 #include "DriveModel.h"
@@ -193,39 +194,98 @@ bool EntryBase::_LocaleCompare(
 #endif
 }
 
+bool ModelBase::HasParent() const
+{
+    auto &tstrPath = GetPath();
+    return !tstrPath.empty() &&
+        tstrPath.size() != 1 || TString::npos == tstrPath.find_first_of(
+        FOLDER_POSSIBLE_SEPARATOR);
+}
+
 std::shared_ptr<IModel> GetModelFromPath(TString tstrPath)
 {
-    tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));
-    while (!tstrPath.empty())
+    if (tstrPath.size() != 1 || TString::npos == tstrPath.find_first_of(
+        FOLDER_POSSIBLE_SEPARATOR))
     {
-        auto attributes = Helper::GetFileAttributes(tstrPath);
-        if (attributes.IsDirectory())
+        tstrPath = Helper::GetCanonicalPath(move(tstrPath));
+        while (!tstrPath.empty())
         {
-            return make_shared<FolderModel>(
-                SevenZipCore::Helper::MakePathSlash(tstrPath));
+            auto attributes = Helper::GetFileAttributes(tstrPath);
+            if (attributes.IsDirectory())
+            {
+                return make_shared<FolderModel>(tstrPath);
+            }
+            else if (attributes.IsFile())
+            {
+                auto spModel = make_shared<ArchiveModel>(
+                    nullptr,
+                    tstrPath,
+                    wxEmptyString,
+                    tstrPath,
+                    SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
+                spModel->LoadChildren();
+                return spModel;
+            }
+            tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));
+            auto szLocation = tstrPath.find_last_of(FOLDER_POSSIBLE_SEPARATOR);
+            if (TString::npos == szLocation)
+            {
+                break;
+            }
+            tstrPath = tstrPath.substr(0, szLocation);
         }
-        else if (attributes.IsFile())
-        {
-            auto spModel = make_shared<ArchiveModel>(
-                nullptr,
-                tstrPath,
-                wxEmptyString,
-                tstrPath,
-                SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
-            spModel->LoadChildren();
-            return spModel;
-        }
-        auto szLocation = tstrPath.find_last_of(FOLDER_POSSIBLE_SEPARATOR);
-        if (TString::npos == szLocation)
-        {
-            break;
-        }
-        tstrPath = SevenZipCore::Helper::RemovePathSlash(
-            tstrPath.substr(0, szLocation));
     }
 #ifdef __WXMSW__
     return make_shared<DriveModel>();
 #else
     return make_shared<FolderModel>(wxT("/"));
 #endif
+}
+
+shared_ptr<IModel> GetModelFromPath(
+    shared_ptr<IModel> spModel, TString tstrPath)
+{
+    if (!spModel || !spModel->IsArchive())
+    {
+        return GetModelFromPath(tstrPath);
+    }
+    tstrPath = Helper::GetCanonicalPath(move(tstrPath));
+    auto vtstrPathPart = SevenZipCore::Helper::SplitString(
+        tstrPath, FOLDER_POSSIBLE_SEPARATOR, true);
+    auto vtstrModelPathPart = SevenZipCore::Helper::SplitString(
+        spModel->GetPath(), FOLDER_POSSIBLE_SEPARATOR, true);
+    auto szMinSize = min(vtstrPathPart.size(), vtstrModelPathPart.size());
+    int i = 0;
+    while (i != szMinSize && Helper::IsPathEqual(
+        vtstrPathPart[i], vtstrModelPathPart[i]))
+    {
+        ++i;
+    }
+    int nDiffCount = vtstrModelPathPart.size() - i;
+    while (nDiffCount--)
+    {
+        spModel = spModel->GetParent();
+        if (!spModel->IsArchive())
+        {
+            return GetModelFromPath(tstrPath);
+        }
+    }
+    while (i != vtstrPathPart.size())
+    {
+        auto entries = spModel->GetEntries();
+        auto iter = find_if(entries.cbegin(), entries.cend(),
+            [&vtstrPathPart, i](const shared_ptr<IEntry> &spEntry) {
+            return spEntry->GetName() == vtstrPathPart[i];
+        });
+        if (entries.cend() == iter || !(*iter)->IsDirectory())
+        {
+            break;
+        }
+        else
+        {
+            spModel = (*iter)->GetModel();
+        }
+        ++i;
+    }
+    return spModel;
 }

@@ -153,10 +153,6 @@ void FileExplorer::__SetModel(std::shared_ptr<IModel> spModel)
     m_pListCtrl->SetModel(spModel);
     m_spModel = move(spModel);
     auto tstrPath = m_spModel->GetPath();
-    if (tstrPath.empty() || !wxIsPathSeparator(tstrPath.back()))
-    {
-        tstrPath.push_back(wxFILE_SEP_PATH);
-    }
     m_pAddressComboBox->SetValue(tstrPath);
     m_pAddressComboBox->SelectAll();
     m_pParentFolderToolBar->EnableTool(ID_PARENT_FOLDER, m_spModel->HasParent());
@@ -174,7 +170,7 @@ void FileExplorer::__OnPathComboBoxKeyDown(wxKeyEvent& event)
 {
     if (event.GetKeyCode() == WXK_RETURN)
     {
-        __SetModel(GetModelFromPath(
+        __SetModel(GetModelFromPath(m_spModel,
             m_pAddressComboBox->GetValue().ToStdWstring()));
     }
     event.Skip();

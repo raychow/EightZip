@@ -25,6 +25,8 @@ std::shared_ptr<IModel> DriveEntry::GetModel()
 
 DriveModel::DriveModel()
 {
+    m_tstrPath = wxFILE_SEP_PATH;
+
     for (auto tstrDrive : __GetDrives())
     {
         wxULongLong_t un64TotalNumberOfBytes;

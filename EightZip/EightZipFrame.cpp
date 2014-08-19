@@ -96,7 +96,7 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
         }
         else
         {
-            tstrPath = m_pFileExplorer->GetModel()->GetPath() + wxFILE_SEP_PATH;
+            tstrPath = m_pFileExplorer->GetModel()->GetPath();
         }
         wxMessageBox(
             wxString::Format(_("Cannot extract \"%s\"."), tstrPath),

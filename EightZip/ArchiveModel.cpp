@@ -174,7 +174,7 @@ ArchiveModel::ArchiveModel(
     CodecsLoader::GetInstance().GetCodecs()))
     , m_spParent(move(spParent))
 {
-    m_tstrPath = SevenZipCore::Helper::MakePathSlash(move(tstrVirtualPath));
+    m_tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrVirtualPath));
     m_spArchive->Open(tstrVirtualPath, move(cpStream), move(cpCallback));
     m_spArchiveFolder = m_spArchive->GetRootFolder();
 }
@@ -191,7 +191,7 @@ ArchiveModel::ArchiveModel(
     CodecsLoader::GetInstance().GetCodecs()))
     , m_spParent(move(spParent))
 {
-    m_tstrPath = SevenZipCore::Helper::MakePathSlash(tstrVirtualPath);
+    m_tstrPath = SevenZipCore::Helper::RemovePathSlash(tstrVirtualPath);
     m_spArchive->Open(move(tstrRealPath), move(cpCallback));
     m_spArchiveFolder = m_spArchive->GetRootFolder();
 }
@@ -206,7 +206,7 @@ ArchiveModel::ArchiveModel(
     , m_spParent(move(spParent))
     , m_spArchiveFolder(move(spArchiveFolder))
 {
-    m_tstrPath = SevenZipCore::Helper::MakePathSlash(move(tstrPath));
+    m_tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));
 }
 
 shared_ptr<IModel> ArchiveModel::GetParent() const
@@ -217,9 +217,8 @@ shared_ptr<IModel> ArchiveModel::GetParent() const
     }
     else
     {
-        auto tstrParent = SevenZipCore::Helper::RemovePathSlash(m_tstrPath);
-        return make_shared<FolderModel>(
-            tstrParent.substr(0, tstrParent.rfind(wxFILE_SEP_PATH) + 1));
+        return make_shared<FolderModel>(m_tstrPath.substr(0,
+            m_tstrPath.rfind(wxFILE_SEP_PATH) + 1));
     }
 }
 
