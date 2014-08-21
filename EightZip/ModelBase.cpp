@@ -202,7 +202,8 @@ bool ModelBase::HasParent() const
         FOLDER_POSSIBLE_SEPARATOR);
 }
 
-std::shared_ptr<IModel> GetModelFromPath(TString tstrPath)
+shared_ptr<IModel> GetModelFromPath(
+    TString tstrPath, bool isTryOpenArchive/* = true*/)
 {
     if (tstrPath.size() != 1 || TString::npos == tstrPath.find_first_of(
         FOLDER_POSSIBLE_SEPARATOR))
@@ -216,7 +217,7 @@ std::shared_ptr<IModel> GetModelFromPath(TString tstrPath)
             {
                 return make_shared<FolderModel>(tstrPath);
             }
-            else if (attributes.IsFile())
+            else if (isTryOpenArchive && attributes.IsFile())
             {
                 auto spModel = make_shared<ArchiveModel>(
                     nullptr,

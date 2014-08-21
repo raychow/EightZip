@@ -5,6 +5,7 @@
 
 #include "SevenZipCore/Exception.h"
 
+#include "EightZipConfig.h"
 #include "Exception.h"
 #include "FolderModel.h"
 
@@ -22,8 +23,15 @@ FileExplorer::FileExplorer(
     __Create();
 }
 
+FileExplorer::~FileExplorer()
+{
+    auto &config = EightZipConfig::GetInstance();
+    config.Set(ConfigIndex::Path, m_spModel->GetPath());
+}
+
 void FileExplorer::NavigateTo(TString tstrPath)
 {
+    __SetModel(GetModelFromPath(m_spModel, tstrPath));
 }
 
 int FileExplorer::GetSelectedIndex() const
@@ -140,7 +148,8 @@ void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
 {
     // TODO: Catch exception.
     m_pListCtrl = new FileListCtrl(this);
-    __SetModel(make_shared<FolderModel>(wxT("C:\\")));
+    auto &config = EightZipConfig::GetInstance();
+    __SetModel(GetModelFromPath(config.GetString(ConfigIndex::Path), false));
     
     pSizerMain->Add(m_pListCtrl, wxSizerFlags().Expand().Proportion(1));
 
@@ -170,8 +179,7 @@ void FileExplorer::__OnPathComboBoxKeyDown(wxKeyEvent& event)
 {
     if (event.GetKeyCode() == WXK_RETURN)
     {
-        __SetModel(GetModelFromPath(m_spModel,
-            m_pAddressComboBox->GetValue().ToStdWstring()));
+        NavigateTo(m_pAddressComboBox->GetValue().ToStdWstring());
     }
     event.Skip();
 }

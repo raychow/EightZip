@@ -40,10 +40,8 @@ void ExtractDialog::__Create()
     m_pComboBoxPath->AutoCompleteDirectories();
     pSizerPath->Add(m_pComboBoxPath, TOP_LEFT_SIZERFLAGS_(1).Center());
     auto *pButtonBrowse = new wxButton(this, wxID_ANY, _("&Browse"));
-    pButtonBrowse->Bind(wxEVT_BUTTON, &ExtractDialog::__OnBrowseClick, this);
     pSizerPath->Add(pButtonBrowse, TOP_HORIZON_SIZERFLAGS());
     pSizerMain->Add(pSizerPath, wxSizerFlags().Expand());
-
 
     m_pCheckBoxLaunchFolder = new wxCheckBox(this, wxID_ANY,
         _("&Launch the folder after extracting"));
@@ -55,17 +53,19 @@ void ExtractDialog::__Create()
     auto *pButtonMore = new wxButton(this, wxID_ANY, _T("&More"));
     pSizerDialogButton->Add(pButtonMore, BOTTOM_LEFT_SIZERFLAGS());
     pSizerDialogButton->AddStretchSpacer();
-    //auto *pSizerStdDialogButton = new wxStdDialogButtonSizer();
-    //pSizerDialogButton->Add(new wxButton(this, wxID_ANY, _("Extract")));
-    //pSizerDialogButton->Add(new wxButton(this, wxID_ANY, _("Cancel")));
-
+    auto *pStdDialogButtonSizer = CreateStdDialogButtonSizer(wxOK | wxCANCEL);
     pSizerDialogButton->Add(Helper::AlignBorder(
-        CreateStdDialogButtonSizer(wxOK | wxCANCEL)),
+        pStdDialogButtonSizer),
         BOTTOM_SIZERFLAGS());
+    m_pButtonOK = pStdDialogButtonSizer->GetAffirmativeButton();
     pSizerMain->Add(pSizerDialogButton, wxSizerFlags().Expand());
 
     SetMinClientSize(wxSize(400, 150));
     SetSizer(pSizerMain);
+
+    m_pComboBoxPath->Bind(wxEVT_TEXT, &ExtractDialog::__OnPathChange, this);
+    pButtonBrowse->Bind(wxEVT_BUTTON, &ExtractDialog::__OnBrowseClick, this);
+    m_pButtonOK->Bind(wxEVT_BUTTON, &ExtractDialog::__OnOKClick, this);
 }
 
 void ExtractDialog::__OnBrowseClick(wxCommandEvent &WXUNUSED(event))
@@ -77,4 +77,14 @@ void ExtractDialog::__OnBrowseClick(wxCommandEvent &WXUNUSED(event))
     {
         m_pComboBoxPath->SetValue(dialog.GetPath());
     }
+}
+
+void ExtractDialog::__OnOKClick(wxCommandEvent &WXUNUSED(event))
+{
+
+}
+
+void ExtractDialog::__OnPathChange(wxCommandEvent &event)
+{
+    m_pButtonOK->Enable(!event.GetString().IsEmpty());
 }

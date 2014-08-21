@@ -32,11 +32,13 @@ private:
 
     wxComboBox *m_pComboBoxPath = nullptr;
     wxCheckBox *m_pCheckBoxLaunchFolder = nullptr;
+    wxButton *m_pButtonOK = nullptr;
 
     void __Create();
 
     void __OnBrowseClick(wxCommandEvent &WXUNUSED(event));
-
+    void __OnOKClick(wxCommandEvent &WXUNUSED(event));
+    void __OnPathChange(wxCommandEvent &event);
 };
 
 #endif // EXTRACTDIALOG_H

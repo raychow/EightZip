@@ -8,6 +8,9 @@ class EightZipApp
 {
 public:
     virtual bool OnInit();
+
+    virtual int OnExit();
+
 };
 
 #endif // EIGHTZIPAPP_H

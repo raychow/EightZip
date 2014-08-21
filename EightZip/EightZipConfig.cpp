@@ -1,20 +1,21 @@
 #include "stdwx.h"
 #include "EightZipConfig.h"
 
+bool EightZipConfig::m_isDestroyed = false;
 std::unique_ptr<EightZipConfig> EightZipConfig::m_upInstance;
 
 const EightZipConfig::Definition EightZipConfig::m_definitions[] = {
-    { "Layout/EightZipLocationX", ConfigType::Integer, ConfigIndex::EightZipLocationX },
-    { "Layout/EightZipLocationY", ConfigType::Integer, ConfigIndex::EightZipLocationY },
-    { "Layout/EightZipWidth", ConfigType::Integer, ConfigIndex::EightZipWidth, 1000 },
-    { "Layout/EightZipHeight", ConfigType::Integer, ConfigIndex::EightZipHeight, 560 },
-    { "Layout/EightZipIsMaximized", ConfigType::Boolean, ConfigIndex::EightZipIsMaximized, false },
-    { "Layout/ExtractLocationX", ConfigType::Integer, ConfigIndex::ExtractLocationX },
-    { "Layout/ExtractLocationY", ConfigType::Integer, ConfigIndex::ExtractLocationY },
-    { "Layout/ExtractWidth", ConfigType::Integer, ConfigIndex::ExtractWidth, 500 },
-    { "Layout/ExtractHeight", ConfigType::Integer, ConfigIndex::ExtractHeight, 240 },
-    { "Layout/ExtractIsMaximized", ConfigType::Boolean, ConfigIndex::ExtractIsMaximized, false },
-    { "Path", ConfigType::String, ConfigIndex::Path, wxFILE_SEP_PATH }
+    { wxT("Layout/EightZipLocationX"), ConfigType::Integer, ConfigIndex::EightZipLocationX },
+    { wxT("Layout/EightZipLocationY"), ConfigType::Integer, ConfigIndex::EightZipLocationY },
+    { wxT("Layout/EightZipWidth"), ConfigType::Integer, ConfigIndex::EightZipWidth, 1000 },
+    { wxT("Layout/EightZipHeight"), ConfigType::Integer, ConfigIndex::EightZipHeight, 560 },
+    { wxT("Layout/EightZipIsMaximized"), ConfigType::Boolean, ConfigIndex::EightZipIsMaximized, false },
+    { wxT("Layout/ExtractLocationX"), ConfigType::Integer, ConfigIndex::ExtractLocationX },
+    { wxT("Layout/ExtractLocationY"), ConfigType::Integer, ConfigIndex::ExtractLocationY },
+    { wxT("Layout/ExtractWidth"), ConfigType::Integer, ConfigIndex::ExtractWidth, 500 },
+    { wxT("Layout/ExtractHeight"), ConfigType::Integer, ConfigIndex::ExtractHeight, 240 },
+    { wxT("Layout/ExtractIsMaximized"), ConfigType::Boolean, ConfigIndex::ExtractIsMaximized, false },
+    { wxT("Path"), ConfigType::String, ConfigIndex::Path, wxFILE_SEP_PATH }
 };
 
 EightZipConfig::EightZipConfig()
@@ -52,7 +53,7 @@ EightZipConfig::EightZipConfig()
         case ConfigType::String:
             if (fileConfig.Read(definition.Name, &strValue))
             {
-                config = strValue;
+                config = strValue.ToStdWstring();
             }
             else
             {
@@ -112,9 +113,9 @@ bool EightZipConfig::GetInteger(ConfigIndex index, int *pValue) const
     return false;
 }
 
-wxString EightZipConfig::GetString(ConfigIndex index) const
+TString EightZipConfig::GetString(ConfigIndex index) const
 {
-    wxString result;
+    TString result;
     if (!GetString(index, &result))
     {
         return m_definitions[static_cast<int>(index)].DefaultValue.GetString();
@@ -122,7 +123,7 @@ wxString EightZipConfig::GetString(ConfigIndex index) const
     return result;
 }
 
-bool EightZipConfig::GetString(ConfigIndex index, wxString *pValue) const
+bool EightZipConfig::GetString(ConfigIndex index, TString *pValue) const
 {
     assert(m_definitions[static_cast<int>(index)].Type == ConfigType::String);
     const auto &config = m_configs[static_cast<int>(index)];
@@ -149,7 +150,7 @@ void EightZipConfig::Set(ConfigIndex index, int value)
     m_configs[static_cast<int>(index)].Reset(value);
 }
 
-void EightZipConfig::Set(ConfigIndex index, wxString &value)
+void EightZipConfig::Set(ConfigIndex index, const TString &value)
 {
     assert(m_definitions[static_cast<int>(index)].Type == ConfigType::String);
     m_configs[static_cast<int>(index)].Reset(value);
@@ -171,13 +172,14 @@ void EightZipConfig::Save()
             fileConfig.Write(definition.Name, config.GetInt());
             break;
         case ConfigType::String:
-            fileConfig.Write(definition.Name, config.GetString());
+            fileConfig.Write(definition.Name, wxString(config.GetString()));
         }
     }
 }
 
 EightZipConfig &EightZipConfig::GetInstance()
 {
+    assert(!m_isDestroyed);
     if (!m_upInstance)
     {
         m_upInstance.reset(new EightZipConfig);
@@ -187,6 +189,7 @@ EightZipConfig &EightZipConfig::GetInstance()
 
 void EightZipConfig::DestroyInstance()
 {
+    m_isDestroyed = true;
     if (m_upInstance)
     {
         m_upInstance.reset();

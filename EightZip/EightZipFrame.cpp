@@ -19,12 +19,6 @@ EightZipFrame::EightZipFrame()
     __Create();
 }
 
-EightZipFrame::~EightZipFrame()
-{
-    m_windowStateManager.Destroy();
-    EightZipConfig::DestroyInstance();
-}
-
 void EightZipFrame::__Create()
 {
     SetIcon(wxIcon(wxT("ICON_EIGHTZIP")));

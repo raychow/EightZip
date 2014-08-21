@@ -67,7 +67,9 @@ protected:
 
 };
 
-std::shared_ptr<IModel> GetModelFromPath(TString tstrPath);
-std::shared_ptr<IModel> GetModelFromPath(std::shared_ptr<IModel> spModel, TString tstrPath);
+std::shared_ptr<IModel> GetModelFromPath(
+    TString tstrPath, bool isTryOpenArchive = true);
+std::shared_ptr<IModel> GetModelFromPath(
+    std::shared_ptr<IModel> spModel, TString tstrPath);
 
 #endif // MODELBASE_H

@@ -22,7 +22,7 @@ public:
 
     EightZipFrame();
 
-    virtual ~EightZipFrame();
+    virtual ~EightZipFrame() { }
 
 private:
     WindowStateManager m_windowStateManager;

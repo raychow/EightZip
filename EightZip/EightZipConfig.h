@@ -5,6 +5,8 @@
 
 #include <memory>
 
+#include "SevenZipCore/TString.h"
+
 enum struct ConfigIndex
 {
     EightZipLocationX = 0,
@@ -29,12 +31,12 @@ public:
     bool GetBoolean(ConfigIndex index, bool *pValue) const;
     int GetInteger(ConfigIndex index) const;
     bool GetInteger(ConfigIndex index, int *pValue) const;
-    wxString GetString(ConfigIndex index) const;
-    bool GetString(ConfigIndex index, wxString *pValue) const;
+    TString GetString(ConfigIndex index) const;
+    bool GetString(ConfigIndex index, TString *pValue) const;
 
     void Set(ConfigIndex index, bool value);
     void Set(ConfigIndex index, int value);
-    void Set(ConfigIndex index, wxString &value);
+    void Set(ConfigIndex index, const TString &value);
 
     void Save();
 
@@ -51,7 +53,7 @@ private:
         Cache() {}
         Cache(bool value) : m_integerValue(value) {}
         Cache(int value) : m_integerValue(value) {}
-        Cache(const wxString &value) : m_stringValue(value) {}
+        Cache(const TString &value) : m_tstrValue(value) {}
 
         bool operator==(bool value) const
         {
@@ -61,9 +63,9 @@ private:
         {
             return m_integerValue == value;
         }
-        bool operator==(wxString const& value) const
+        bool operator==(const TString &value) const
         {
-            return m_stringValue == value;
+            return m_tstrValue == value;
         }
         operator bool() const { return m_hasValue; }
         Cache &operator=(bool value)
@@ -76,7 +78,7 @@ private:
             Reset(value);
             return *this;
         }
-        Cache &operator=(wxString const& value)
+        Cache &operator=(TString const& value)
         {
             Reset(value);
             return *this;
@@ -86,40 +88,40 @@ private:
             m_hasValue = false;
             m_booleanValue = false;
             m_integerValue = 0;
-            m_stringValue.clear();
+            m_tstrValue.clear();
         }
         void Reset(bool value)
         {
             m_hasValue = true;
             m_booleanValue = value;
             m_integerValue = 0;
-            m_stringValue = wxEmptyString;
+            m_tstrValue = wxEmptyString;
         }
         void Reset(int value)
         {
             m_hasValue = true;
             m_booleanValue = false;
             m_integerValue = value;
-            m_stringValue = wxEmptyString;
+            m_tstrValue = wxEmptyString;
         }
-        void Reset(wxString const& value)
+        void Reset(TString const& value)
         {
             m_hasValue = true;
             m_booleanValue = false;
             m_integerValue = 0;
-            m_stringValue = value;
+            m_tstrValue = value;
         }
 
         bool GetBoolean() const { return m_booleanValue; }
         int GetInt() const { return m_integerValue; }
-        const wxString &GetString() const { return m_stringValue; }
+        const TString &GetString() const { return m_tstrValue; }
 
     private:
         bool m_hasValue = false;
 
         bool m_booleanValue = false;
         int m_integerValue = 0;
-        wxString m_stringValue;
+        TString m_tstrValue;
 
     };
 
@@ -132,12 +134,13 @@ private:
 
     struct Definition
     {
-        const wxString Name;
+        const TString Name;
         const ConfigType Type;
         const ConfigIndex Index;
         const Cache DefaultValue;
     };
 
+    static bool m_isDestroyed;
     static std::unique_ptr<EightZipConfig> m_upInstance;
 
     static const int CONFIG_COUNT = static_cast<int>(ConfigIndex::ConfigCount);

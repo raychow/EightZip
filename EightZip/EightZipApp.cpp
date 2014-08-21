@@ -15,3 +15,9 @@ bool EightZipApp::OnInit()
 
     return true;
 }
+
+int EightZipApp::OnExit()
+{
+    EightZipConfig::DestroyInstance();
+    return 0;
+}

@@ -23,7 +23,7 @@ public:
         const wxSize &size = wxDefaultSize,
         long style = wxTAB_TRAVERSAL | wxNO_BORDER,
         const wxString &name = wxPanelNameStr);
-    virtual ~FileExplorer() {}
+    virtual ~FileExplorer();
 
     void NavigateTo(TString tstrPath);
 
@@ -55,6 +55,7 @@ private:
     void __OnParentFolderClick(wxCommandEvent &event);
     void __OnPathComboBoxKeyDown(wxKeyEvent& event);
     void __OnListItemActivated(wxListEvent &event);
+
 };
 
 #endif // FILEEXPLORER_H
