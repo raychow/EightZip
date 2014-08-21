@@ -207,6 +207,7 @@ std::shared_ptr<IModel> GetModelFromPath(TString tstrPath)
     if (tstrPath.size() != 1 || TString::npos == tstrPath.find_first_of(
         FOLDER_POSSIBLE_SEPARATOR))
     {
+        TString tstrOriginalPath = tstrPath;
         tstrPath = Helper::GetCanonicalPath(move(tstrPath));
         while (!tstrPath.empty())
         {
@@ -224,7 +225,7 @@ std::shared_ptr<IModel> GetModelFromPath(TString tstrPath)
                     tstrPath,
                     SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
                 spModel->LoadChildren();
-                return spModel;
+                return GetModelFromPath(spModel, tstrOriginalPath);
             }
             tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));
             auto szLocation = tstrPath.find_last_of(FOLDER_POSSIBLE_SEPARATOR);
@@ -247,7 +248,11 @@ shared_ptr<IModel> GetModelFromPath(
 {
     if (!spModel || !spModel->IsArchive())
     {
-        return GetModelFromPath(tstrPath);
+        spModel = GetModelFromPath(tstrPath);
+    }
+    if (!spModel->IsArchive())
+    {
+        return spModel;
     }
     tstrPath = Helper::GetCanonicalPath(move(tstrPath));
     auto vtstrPathPart = SevenZipCore::Helper::SplitString(
