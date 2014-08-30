@@ -22,6 +22,10 @@ public:
 
     ~ExtractDialog() {}
 
+    void SetPath(const TString &tstrPath)
+    {
+        m_pComboBoxPath->SetValue(tstrPath);
+    }
     TString GetPath() const
     {
         return m_pComboBoxPath->GetValue().ToStdWstring();
@@ -33,6 +37,8 @@ private:
     wxComboBox *m_pComboBoxPath = nullptr;
     wxCheckBox *m_pCheckBoxLaunchFolder = nullptr;
     wxButton *m_pButtonOK = nullptr;
+
+    TString m_tstrPath;
 
     void __Create();
 

@@ -209,6 +209,23 @@ ArchiveModel::ArchiveModel(
     m_tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));
 }
 
+//TString ArchiveModel::GetParentPath() const
+//{
+//    if (m_spParent)
+//    {
+//        return m_spParent->GetPath();
+//    }
+//    else
+//    {
+//        return m_tstrPath.substr(0, m_tstrPath.rfind(wxFILE_SEP_PATH) + 1);
+//    }
+//}
+
+bool ArchiveModel::IsParentArchive() const
+{
+    return !!m_spParent;
+}
+
 shared_ptr<IModel> ArchiveModel::GetParent() const
 {
     if (m_spParent)
@@ -217,8 +234,16 @@ shared_ptr<IModel> ArchiveModel::GetParent() const
     }
     else
     {
-        return make_shared<FolderModel>(m_tstrPath.substr(0,
-            m_tstrPath.rfind(wxFILE_SEP_PATH) + 1));
+        auto tstrParentPath = m_tstrPath.substr(0,
+            m_tstrPath.rfind(wxFILE_SEP_PATH) + 1);
+        try
+        {
+            return make_shared<FolderModel>(tstrParentPath);
+        }
+        catch (const ModelException &)
+        {
+            return GetModelFromPath(tstrParentPath);
+        }
     }
 }
 

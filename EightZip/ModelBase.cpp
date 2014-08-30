@@ -202,6 +202,11 @@ bool ModelBase::HasParent() const
         FOLDER_POSSIBLE_SEPARATOR);
 }
 
+bool ModelBase::IsParentArchive() const
+{
+    return false;
+}
+
 shared_ptr<IModel> GetModelFromPath(
     TString tstrPath, bool isTryOpenArchive/* = true*/)
 {
@@ -270,8 +275,11 @@ shared_ptr<IModel> GetModelFromPath(
     int nDiffCount = vtstrModelPathPart.size() - i;
     while (nDiffCount--)
     {
-        spModel = spModel->GetParent();
-        if (!spModel->IsArchive())
+        if (spModel->IsParentArchive())
+        {
+            spModel = spModel->GetParent();
+        }
+        else
         {
             return GetModelFromPath(tstrPath);
         }
