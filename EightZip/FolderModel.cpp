@@ -119,18 +119,16 @@ FolderModel::FolderModel(TString tstrPath)
     }
 }
 
-//TString FolderModel::GetParentPath() const
-//{
-//    return m_tstrPath.substr(
-//        0, SevenZipCore::Helper::RemovePathSlash(m_tstrPath).find_last_of(
-//        wxFILE_SEP_PATH) + 1);
-//}
+TString FolderModel::GetParentPath() const
+{
+    return m_tstrPath.substr(
+        0, SevenZipCore::Helper::RemovePathSlash(m_tstrPath).find_last_of(
+        wxFILE_SEP_PATH) + 1);
+}
 
 std::shared_ptr<IModel> FolderModel::GetParent() const
 {
-    auto tstrParentPath = m_tstrPath.substr(
-        0, SevenZipCore::Helper::RemovePathSlash(m_tstrPath).find_last_of(
-        wxFILE_SEP_PATH) + 1);
+    auto tstrParentPath = GetParentPath();
     if (tstrParentPath.empty())
     {
 #ifdef __WXMSW__

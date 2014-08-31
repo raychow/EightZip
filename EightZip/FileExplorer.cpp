@@ -8,6 +8,7 @@
 #include "EightZipConfig.h"
 #include "Exception.h"
 #include "FolderModel.h"
+#include "Helper.h"
 
 using namespace std;
 
@@ -225,24 +226,39 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
 
 void FileExplorer::Extract(TString tstrPath)
 {
+    if (!m_spModel->IsArchive())
+    {
+        wxMessageBox(_("Extract failed."));
+        return;
+    }
+    Extract(tstrPath, dynamic_pointer_cast<ArchiveModel>(m_spModel));
+}
+
+void FileExplorer::Extract(TString tstrPath, shared_ptr<ArchiveModel> spModel)
+{
     try
     {
-        auto spModel = m_spModel;
-        while (spModel && spModel->IsArchive())
+        if (!spModel || !spModel->IsArchive())
         {
-            spModel = spModel->GetParent();
+            wxMessageBox(_("Extract failed."));
+            return;
         }
-        assert(spModel);
-        auto path = boost::filesystem::absolute(tstrPath, spModel->GetPath());
+        shared_ptr<IModel> spCurrentModel = spModel;
+        while (spCurrentModel && spCurrentModel->IsParentArchive())
+        {
+            spCurrentModel = spCurrentModel->GetParent();
+        }
+        assert(spCurrentModel);
+        auto tstrAbsPath = spCurrentModel->GetParentPath();
+        auto path = boost::filesystem::absolute(tstrPath, tstrAbsPath);
         boost::filesystem::create_directories(path);
-        path = boost::filesystem::canonical(path);
-
+        auto tstrCanonicalPath = Helper::GetCanonicalPath(path.wstring());
+        dynamic_pointer_cast<ArchiveModel>(spModel)->Extract(tstrPath);
     }
     catch (const boost::system::system_error &)
     {
         wxMessageBox(wxString::Format(
-            _("Can not access or create folder \"\"."),
+            _("Can not access or create folder \"%s\"."),
             tstrPath));
     }
-
 }

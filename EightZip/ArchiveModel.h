@@ -36,6 +36,7 @@ public:
     virtual std::shared_ptr<IModel> GetModel();
     virtual bool CanExtract() const { return true; }
 
+    virtual UINT32 GetArchiveIndex() const;
     virtual void OpenExternal();
 
 private:
@@ -45,7 +46,7 @@ private:
 
     bool m_canOpenInternal = false;
 
-    void __Extract();
+    void __ExtractToTempFolder();
 
 };
 
@@ -75,11 +76,16 @@ public:
         std::shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder);
     virtual ~ArchiveModel() {}
 
-    //virtual TString GetParentPath() const;
+    virtual TString GetParentPath() const;
     virtual bool IsParentArchive() const;
     virtual std::shared_ptr<IModel> GetParent() const;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
     virtual bool IsArchive() const { return true; }
+
+    virtual void Extract(TString tstrPath) const;
+    virtual TString Extract(UINT32 un32ArchiveIndex, TString tstrPath) const;
+    virtual void Extract(const std::vector<UINT32> &vun32ArchiveIndex,
+        TString tstrPath) const;
 
     const TString &GetInternalPath() const { return m_tstrInternalPath; }
 

@@ -5,6 +5,7 @@
 
 #include <memory>
 
+#include "ArchiveModel.h"
 #include "FileListCtrl.h"
 #include "IModel.h"
 
@@ -38,6 +39,7 @@ public:
     bool CanExtract() const;
 
     void Extract(TString tstrPath);
+    void Extract(TString tstrPath, std::shared_ptr<ArchiveModel> spModel);
 
 private:
     wxToolBar *m_pParentFolderToolBar = nullptr;

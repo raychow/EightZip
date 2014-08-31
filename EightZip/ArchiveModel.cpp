@@ -1,6 +1,8 @@
 #include "stdwx.h"
 #include "ArchiveModel.h"
 
+#include <queue>
+
 #include <boost/filesystem.hpp>
 
 #include "SevenZipCore/Archive.h"
@@ -117,7 +119,7 @@ shared_ptr<IModel> ArchiveEntry::GetModel()
         catch (const SevenZipCore::SevenZipCoreException &)
         {
         }
-        __Extract();
+        __ExtractToTempFolder();
         auto result = make_shared<ArchiveModel>(
             m_wpParent.lock(),
             GetPath(),
@@ -129,37 +131,26 @@ shared_ptr<IModel> ArchiveEntry::GetModel()
     }
 }
 
+UINT32 ArchiveEntry::GetArchiveIndex() const
+{
+    return m_spArchiveFile->GetIndex();
+}
+
 void ArchiveEntry::OpenExternal()
 {
     if (!m_upTempFolder)
     {
-        __Extract();
+        __ExtractToTempFolder();
     }
     Helper::OpenFileExternal(m_upTempFolder->GetFilePath());
 }
 
-void ArchiveEntry::__Extract()
+void ArchiveEntry::__ExtractToTempFolder()
 {
     m_upTempFolder.reset(new TempFolder());
-    auto spArchiveEntry = m_spArchiveFile->GetArchiveEntry();
-    auto spParent = m_wpParent.lock();
-    auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter(
-        spArchiveEntry->GetInArchive());
-    auto cpArchiveExtractCallback = SevenZipCore::MakeComPtr(
-        new SevenZipCore::ArchiveExtractCallback(
-        spArchiveEntry->GetArchive(),
-        false,
-        false,
-        false,
-        m_upTempFolder->GetFolderPath(),
-        spParent->GetInternalPath(),
-        SevenZipCore::ExtractPathMode::CurrentPathNames,
-        SevenZipCore::ExtractOverwriteMode::AskBefore));
-    inArchiveAdapter.Extract(
-        vector<UINT>(1, m_spArchiveFile->GetIndex()),
-        false,
-        cpArchiveExtractCallback.get());
-    m_upTempFolder->SetFilePath(cpArchiveExtractCallback->GetExtractPath());
+    m_upTempFolder->SetFilePath(dynamic_pointer_cast<ArchiveModel>(
+        m_wpParent.lock())->Extract(GetArchiveIndex(),
+        m_upTempFolder->GetFolderPath()));
 }
 
 ArchiveModel::ArchiveModel(
@@ -209,17 +200,17 @@ ArchiveModel::ArchiveModel(
     m_tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));
 }
 
-//TString ArchiveModel::GetParentPath() const
-//{
-//    if (m_spParent)
-//    {
-//        return m_spParent->GetPath();
-//    }
-//    else
-//    {
-//        return m_tstrPath.substr(0, m_tstrPath.rfind(wxFILE_SEP_PATH) + 1);
-//    }
-//}
+TString ArchiveModel::GetParentPath() const
+{
+    if (m_spParent)
+    {
+        return m_spParent->GetPath();
+    }
+    else
+    {
+        return m_tstrPath.substr(0, m_tstrPath.rfind(wxFILE_SEP_PATH) + 1);
+    }
+}
 
 bool ArchiveModel::IsParentArchive() const
 {
@@ -258,6 +249,78 @@ const vector<IEntry::ItemType> & ArchiveModel::GetSupportedItems() const
         IEntry::ItemType::CRC
     };
     return vType;
+}
+
+void ArchiveModel::Extract(TString tstrPath) const
+{
+    vector<UINT32> vun32ArchiveIndex;
+    queue<const SevenZipCore::ArchiveFolder *> qpFolder;
+    qpFolder.push(m_spArchiveFolder.get());
+
+    while (!qpFolder.empty())
+    {
+        const auto &folder = *qpFolder.front();
+        for (const auto &spFolder : folder.GetFolders())
+        {
+            auto un32ArchiveIndex = spFolder->GetIndex();
+            if (UINT32_MAX != un32ArchiveIndex)
+            {
+                vun32ArchiveIndex.push_back(un32ArchiveIndex);
+            }
+            qpFolder.push(spFolder.get());
+        }
+        for (const auto &spFile : folder.GetFiles())
+        {
+            vun32ArchiveIndex.push_back(spFile->GetIndex());
+        }
+        qpFolder.pop();
+    }
+
+    Extract(vun32ArchiveIndex, move(tstrPath));
+}
+
+TString ArchiveModel::Extract(UINT32 un32ArchiveIndex, TString tstrPath) const
+{
+    auto spArchiveEntry = m_spArchiveFolder->GetArchiveEntry();
+    auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter(
+        spArchiveEntry->GetInArchive());
+    auto cpArchiveExtractCallback = SevenZipCore::MakeComPtr(
+        new SevenZipCore::ArchiveExtractCallback(
+        spArchiveEntry->GetArchive(),
+        false,
+        false,
+        false,
+        move(tstrPath),
+        GetInternalPath(),
+        SevenZipCore::ExtractPathMode::CurrentPathNames,
+        SevenZipCore::ExtractOverwriteMode::AskBefore));
+    inArchiveAdapter.Extract(
+        vector<UINT32>(1, un32ArchiveIndex),
+        false,
+        cpArchiveExtractCallback.get());
+    return cpArchiveExtractCallback->GetExtractPath();
+}
+
+void ArchiveModel::Extract(const vector<UINT32> &vun32ArchiveIndex,
+    TString tstrPath) const
+{
+    auto spArchiveEntry = m_spArchiveFolder->GetArchiveEntry();
+    auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter(
+        spArchiveEntry->GetInArchive());
+    auto cpArchiveExtractCallback = SevenZipCore::MakeComPtr(
+        new SevenZipCore::ArchiveExtractCallback(
+        spArchiveEntry->GetArchive(),
+        false,
+        false,
+        false,
+        move(tstrPath),
+        GetInternalPath(),
+        SevenZipCore::ExtractPathMode::CurrentPathNames,
+        SevenZipCore::ExtractOverwriteMode::AskBefore));
+    inArchiveAdapter.Extract(
+        vun32ArchiveIndex,
+        false,
+        cpArchiveExtractCallback.get());
 }
 
 void ArchiveModel::LoadChildren()

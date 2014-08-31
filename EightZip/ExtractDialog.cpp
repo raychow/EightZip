@@ -81,10 +81,15 @@ void ExtractDialog::__OnBrowseClick(wxCommandEvent &WXUNUSED(event))
 
 void ExtractDialog::__OnOKClick(wxCommandEvent &WXUNUSED(event))
 {
-
+    auto strPath = m_pComboBoxPath->GetValue().Trim();
+    if (strPath.IsEmpty())
+    {
+        return;
+    }
+    EndModal(wxID_OK);
 }
 
 void ExtractDialog::__OnPathChange(wxCommandEvent &event)
 {
-    m_pButtonOK->Enable(!event.GetString().IsEmpty());
+    m_pButtonOK->Enable(!event.GetString().Trim().IsEmpty());
 }

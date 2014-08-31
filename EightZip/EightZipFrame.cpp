@@ -99,13 +99,18 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
     }
     ExtractDialog dialog(nullptr, wxID_ANY, _T("Extract"));
     auto spModel = m_pFileExplorer->GetModel();
-    while (spModel->IsArchive())
+    if (spModel->IsArchive())
     {
-        // TODO: GetParent() may fail, use another method to get the path.
-        // Such as GetParentPath().
-        spModel = spModel->GetParent();
+        while (spModel->IsParentArchive())
+        {
+            spModel = spModel->GetParent();
+        }
+        dialog.SetPath(spModel->GetParentPath());
     }
-    dialog.SetPath(spModel->GetPath());
+    else
+    {
+        dialog.SetPath(spModel->GetPath());
+    }
     if (dialog.ShowModal() != wxID_OK)
     {
         return;
