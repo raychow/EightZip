@@ -21,6 +21,7 @@ FileListCtrl::FileListCtrl(
 void FileListCtrl::SetModel(shared_ptr<IModel> spModel
     , TString tstrFocused/* = wxEmptyString*/)
 {
+    typeid(m_spModel.get()).name();
     m_spModel = spModel;
     ClearAll();
     wxString wxstrColumnName;
@@ -48,11 +49,11 @@ void FileListCtrl::SetModel(shared_ptr<IModel> spModel
             nSelectedIndex, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
     }
     SetImageList(&m_imageList, wxIMAGE_LIST_SMALL);
-    m_nSortColumn = -1;
-    Sort(0, true);
+    auto &sortParameter = m_mSortParameter[typeid(*spModel).name()];
+    Sort(sortParameter.Column, sortParameter.IsAscending, true);
 }
 
-void FileListCtrl::Sort(int nColumn, bool isAscending)
+void FileListCtrl::Sort(int nColumn, bool isAscending, bool isForce /*= false*/)
 {
     auto nItemCount = GetItemCount();
     vector<bool> vbSelectedIndex(nItemCount);
@@ -71,22 +72,22 @@ void FileListCtrl::Sort(int nColumn, bool isAscending)
     }
     auto itemType = m_spModel->GetSupportedItems()[nColumn];
     bool isReverse = false;
-    if (m_nSortColumn == nColumn)
+    if (!isForce && m_currentSortParameter.Column == nColumn)
     {
-        if (m_isSortAscending ^ isAscending)
+        if (m_currentSortParameter.IsAscending == isAscending)
         {
-            isReverse = true;
+            return;
         }
         else
         {
-            return;
+            isReverse = true;
         }
     }
     else
     {
-        m_nSortColumn = nColumn;
+        m_currentSortParameter.Column = nColumn;
     }
-    m_isSortAscending = isAscending;
+    m_currentSortParameter.IsAscending = isAscending;
 
     if (isReverse)
     {
@@ -98,23 +99,27 @@ void FileListCtrl::Sort(int nColumn, bool isAscending)
         sort(
             m_vnChildrenMap.begin(),
             m_vnChildrenMap.end(),
-            [this, isAscending, itemType, &children](int nLeft, int nRight) {
+            [this, &itemType, &children](int nLeft, int nRight)
+        {
             const auto &leftChild = children[nLeft];
             const auto &rightChild = children[nRight];
             bool isLeftChildDiectory = leftChild->IsDirectory();
             bool isRightChildDiectory = rightChild->IsDirectory();
             bool result = false;
-            if (isLeftChildDiectory ^ isRightChildDiectory)
+            if (isLeftChildDiectory == isRightChildDiectory)
             {
-                result = isLeftChildDiectory ^ !isAscending;
+                result = leftChild->Compare(
+                    *rightChild, itemType, m_currentSortParameter.IsAscending);
             }
             else
             {
-                result = leftChild->Compare(*rightChild, itemType, isAscending);
+                result = isLeftChildDiectory
+                    ^ !m_currentSortParameter.IsAscending;
             }
 
             return result;
-        });
+        }
+        );
     }
 
     bool isFirst = true;
@@ -313,6 +318,10 @@ void FileListCtrl::__OnEraseBackground(wxEraseEvent &event)
 void FileListCtrl::__OnListColumnClick(wxListEvent &event)
 {
     int nColumn = event.GetColumn();
-
-    Sort(nColumn, !m_isSortAscending);
+    auto &sortParameter = m_mSortParameter[typeid(*m_spModel).name()];
+    sortParameter.IsAscending = nColumn == sortParameter.Column
+        ? !sortParameter.IsAscending
+        : false;
+    sortParameter.Column = nColumn;
+    Sort(nColumn, sortParameter.IsAscending);
 }

@@ -3,6 +3,8 @@
 #ifndef FILELISTCTRL_H
 #define FILELISTCTRL_H
 
+#include <map>
+
 #include "IModel.h"
 #include "SystemImageList.h"
 
@@ -25,7 +27,7 @@ public:
     static wxListColumnFormat GetColumnFormat(IEntry::ItemType itemType);
     static int GetColumnWidth(IEntry::ItemType itemType);
 
-    void Sort(int nColumn, bool isAscending);
+    void Sort(int nColumn, bool isAscending, bool isForce = false);
 
     int GetEntryIndex(int nListItemIndex) const;
 
@@ -34,12 +36,18 @@ protected:
     virtual int OnGetItemImage(long item) const;
 
 private:
+    struct SortParameter
+    {
+        int Column = 0;
+        bool IsAscending = true;
+    };
+
     std::shared_ptr<IModel> m_spModel;
     SystemImageList m_imageList;
     std::vector<int> m_vnChildrenMap;
 
-    int m_nSortColumn = -1;
-    bool m_isSortAscending = false;
+    std::map<std::string, SortParameter> m_mSortParameter;
+    SortParameter m_currentSortParameter;
 
     // Flicker-free drawing.
     // See also: http://wiki.wxwidgets.org/Flicker-Free_Drawing
