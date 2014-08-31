@@ -194,6 +194,15 @@ bool EntryBase::_LocaleCompare(
 #endif
 }
 
+TString ModelBase::GetName() const
+{
+    if (m_tstrPath.back() == wxFILE_SEP_PATH)
+    {
+        return m_tstrPath;
+    }
+    return m_tstrPath.substr(m_tstrPath.rfind(wxFILE_SEP_PATH) + 1);
+}
+
 bool ModelBase::HasParent() const
 {
     auto &tstrPath = GetPath();

@@ -30,9 +30,7 @@ public:
         const IEntry &otherEntry, ItemType itemType, bool isAscending) const;
 
 protected:
-    // File name with extension.
     TString m_tstrName;
-    // File path without filename, always with trailing separator.
     TString m_tstrFolder;
     mutable int m_nIconIndex = -1;
     wxULongLong_t m_un64Size = 0;
@@ -55,13 +53,13 @@ class ModelBase
     : public IModel
 {
 public:
+    virtual TString GetName() const;
     virtual const TString &GetPath() const { return m_tstrPath; }
     virtual bool HasParent() const;
     virtual bool IsParentArchive() const;
     virtual const EntryVector &GetEntries() const { return m_vspEntry; }
 
 protected:
-    // File path without filename, always with trailing separator.
     TString m_tstrPath;
 
     IModel::EntryVector m_vspEntry;

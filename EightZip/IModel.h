@@ -58,6 +58,7 @@ class IModel
 public:
     typedef std::vector<std::shared_ptr<IEntry>> EntryVector;
 
+    virtual TString GetName() const PURE;
     virtual const TString &GetPath() const PURE;
     virtual TString GetParentPath() const PURE;
     virtual bool HasParent() const PURE;

@@ -88,12 +88,13 @@ bool FolderEntry::CanExtract() const
 
 FolderModel::FolderModel(TString tstrPath)
 {
-    FileInfo fileInfo(SevenZipCore::Helper::RemovePathSlash(move(tstrPath)));
+    FileInfo fileInfo(move(tstrPath));
     if (fileInfo.IsOK())
     {
-        m_tstrPath = fileInfo.GetCanonicalPath();
+        m_tstrPath = SevenZipCore::Helper::RemovePathSlash(
+            fileInfo.GetCanonicalPath());
 #ifdef __WXMSW__
-        if (m_tstrPath.size() == 2 && m_tstrPath.back() == '.')
+        if (m_tstrPath.size() == 2 && m_tstrPath.back() == ':')
 #else
         if (m_tstrPath.empty())
 #endif

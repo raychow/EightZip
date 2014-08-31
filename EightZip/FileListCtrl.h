@@ -18,7 +18,8 @@ public:
         const wxValidator& validator = wxDefaultValidator,
         const wxString& name = wxListCtrlNameStr);
 
-    void SetModel(std::shared_ptr<IModel> spModel);
+    void SetModel(std::shared_ptr<IModel> spModel
+        , TString tstrFocused = wxEmptyString);
 
     static wxString GetColumnCaption(IEntry::ItemType itemType);
     static wxListColumnFormat GetColumnFormat(IEntry::ItemType itemType);

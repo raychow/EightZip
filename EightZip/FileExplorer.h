@@ -52,7 +52,8 @@ private:
     void __CreateAddressBar(wxBoxSizer *pMainSizer);
     void __CreateExplorer(wxBoxSizer *pSizerMain);
 
-    void __SetModel(std::shared_ptr<IModel> spModel);
+    void __SetModel(std::shared_ptr<IModel> spModel
+        , TString tstrFocusedName = wxEmptyString);
 
     void __OnParentFolderClick(wxCommandEvent &event);
     void __OnPathComboBoxKeyDown(wxKeyEvent& event);

@@ -18,7 +18,8 @@ FileListCtrl::FileListCtrl(
     Bind(wxEVT_LIST_COL_CLICK, &FileListCtrl::__OnListColumnClick, this);
 }
 
-void FileListCtrl::SetModel(shared_ptr<IModel> spModel)
+void FileListCtrl::SetModel(shared_ptr<IModel> spModel
+    , TString tstrFocused/* = wxEmptyString*/)
 {
     m_spModel = spModel;
     ClearAll();
@@ -32,10 +33,20 @@ void FileListCtrl::SetModel(shared_ptr<IModel> spModel)
     const auto &children = m_spModel->GetEntries();
     m_vnChildrenMap.resize(children.size());
     int i = 0;
-    generate(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [&i]() {
+    int nSelectedIndex = -1;
+    generate(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [&]() {
+        if (!tstrFocused.empty() && children[i]->GetName() == tstrFocused)
+        {
+            nSelectedIndex = i;
+        }
         return i++;
     });
     SetItemCount(children.size());
+    if (-1 != nSelectedIndex)
+    {
+        SetItemState(
+            nSelectedIndex, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+    }
     SetImageList(&m_imageList, wxIMAGE_LIST_SMALL);
     m_nSortColumn = -1;
     Sort(0, true);
@@ -43,6 +54,21 @@ void FileListCtrl::SetModel(shared_ptr<IModel> spModel)
 
 void FileListCtrl::Sort(int nColumn, bool isAscending)
 {
+    auto nItemCount = GetItemCount();
+    vector<bool> vbSelectedIndex(nItemCount);
+    long lItemIndex = -1;
+    while (true)
+    {
+        lItemIndex = GetNextItem(
+            lItemIndex, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+        if (-1 == lItemIndex)
+        {
+            break;
+        }
+        SetItemState(
+            lItemIndex, 0, wxLIST_STATE_SELECTED | wxLIST_STATE_FOCUSED);
+        vbSelectedIndex[m_vnChildrenMap[lItemIndex]] = true;
+    }
     auto itemType = m_spModel->GetSupportedItems()[nColumn];
     bool isReverse = false;
     if (m_nSortColumn == nColumn)
@@ -89,6 +115,20 @@ void FileListCtrl::Sort(int nColumn, bool isAscending)
 
             return result;
         });
+    }
+
+    bool isFirst = true;
+    for (int i = 0; i != nItemCount; ++i)
+    {
+        if (vbSelectedIndex[m_vnChildrenMap[i]])
+        {
+            if (isFirst)
+            {
+                EnsureVisible(i);
+                isFirst = false;
+            }
+            SetItemState(i, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+        }
     }
 
     Refresh(false);

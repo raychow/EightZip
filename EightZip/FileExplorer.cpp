@@ -158,9 +158,10 @@ void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
         wxEVT_LIST_ITEM_ACTIVATED, &FileExplorer::__OnListItemActivated, this);
 }
 
-void FileExplorer::__SetModel(std::shared_ptr<IModel> spModel)
+void FileExplorer::__SetModel(std::shared_ptr<IModel> spModel,
+    TString tstrFocusedName/* = wxEmptyString*/)
 {
-    m_pListCtrl->SetModel(spModel);
+    m_pListCtrl->SetModel(spModel, tstrFocusedName);
     m_spModel = move(spModel);
     auto tstrPath = m_spModel->GetPath();
     m_pAddressComboBox->SetValue(tstrPath);
@@ -172,7 +173,7 @@ void FileExplorer::__OnParentFolderClick(wxCommandEvent &event)
 {
     if (m_spModel->HasParent())
     {
-        __SetModel(m_spModel->GetParent());
+        __SetModel(m_spModel->GetParent(), m_spModel->GetName());
     }
 }
 
