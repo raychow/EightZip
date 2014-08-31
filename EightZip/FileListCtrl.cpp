@@ -321,7 +321,7 @@ void FileListCtrl::__OnListColumnClick(wxListEvent &event)
     auto &sortParameter = m_mSortParameter[typeid(*m_spModel).name()];
     sortParameter.IsAscending = nColumn == sortParameter.Column
         ? !sortParameter.IsAscending
-        : false;
+        : true;
     sortParameter.Column = nColumn;
     Sort(nColumn, sortParameter.IsAscending);
 }
