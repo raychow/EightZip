@@ -54,7 +54,7 @@ namespace SevenZipCore
         {
             return;
         }
-        IInArchiveAdapter inArchiveAdapter(
+        IInArchiveAdapter<> inArchiveAdapter(
             m_wpArchiveEntry.lock()->GetInArchive());
         m_upInformation->Size = PropertyHelper::GetConvertedUInt64(
             inArchiveAdapter.GetProperty(m_unIndex, PropertyId::Size), 0);

@@ -10,7 +10,6 @@
 #include "ComPtr.h"
 #include "Exception.h"
 #include "IArchiveAdapter.h"
-#include "FileStream.h"
 
 using namespace std;
 
@@ -59,7 +58,7 @@ namespace SevenZipCore
             *outStream = nullptr;
             m_nindex = index;
 
-            IInArchiveAdapter inArchiveAdapter(
+            IInArchiveAdapter<> inArchiveAdapter(
                 m_spArchive->GetArchiveEntry()->GetInArchive());
             m_tstrInternalPath = inArchiveAdapter.GetItemPath(index);
             m_isDirectory = PropertyHelper::GetBool(
@@ -281,8 +280,7 @@ namespace SevenZipCore
                         // TODO: Add error message.
                         return S_OK;
                     }
-                    OutFileStreamAdapter streamAdapter(
-                        dynamic_pointer_cast<OutFileStream>(m_cpOutStream));
+                    OutFileStreamAdapter streamAdapter(m_cpOutStream);
                     if (m_oun64Position)
                     {
                         streamAdapter.Seek(*m_oun64Position, STREAM_SEEK_SET);
@@ -347,8 +345,7 @@ namespace SevenZipCore
             // if m_cpCRCStream
             if (m_cpOutStream)
             {
-                OutFileStreamAdapter streamAdapter(
-                    dynamic_pointer_cast<OutFileStream>(m_cpOutStream));
+                OutFileStreamAdapter streamAdapter(m_cpOutStream);
                 streamAdapter.SetTime(
                     m_oftCreated ? &*m_oftCreated : nullptr,
                     m_oftAccessed ? &*m_oftAccessed : nullptr,
@@ -367,7 +364,7 @@ namespace SevenZipCore
     }
 
     boost::optional<FILETIME> ArchiveExtractCallback::__GetTime(
-        IInArchiveAdapter &archiveAdapter,
+        IInArchiveAdapter<> &archiveAdapter,
         UINT32 index,
         PropertyId propertyId)
     {

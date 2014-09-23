@@ -197,15 +197,6 @@
     <ClCompile Include="SevenZipCore\FileStream.cpp">
       <Filter>源文件\SevenZipCore</Filter>
     </ClCompile>
-    <ClCompile Include="SevenZipCore\IArchiveAdapter.cpp">
-      <Filter>源文件\SevenZipCore</Filter>
-    </ClCompile>
-    <ClCompile Include="SevenZipCore\ICoderAdapter.cpp">
-      <Filter>源文件\SevenZipCore</Filter>
-    </ClCompile>
-    <ClCompile Include="SevenZipCore\IStreamAdapter.cpp">
-      <Filter>源文件\SevenZipCore</Filter>
-    </ClCompile>
     <ClCompile Include="SevenZipCore\Library.cpp">
       <Filter>源文件\SevenZipCore</Filter>
     </ClCompile>

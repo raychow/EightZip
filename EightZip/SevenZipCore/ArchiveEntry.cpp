@@ -54,7 +54,7 @@ namespace SevenZipCore
     shared_ptr<ArchiveFolder> ArchiveEntry::GetRootFolder()
     {
         auto result = make_shared<ArchiveFolder>(TEXT(""), shared_from_this());
-        IInArchiveAdapter archiveAdapter(m_cpInArchive);
+        IInArchiveAdapter<> archiveAdapter(m_cpInArchive);
         UINT32 un32ItemCount = archiveAdapter.GetNumberOfItems();
         TString tstrArchiveFileName = Helper::GetFileName(m_tstrPath);
         for (UINT32 i = 0; i != un32ItemCount; ++i)
@@ -143,14 +143,14 @@ namespace SevenZipCore
                 auto cpInArchive = format.CreateInArchive();
                 m_cpInStream->Seek(0, STREAM_SEEK_SET, nullptr);
 
-                IInArchiveAdapter archiveAdapter(cpInArchive);
+                IInArchiveAdapter<> archiveAdapter(cpInArchive);
 
                 auto cpSetCompressCodecsInfo
                     = archiveAdapter.QueryInterface<ISetCompressCodecsInfo>(
                     IID_ISetCompressCodecsInfo);
                 if (cpSetCompressCodecsInfo)
                 {
-                    ISetCompressCodecsInfoAdapter(
+                    ISetCompressCodecsInfoAdapter<>(
                         cpSetCompressCodecsInfo).SetCompressCodecsInfo(*m_cpCodecs);
                 }
 
@@ -185,7 +185,7 @@ namespace SevenZipCore
     {
         if (m_cpInArchive)
         {
-            IInArchiveAdapter(m_cpInArchive).Close();
+            IInArchiveAdapter<>(m_cpInArchive).Close();
         }
     }
 

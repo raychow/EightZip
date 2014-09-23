@@ -86,7 +86,7 @@ shared_ptr<IModel> ArchiveEntry::GetModel()
     else
     {
         auto spArchiveEntry = m_spArchiveFile->GetArchiveEntry();
-        auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter(
+        SevenZipCore::IInArchiveAdapter<> inArchiveAdapter(
             spArchiveEntry->GetInArchive());
         try
         {
@@ -94,7 +94,7 @@ shared_ptr<IModel> ArchiveEntry::GetModel()
                 SevenZipCore::IInArchiveGetStream>(SevenZipCore::IID_IInArchiveGetStream);
             if (cpGetStream)
             {
-                auto cpSubSeqStream = SevenZipCore::IInArchiveGetStreamAdapter
+                auto cpSubSeqStream = SevenZipCore::IInArchiveGetStreamAdapter<>
                     (cpGetStream).GetStream(m_spArchiveFile->GetIndex());
                 if (cpSubSeqStream)
                 {
@@ -282,7 +282,7 @@ void ArchiveModel::Extract(TString tstrPath) const
 TString ArchiveModel::Extract(UINT32 un32ArchiveIndex, TString tstrPath) const
 {
     auto spArchiveEntry = m_spArchiveFolder->GetArchiveEntry();
-    auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter(
+    auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
         spArchiveEntry->GetInArchive());
     auto cpArchiveExtractCallback = SevenZipCore::MakeComPtr(
         new SevenZipCore::ArchiveExtractCallback(
@@ -305,7 +305,7 @@ void ArchiveModel::Extract(const vector<UINT32> &vun32ArchiveIndex,
     TString tstrPath) const
 {
     auto spArchiveEntry = m_spArchiveFolder->GetArchiveEntry();
-    auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter(
+    auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
         spArchiveEntry->GetInArchive());
     auto cpArchiveExtractCallback = SevenZipCore::MakeComPtr(
         new SevenZipCore::ArchiveExtractCallback(

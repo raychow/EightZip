@@ -11,158 +11,153 @@
 #include "Property.h"
 #include "TString.h"
 
-#define DECLARE_IINARCHIVE_ADAPTER \
-    void Open( \
-        IInStream *stream, \
-        UINT64 maxCheckStartPosition, \
-        IArchiveOpenCallback *openArchiveCallback) const; \
-    void Close() const; \
-    UINT32 GetNumberOfItems() const; \
-    PROPVARIANT GetProperty(UINT32 index, PropertyId propID) const; \
-    void Extract( \
-        const std::vector<UINT32> &indices, \
-        bool testMode, \
-        IArchiveExtractCallback *extractCallback) const; \
-    PROPVARIANT GetArchiveProperty(PropertyId propID) const; \
-    UINT32 GetNumberOfProperties() const; \
-    void GetPropertyInfo( \
-        UINT32 index, \
-        BSTR *name, \
-        PROPID *propID, \
-        VARTYPE *varType) const; \
-    UINT32 GetNumberOfArchiveProperties() const; \
-    void GetArchivePropertyInfo( \
-        UINT32 index, \
-        BSTR *name, \
-        PROPID *propID, \
-        VARTYPE *varType) const; \
-    TString GetItemPath(UINT32 index) const;
-
-#define IMPLEMENT_IINARCHIVE_ADAPTER(target_name) \
-    void target_name##Adapter::Open( \
-        IInStream *stream, \
-        UINT64 maxCheckStartPosition, \
-        IArchiveOpenCallback *openArchiveCallback) const \
-    { \
-        CHECK_OK(m_spTarget->Open( \
-            stream, &maxCheckStartPosition, openArchiveCallback), \
-            ArchiveException, "Cannot open the specified stream."); \
-    } \
-    void target_name##Adapter::Close() const \
-    { \
-        CHECK_OK(m_spTarget->Close(), \
-            ArchiveException, \
-            "Cannot close the archive."); \
-    } \
-    UINT32 target_name##Adapter::GetNumberOfItems() const \
-    { \
-        UINT32 result = 0; \
-        CHECK_OK(m_spTarget->GetNumberOfItems(&result), \
-            ArchiveException, \
-            "Cannot get number of archive items"); \
-        return result; \
-    } \
-    PROPVARIANT target_name##Adapter::GetProperty( \
-        UINT32 index, \
-        PropertyId propertyID) const \
-    { \
-        PROPVARIANT result = {}; \
-        CHECK_OK(m_spTarget->GetProperty( \
-            index, \
-            static_cast<PROPID>(propertyID), &result), \
-            ArchiveException, \
-            "Cannot get property of the file in archive."); \
-        return result; \
-    } \
-    void target_name##Adapter::Extract( \
-        const std::vector<UINT32> &indices, \
-        bool testMode, \
-        IArchiveExtractCallback *extractCallback) const \
-    { \
-        CHECK_OK(m_spTarget->Extract( \
-            indices.data(), \
-            indices.size(), \
-            testMode ? 1 : 0, \
-            extractCallback), \
-            ArchiveException, \
-            "Can not extract files from the archive."); \
-    } \
-    PROPVARIANT target_name##Adapter::GetArchiveProperty( \
-        PropertyId propertyId) const \
-    { \
-        PROPVARIANT result = {}; \
-        CHECK_OK(m_spTarget->GetArchiveProperty( \
-            static_cast<PROPID>(propertyId), \
-            &result), \
-            ArchiveException, \
-            "Cannot get property of the archive."); \
-        return result; \
-    } \
-    UINT32 target_name##Adapter::GetNumberOfProperties() const \
-    { \
-        UINT32 result = 0; \
-        CHECK_OK(m_spTarget->GetNumberOfProperties(&result), \
-            ArchiveException, \
-            "Cannot get number of archive properties"); \
-        return result; \
-    } \
-    void target_name##Adapter::GetPropertyInfo( \
-        UINT32 index, BSTR *name, PROPID *propID, VARTYPE *varType) const \
-    { \
-        CHECK_OK(m_spTarget->GetPropertyInfo( \
-            index, name, propID, varType), \
-            ArchiveException, \
-            "Cannot get property info of the archive."); \
-    } \
-    UINT32 target_name##Adapter::GetNumberOfArchiveProperties() const \
-    { \
-        UINT32 result = 0; \
-        CHECK_OK(m_spTarget->GetNumberOfArchiveProperties(&result), \
-            ArchiveException, "Cannot get number of archive properties."); \
-        return result; \
-    } \
-    void target_name##Adapter::GetArchivePropertyInfo( \
-        UINT32 index, BSTR *name, PROPID *propID, VARTYPE *varType) const \
-    { \
-        CHECK_OK(m_spTarget->GetArchivePropertyInfo( \
-            index, name, propID, varType), \
-            ArchiveException, \
-            "Cannot get property info of the file in archive."); \
-    } \
-    TString target_name##Adapter::GetItemPath(UINT32 index) const \
-    { \
-        auto tstrPath = PropertyHelper::GetString( \
-            GetProperty(index, PropertyId::Path), TString()); \
-        if (tstrPath.empty()) \
-        { \
-            auto tstrExtension = PropertyHelper::GetString( \
-                GetProperty(index, PropertyId::Extension), TString()); \
-            if (!tstrExtension.empty()) \
-            { \
-                tstrPath = TString(TEXT(".")) + tstrExtension; \
-            } \
-        } \
-        return tstrPath; \
-    } \
-
-#define DECLARE_IINARCHIVEGETSTREAM_ADAPTER \
-    std::shared_ptr<ISequentialInStream> GetStream(UINT32 index) const; \
-
-#define IMPLEMENT_IINARCHIVEGETSTREAM_ADAPTER(target_name) \
-    std::shared_ptr<ISequentialInStream> target_name##Adapter::GetStream \
-        (UINT32 index) const \
-    { \
-        ISequentialInStream *pStream = nullptr; \
-        CHECK_OK(m_spTarget->GetStream(index, &pStream), \
-        ArchiveException, "Cannot get stream."); \
-        return MakeComPtr(pStream, false); \
-    } \
-
 namespace SevenZipCore
 {
-    DECLARE_ADAPTER_CLASS1(IInArchive, DECLARE_IINARCHIVE_ADAPTER)
-    DECLARE_ADAPTER_CLASS1(IInArchiveGetStream,
-    DECLARE_IINARCHIVEGETSTREAM_ADAPTER)
+    template<typename T = IInArchive>
+    class IInArchiveAdapter
+        : public Adapter < T >
+    {
+    public:
+        explicit IInArchiveAdapter(std::shared_ptr<T> spTarget)
+            : Adapter(spTarget)
+        {
+        }
+
+        void Open(
+            IInStream *stream,
+            UINT64 maxCheckStartPosition,
+            IArchiveOpenCallback *openArchiveCallback) const
+        {
+            EnsureOk<ArchiveException>(GetTarget()->Open(
+                stream, &maxCheckStartPosition, openArchiveCallback),
+                "Cannot open the specified stream.");
+        }
+
+        void Close() const
+        {
+            EnsureOk<ArchiveException>(GetTarget()->Close(),
+                "Cannot close the archive.");
+        }
+
+        UINT32 GetNumberOfItems() const
+        {
+            UINT32 result = 0;
+            EnsureOk<ArchiveException>(GetTarget()->GetNumberOfItems(&result),
+                "Cannot get number of archive items");
+            return result;
+        }
+
+        PROPVARIANT GetProperty(UINT32 index, PropertyId propertyID) const
+        {
+            PROPVARIANT result = {};
+            EnsureOk<ArchiveException>(GetTarget()->GetProperty(
+                index,
+                static_cast<PROPID>(propertyID), &result),
+                "Cannot get property of the file in archive.");
+            return result;
+        }
+
+        void Extract(
+            const std::vector<UINT32> &indices,
+            bool testMode,
+            IArchiveExtractCallback *extractCallback) const
+        {
+            EnsureOk<ArchiveException>(GetTarget()->Extract(
+                indices.data(),
+                indices.size(),
+                testMode ? 1 : 0,
+                extractCallback),
+                "Can not extract files from the archive.");
+        }
+
+        PROPVARIANT GetArchiveProperty(PropertyId propID) const
+        {
+            PROPVARIANT result = {};
+            EnsureOk<ArchiveException>(GetTarget()->GetArchiveProperty(
+                static_cast<PROPID>(propertyId),
+                &result),
+                "Cannot get property of the archive.");
+            return result;
+        }
+
+        UINT32 GetNumberOfProperties() const
+        {
+            UINT32 result = 0;
+            EnsureOk<ArchiveException>(GetTarget()->GetNumberOfProperties(&result),
+                "Cannot get number of archive properties");
+            return result;
+        }
+
+        void GetPropertyInfo(
+            UINT32 index,
+            BSTR *name,
+            PROPID *propID,
+            VARTYPE *varType) const
+        {
+            EnsureOk<ArchiveException>(GetTarget()->GetPropertyInfo(
+                index, name, propID, varType),
+                "Cannot get property info of the archive.");
+        }
+
+        UINT32 GetNumberOfArchiveProperties() const
+        {
+            UINT32 result = 0;
+            EnsureOk<ArchiveException>(
+                GetTarget()->GetNumberOfArchiveProperties(&result),
+                "Cannot get number of archive properties.");
+            return result;
+        }
+
+        void GetArchivePropertyInfo(
+            UINT32 index,
+            BSTR *name,
+            PROPID *propID,
+            VARTYPE *varType) const
+        {
+            EnsureOk<ArchiveException>(GetTarget()->GetArchivePropertyInfo(
+                index, name, propID, varType),
+                "Cannot get property info of the file in archive.");
+        }
+
+        TString GetItemPath(UINT32 index) const
+        {
+            auto tstrPath = PropertyHelper::GetString(
+                GetProperty(index, PropertyId::Path), TString());
+            if (tstrPath.empty())
+            {
+                auto tstrExtension = PropertyHelper::GetString(
+                    GetProperty(index, PropertyId::Extension), TString());
+                if (!tstrExtension.empty())
+                {
+                    tstrPath = TString(TEXT(".")) + tstrExtension;
+                }
+            }
+            return tstrPath;
+        }
+
+    };
+
+    template<typename T = IInArchiveGetStream>
+    class IInArchiveGetStreamAdapter
+        : public Adapter < T >
+    {
+    public:
+        explicit IInArchiveGetStreamAdapter(std::shared_ptr<T> spTarget)
+            : Adapter(spTarget)
+        {
+        }
+
+        std::shared_ptr<ISequentialInStream> GetStream(UINT32 index) const
+        {
+                ISequentialInStream *pStream = nullptr;
+                EnsureOk<ArchiveException>(
+                    GetTarget()->GetStream(index, &pStream),
+                    "Cannot get stream.");
+                return MakeComPtr(pStream, false);
+        }
+
+    };
+
 }
 
 #endif // SEVENZIPCORE_IARCHIVEADAPTER_H

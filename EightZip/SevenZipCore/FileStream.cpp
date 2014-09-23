@@ -93,10 +93,6 @@ namespace SevenZipCore
         }
     }
 
-    IMPLEMENT_ADAPTER_CONSTRUCTOR(InFileStream)
-    IMPLEMENT_IINSTREAM_ADAPTER(InFileStream)
-    IMPLEMENT_ISTREAMGETSIZE_ADAPTER(InFileStream)
-
     void OutFileStream::Open(const TString &tstrPath, bool isTruncate)
     {
          m_file.Open(tstrPath, isTruncate);
@@ -192,8 +188,5 @@ namespace SevenZipCore
     {
         m_file.SetTime(pftCreated, pftAccessed, pftModified);
     }
-
-    IMPLEMENT_ADAPTER_CONSTRUCTOR(OutFileStream)
-    IMPLEMENT_OUTFILESTREAM_ADAPTER(OutFileStream)
 
 }

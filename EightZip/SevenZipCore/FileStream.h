@@ -17,14 +17,6 @@
 #define _SH_SECURE      0x80    /* secure mode */
 #endif
 
-#define DECLARE_OUTFILESTREAM_ADAPTER \
-    DECLARE_IOUTSTREAM_ADAPTER \
-    void Close(); \
-
-#define IMPLEMENT_OUTFILESTREAM_ADAPTER(target_name) \
-    IMPLEMENT_IOUTSTREAM_ADAPTER(target_name) \
-    void target_name##Adapter::Close() { m_spTarget->Close(); } \
-
 namespace SevenZipCore
 {
     class InFileStream
@@ -53,11 +45,6 @@ namespace SevenZipCore
         InFile m_file;
 
     };
-
-    DECLARE_ADAPTER_CLASS2(
-        InFileStream,
-        DECLARE_IINSTREAM_ADAPTER,
-        DECLARE_ISTREAMGETSIZE_ADAPTER)
 
     class OutFileStream
         : public IOutStream
@@ -96,9 +83,49 @@ namespace SevenZipCore
 
     };
 
-    DECLARE_ADAPTER_CLASS1(
-        OutFileStream,
-        DECLARE_OUTFILESTREAM_ADAPTER)
+    class InFileStreamAdapter
+        : public IInStreamAdapter < InFileStream >
+        , public IStreamGetSizeAdapter < InFileStream >
+    {
+        explicit InFileStreamAdapter(
+            std::shared_ptr<InFileStream> spTarget)
+            : Adapter(spTarget)
+            , IInStreamAdapter(spTarget)
+            , IStreamGetSizeAdapter(spTarget)
+        {
+
+        }
+
+    };
+
+    class OutFileStreamAdapter
+        : public IOutStreamAdapter < OutFileStream >
+    {
+    public:
+        explicit OutFileStreamAdapter(std::shared_ptr<OutFileStream> spTarget)
+            : Adapter(spTarget)
+            , IOutStreamAdapter(spTarget)
+        {
+
+        }
+
+        inline void Close() { GetTarget()->Close(); }
+
+        inline void SetTime(
+            const FILETIME *pftCreated,
+            const FILETIME *pftAccessed,
+            const FILETIME *pftModified) const
+        {
+            GetTarget()->SetTime(pftCreated, pftAccessed, pftModified);
+        }
+
+        inline UINT64 GetProcessedSize() const
+        {
+            return GetTarget()->GetProcessedSize();
+        }
+
+    };
+
 }
 
 #endif // SEVENZIPCORE_FILESTREAM_H

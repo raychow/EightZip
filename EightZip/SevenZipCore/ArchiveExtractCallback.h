@@ -9,6 +9,7 @@
 
 #include "Archive.h"
 #include "COM.h"
+#include "FileStream.h"
 #include "IArchive.h"
 #include "IArchiveAdapter.h"
 
@@ -66,10 +67,10 @@ namespace SevenZipCore
         ExtractOverwriteMode m_overwriteMode;
 
         TString m_tstrExtractPath;
-        std::shared_ptr<ISequentialOutStream> m_cpOutStream;
+        std::shared_ptr<OutFileStream> m_cpOutStream;
 
         static boost::optional<FILETIME> __GetTime(
-            IInArchiveAdapter &archiveAdapter,
+            IInArchiveAdapter<> &archiveAdapter,
             UINT32 index,
             PropertyId propertyId);
 
