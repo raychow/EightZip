@@ -39,7 +39,7 @@ public:
     bool CanExtract() const;
 
     void Extract(TString tstrPath);
-    void Extract(TString tstrPath, std::shared_ptr<ArchiveModel> spModel);
+    void Extract(TString tstrPath, std::shared_ptr<IModel> spModel);
 
 private:
     wxToolBar *m_pParentFolderToolBar = nullptr;

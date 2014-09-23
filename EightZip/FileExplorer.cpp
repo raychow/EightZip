@@ -227,15 +227,25 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
 
 void FileExplorer::Extract(TString tstrPath)
 {
-    if (!m_spModel->IsArchive())
+    shared_ptr<IModel> spModel;
+    auto entry = GetEntry(GetSelectedEntryIndex());
+    if (entry && entry->CanExtract())
+    {
+        spModel = entry->GetModel();
+    }
+    else
+    {
+        spModel = m_spModel;
+    }
+    if (!spModel->IsArchive())
     {
         wxMessageBox(_("Extract failed."));
         return;
     }
-    Extract(tstrPath, dynamic_pointer_cast<ArchiveModel>(m_spModel));
+    Extract(tstrPath, spModel);
 }
 
-void FileExplorer::Extract(TString tstrPath, shared_ptr<ArchiveModel> spModel)
+void FileExplorer::Extract(TString tstrPath, shared_ptr<IModel> spModel)
 {
     try
     {
