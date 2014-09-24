@@ -42,7 +42,7 @@ namespace SevenZipCore
     template<typename E>
     inline void EnsureOk(HRESULT result, const char *message)
     {
-        if (FAILED(result))
+        if (S_OK != result)
         {
             throw E(message);
         }
