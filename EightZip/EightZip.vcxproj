@@ -86,6 +86,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ArchiveHelper.h" />
     <ClInclude Include="ArchiveModel.h" />
     <ClInclude Include="CodecsLoader.h" />
     <ClInclude Include="DriveModel.h" />
@@ -100,14 +101,17 @@
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="FileListCtrl.h" />
     <ClInclude Include="FolderModel.h" />
-    <ClInclude Include="Helper.h" />
+    <ClInclude Include="WindowHelper.h" />
+    <ClInclude Include="IExtractable.h" />
     <ClInclude Include="IModel.h" />
     <ClInclude Include="ModelBase.h" />
+    <ClInclude Include="FileHelper.h" />
     <ClInclude Include="SevenZipCore\Adapter.h" />
     <ClInclude Include="SevenZipCore\Archive.h" />
     <ClInclude Include="SevenZipCore\ArchiveEntry.h" />
     <ClInclude Include="SevenZipCore\ArchiveExtractCallback.h" />
     <ClInclude Include="SevenZipCore\ArchiveFile.h" />
+    <ClInclude Include="SevenZipCore\BaseType.h" />
     <ClInclude Include="SevenZipCore\Codecs.h" />
     <ClInclude Include="SevenZipCore\COM.h" />
     <ClInclude Include="SevenZipCore\CommonHelper.h" />
@@ -147,10 +151,11 @@
     <ClCompile Include="EightZipFrame.cpp" />
     <ClCompile Include="EightZipApp.cpp" />
     <ClCompile Include="FileExplorer.cpp" />
+    <ClCompile Include="FileHelper.cpp" />
     <ClCompile Include="FileInfo.cpp" />
     <ClCompile Include="FileListCtrl.cpp" />
     <ClCompile Include="FolderModel.cpp" />
-    <ClCompile Include="Helper.cpp" />
+    <ClCompile Include="WindowHelper.cpp" />
     <ClCompile Include="ModelBase.cpp" />
     <ClCompile Include="SevenZipCore\Archive.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -237,6 +242,7 @@
     <ClCompile Include="SystemImageList.cpp" />
     <ClCompile Include="TempFolder.cpp" />
     <ClCompile Include="WindowStateManager.cpp" />
+    <ClCompile Include="ArchiveHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="EightZip.rc">

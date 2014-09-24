@@ -1,5 +1,5 @@
 #include "stdwx.h"
-#include "Helper.h"
+#include "FileHelper.h"
 
 #include <algorithm>
 #include <memory>
@@ -26,26 +26,9 @@ namespace Helper
         throw SystemException("Cannot execute the specified file.");
     }
 
-    wxSizer *AlignBorder(wxSizer *pSizer)
+    int GetFileAttributes(TString tstrPath)
     {
-#ifdef __WXMSW__
-        int nCount = pSizer->GetItemCount();
-        if (nCount)
-        {
-            auto pSizerLast = pSizer->GetItem(nCount - 1);
-            auto nBorderLast = pSizerLast->GetBorder();
-            if ((pSizerLast->GetFlag() & wxRIGHT) && SIZER_BORDER > nBorderLast)
-            {
-                pSizer->AddSpacer(SIZER_BORDER - pSizerLast->GetBorder());
-            }
-        }
-#endif
-        return pSizer;
-    }
-
-    FileAttributes GetFileAttributes(TString tstrPath)
-    {
-        FileAttributes status;
+        int status = 0;
 #ifdef __WXMSW__
         //if (TRUE != ::PathFileExists(tstrPath.c_str()))
         //{
@@ -58,15 +41,15 @@ namespace Helper
         }
         if (dwAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
-            status.Directory();
+            status |= EIGHT_FILE_STATUS_DIRECTORY;
         }
         else
         {
-            status.File();
+            status |= EIGHT_FILE_STATUS_FILE;
         }
         if (dwAttributes & FILE_ATTRIBUTE_REPARSE_POINT)
         {
-            status.SymbolicLink();
+            status |= EIGHT_FILE_STATUS_SYMBOLIC_LINK;
         }
 #endif
         return status;

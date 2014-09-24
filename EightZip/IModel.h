@@ -36,21 +36,21 @@ public:
         CRC
     };
 
-    virtual const TString &GetName() const PURE;
-    virtual const TString &GetFolder() const PURE;
-    virtual TString GetPath() const PURE;
-    virtual int GetIconIndex() const PURE;
-    virtual TString GetItem(ItemType itemType) const PURE;
-    virtual bool IsDirectory() const PURE;
-    virtual std::shared_ptr<IModel> GetModel() PURE;
-    virtual bool IsOpenExternal() const PURE;
-    virtual void OpenExternal() PURE;
-    virtual bool CanExtract() const PURE;
+    virtual const TString &GetName() const = 0;
+    virtual const TString &GetFolder() const = 0;
+    virtual TString GetPath() const = 0;
+    virtual int GetIconIndex() const = 0;
+    virtual TString GetItem(ItemType itemType) const = 0;
+    virtual bool IsDirectory() const = 0;
+    virtual std::shared_ptr<IModel> GetModel() = 0;
+    virtual bool IsOpenExternal() const = 0;
+    virtual void OpenExternal() = 0;
+    virtual bool CanExtract() const = 0;
 
     virtual bool Compare(
         const IEntry &otherEntry,
         ItemType itemType,
-        bool isAscending) const PURE;
+        bool isAscending) const = 0;
 };
 
 class IModel
@@ -58,13 +58,13 @@ class IModel
 public:
     typedef std::vector<std::shared_ptr<IEntry>> EntryVector;
 
-    virtual TString GetName() const PURE;
-    virtual const TString &GetPath() const PURE;
-    virtual bool HasParent() const PURE;
-    virtual std::shared_ptr<IModel> GetParent() const PURE;
-    virtual const EntryVector &GetEntries() const PURE;
-    virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const PURE;
-    virtual bool IsArchive() const PURE;
+    virtual TString GetName() const = 0;
+    virtual const TString &GetPath() const = 0;
+    virtual bool HasParent() const = 0;
+    virtual std::shared_ptr<IModel> GetParent() const = 0;
+    virtual const EntryVector &GetEntries() const = 0;
+    virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const = 0;
+    virtual bool IsArchive() const = 0;
 
 };
 

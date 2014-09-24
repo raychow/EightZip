@@ -4,7 +4,7 @@
 #include <wx/filepicker.h>
 
 #include "EightDirDialog.h"
-#include "Helper.h"
+#include "WindowHelper.h"
 
 ExtractDialog::ExtractDialog(
     wxWindow *parent,

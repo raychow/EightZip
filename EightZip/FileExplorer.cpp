@@ -5,10 +5,10 @@
 
 #include "SevenZipCore/Exception.h"
 
+#include "ArchiveHelper.h"
 #include "EightZipConfig.h"
 #include "Exception.h"
 #include "FolderModel.h"
-#include "Helper.h"
 
 using namespace std;
 
@@ -227,39 +227,10 @@ void FileExplorer::Extract(TString tstrPath)
     {
         spModel = m_spModel;
     }
-    if (!spModel->IsArchive())
+    if (!spModel->IsArchive()
+        || !Helper::Extract(
+        tstrPath, dynamic_pointer_cast<ArchiveModel>(spModel)))
     {
         wxMessageBox(_("Extract failed."));
-        return;
-    }
-    Extract(tstrPath, spModel);
-}
-
-void FileExplorer::Extract(TString tstrPath, shared_ptr<IModel> spModel)
-{
-    try
-    {
-        if (!spModel || !spModel->IsArchive())
-        {
-            wxMessageBox(_("Extract failed."));
-            return;
-        }
-        shared_ptr<IModel> spCurrentModel = spModel;
-        while (spCurrentModel->IsArchive())
-        {
-            spCurrentModel = spCurrentModel->GetParent();
-        }
-        assert(spCurrentModel);
-        auto tstrAbsPath = spCurrentModel->GetPath();
-        auto path = boost::filesystem::absolute(tstrPath, tstrAbsPath);
-        boost::filesystem::create_directories(path);
-        auto tstrCanonicalPath = Helper::GetCanonicalPath(path.wstring());
-        dynamic_pointer_cast<ArchiveModel>(spModel)->Extract(tstrPath);
-    }
-    catch (const boost::system::system_error &)
-    {
-        wxMessageBox(wxString::Format(
-            _("Can not access or create folder \"%s\"."),
-            tstrPath));
     }
 }

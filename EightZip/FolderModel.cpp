@@ -11,8 +11,8 @@
 #include "DriveModel.h"
 #include "Exception.h"
 #include "FileFinder.h"
+#include "FileHelper.h"
 #include "FileInfo.h"
-#include "Helper.h"
 
 using namespace std;
 

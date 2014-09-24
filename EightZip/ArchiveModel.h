@@ -7,6 +7,7 @@
 
 #include "SevenZipCore/Archive.h"
 
+#include "IExtractable.h"
 #include "ModelBase.h"
 #include "TempFolder.h"
 
@@ -52,6 +53,7 @@ private:
 
 class ArchiveModel
     : public ModelBase
+    , public IExtractable
     , public std::enable_shared_from_this<ArchiveModel>
 {
 public:
@@ -85,7 +87,7 @@ public:
     virtual void Extract(const std::vector<UINT32> &vun32ArchiveIndex,
         TString tstrPath) const;
 
-    const TString &GetInternalPath() const { return m_tstrInternalPath; }
+    virtual const TString &GetInternalPath() const;
 
     // Should call LoadChildren() manually since shared_from_this() is not
     // available in constructor.

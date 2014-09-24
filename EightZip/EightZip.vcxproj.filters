@@ -19,6 +19,12 @@
     <Filter Include="源文件\SevenZipCore">
       <UniqueIdentifier>{b53288e2-13f5-412c-bc20-1a19e2ed0f8e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Helper">
+      <UniqueIdentifier>{f675f198-4eff-482e-be84-a40c51e5f676}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Helper">
+      <UniqueIdentifier>{5bad4c04-bbb8-45a9-a143-a57261c6d56c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdwx.h">
@@ -147,9 +153,6 @@
     <ClInclude Include="CodecsLoader.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Helper.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="SevenZipCore\CommonHelper.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
@@ -167,6 +170,21 @@
     </ClInclude>
     <ClInclude Include="WindowStateManager.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IExtractable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\BaseType.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="ArchiveHelper.h">
+      <Filter>头文件\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="FileHelper.h">
+      <Filter>头文件\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowHelper.h">
+      <Filter>头文件\Helper</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -236,9 +254,6 @@
     <ClCompile Include="ArchiveModel.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Helper.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="SevenZipCore\ArchiveExtractCallback.cpp">
       <Filter>源文件\SevenZipCore</Filter>
     </ClCompile>
@@ -265,6 +280,15 @@
     </ClCompile>
     <ClCompile Include="WindowStateManager.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FileHelper.cpp">
+      <Filter>源文件\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchiveHelper.cpp">
+      <Filter>源文件\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowHelper.cpp">
+      <Filter>源文件\Helper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

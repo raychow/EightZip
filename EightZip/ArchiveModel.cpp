@@ -16,8 +16,8 @@
 
 #include "CodecsLoader.h"
 #include "Exception.h"
+#include "FileHelper.h"
 #include "FileInfo.h"
-#include "Helper.h"
 #include "FolderModel.h"
 #include "TempFolder.h"
 
@@ -304,6 +304,11 @@ void ArchiveModel::Extract(const vector<UINT32> &vun32ArchiveIndex,
         vun32ArchiveIndex,
         false,
         cpArchiveExtractCallback.get());
+}
+
+const TString & ArchiveModel::GetInternalPath() const
+{
+    return m_tstrInternalPath;
 }
 
 void ArchiveModel::LoadChildren()

@@ -8,9 +8,9 @@
 
 #include "ArchiveModel.h"
 #include "DriveModel.h"
+#include "FileHelper.h"
 #include "FileInfo.h"
 #include "FolderModel.h"
-#include "Helper.h"
 
 using namespace std;
 
@@ -221,12 +221,12 @@ shared_ptr<IModel> GetModelFromPath(
         tstrPath = Helper::GetCanonicalPath(move(tstrPath));
         while (!tstrPath.empty())
         {
-            auto attributes = Helper::GetFileAttributes(tstrPath);
-            if (attributes.IsDirectory())
+            int attributes = Helper::GetFileAttributes(tstrPath);
+            if (attributes & EIGHT_FILE_STATUS_DIRECTORY)
             {
                 return make_shared<FolderModel>(tstrPath);
             }
-            else if (isTryOpenArchive && attributes.IsFile())
+            else if (isTryOpenArchive && attributes & EIGHT_FILE_STATUS_FILE)
             {
                 auto spModel = make_shared<ArchiveModel>(
                     nullptr,

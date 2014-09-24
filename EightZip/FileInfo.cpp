@@ -1,7 +1,7 @@
 #include "stdwx.h"
 #include "FileInfo.h"
 
-#include "Helper.h"
+#include "FileHelper.h"
 
 using namespace std;
 
