@@ -101,6 +101,7 @@
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="FileListCtrl.h" />
     <ClInclude Include="FolderModel.h" />
+    <ClInclude Include="SevenZipCore\IExtractIndicator.h" />
     <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="IExtractable.h" />
     <ClInclude Include="IModel.h" />

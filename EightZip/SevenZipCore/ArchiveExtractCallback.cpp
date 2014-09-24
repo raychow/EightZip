@@ -310,20 +310,27 @@ namespace SevenZipCore
 
     STDMETHODIMP ArchiveExtractCallback::PrepareOperation(INT32 askExtractMode)
     {
-        m_isExtractMode = false;
-        if (static_cast<int>(ExtractAskMode::Extract) == askExtractMode)
+        try
         {
-            if (m_isTestMode)
+            m_isExtractMode = false;
+            if (static_cast<int>(ExtractAskMode::Extract) == askExtractMode)
             {
-                askExtractMode = static_cast<int>(ExtractAskMode::Test);
+                if (m_isTestMode)
+                {
+                    askExtractMode = static_cast<int>(ExtractAskMode::Test);
+                }
+                else
+                {
+                    m_isExtractMode = true;
+                }
             }
-            else
-            {
-                m_isExtractMode = true;
-            }
+            // TODO: Prepare for progress window.
+            return S_OK;
         }
-        // TODO: Prepare for progress window.
-        return S_OK;
+        catch (...)
+        {
+            return E_FAIL;
+        }
     }
 
     STDMETHODIMP ArchiveExtractCallback::SetOperationResult(

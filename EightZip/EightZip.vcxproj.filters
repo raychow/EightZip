@@ -186,6 +186,9 @@
     <ClInclude Include="WindowHelper.h">
       <Filter>头文件\Helper</Filter>
     </ClInclude>
+    <ClInclude Include="SevenZipCore\IExtractIndicator.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
