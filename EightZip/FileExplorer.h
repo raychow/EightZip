@@ -36,7 +36,6 @@ public:
     std::vector<int> GetSelectedEntryIndexes() const;
     std::shared_ptr<IEntry> GetSelectedEntry() const;
     std::shared_ptr<IEntry> GetEntry(int nIndex) const;
-    bool CanExtract() const;
 
     void Extract(TString tstrPath);
     void Extract(TString tstrPath, std::shared_ptr<IModel> spModel);

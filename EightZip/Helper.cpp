@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <memory>
 
+#include "SevenZipCore/CommonHelper.h"
+
 #include "Exception.h"
 
 using namespace std;
@@ -136,4 +138,11 @@ bool Helper::IsPathEqual(const TString &tstrLeft, const TString &tstrRight)
         }
     }
     return true;
+}
+
+TString Helper::GetParentPath(const TString &tstrPath)
+{
+    return tstrPath.substr(
+        0, SevenZipCore::Helper::RemovePathSlash(tstrPath).find_last_of(
+        wxFILE_SEP_PATH) + 1);
 }

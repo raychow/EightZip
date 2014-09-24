@@ -95,16 +95,6 @@ std::shared_ptr<IEntry> FileExplorer::GetEntry(int nIndex) const
     return entries.at(nIndex);
 }
 
-bool FileExplorer::CanExtract() const
-{
-    if (m_spModel->IsArchive())
-    {
-        return true;
-    }
-    auto entry = GetEntry(GetSelectedEntryIndex());
-    return entry && entry->CanExtract();
-}
-
 void FileExplorer::__Create()
 {
     auto *pSizerMain = new wxBoxSizer(wxVERTICAL);
@@ -228,7 +218,7 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
 void FileExplorer::Extract(TString tstrPath)
 {
     shared_ptr<IModel> spModel;
-    auto entry = GetEntry(GetSelectedEntryIndex());
+    auto entry = GetSelectedEntry();
     if (entry && entry->CanExtract())
     {
         spModel = entry->GetModel();
@@ -255,12 +245,12 @@ void FileExplorer::Extract(TString tstrPath, shared_ptr<IModel> spModel)
             return;
         }
         shared_ptr<IModel> spCurrentModel = spModel;
-        while (spCurrentModel && spCurrentModel->IsParentArchive())
+        while (spCurrentModel->IsArchive())
         {
             spCurrentModel = spCurrentModel->GetParent();
         }
         assert(spCurrentModel);
-        auto tstrAbsPath = spCurrentModel->GetParentPath();
+        auto tstrAbsPath = spCurrentModel->GetPath();
         auto path = boost::filesystem::absolute(tstrPath, tstrAbsPath);
         boost::filesystem::create_directories(path);
         auto tstrCanonicalPath = Helper::GetCanonicalPath(path.wstring());

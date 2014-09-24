@@ -80,37 +80,23 @@ void EightZipFrame::__OnFileExitClick(wxCommandEvent &WXUNUSED(event))
 
 void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
 {
-    if (!m_pFileExplorer->CanExtract())
+    auto entry = m_pFileExplorer->GetSelectedEntry();
+    if (!m_pFileExplorer->GetModel()->IsArchive()
+        && !(entry && entry->CanExtract()))
     {
-        auto entry = m_pFileExplorer->GetSelectedEntry();
-        TString tstrPath;
-        if (entry)
-        {
-            tstrPath = entry->GetPath();
-        }
-        else
-        {
-            tstrPath = m_pFileExplorer->GetModel()->GetPath();
-        }
         wxMessageBox(
-            wxString::Format(_("Cannot extract \"%s\"."), tstrPath),
+            wxString::Format(_("Cannot extract \"%s\"."), entry
+            ? entry->GetPath() : m_pFileExplorer->GetModel()->GetPath()),
             EIGHTZIP_NAME);
         return;
     }
     ExtractDialog dialog(nullptr, wxID_ANY, _T("Extract"));
     auto spModel = m_pFileExplorer->GetModel();
-    if (spModel->IsArchive())
+    while (spModel->IsArchive())
     {
-        while (spModel->IsParentArchive())
-        {
-            spModel = spModel->GetParent();
-        }
-        dialog.SetPath(spModel->GetParentPath());
+        spModel = spModel->GetParent();
     }
-    else
-    {
-        dialog.SetPath(spModel->GetPath());
-    }
+    dialog.SetPath(spModel->GetPath());
     if (dialog.ShowModal() != wxID_OK)
     {
         return;

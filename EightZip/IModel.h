@@ -60,9 +60,7 @@ public:
 
     virtual TString GetName() const PURE;
     virtual const TString &GetPath() const PURE;
-    virtual TString GetParentPath() const PURE;
     virtual bool HasParent() const PURE;
-    virtual bool IsParentArchive() const PURE;
     virtual std::shared_ptr<IModel> GetParent() const PURE;
     virtual const EntryVector &GetEntries() const PURE;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const PURE;

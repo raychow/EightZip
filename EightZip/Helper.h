@@ -58,6 +58,7 @@ public:
         const TString &tstr2,
         bool isCaseSensitive = false);
     static bool IsPathEqual(const TString &tstrLeft, const TString &tstrRight);
+    static TString GetParentPath(const TString &tstrPath);
 
 };
 

@@ -56,7 +56,6 @@ public:
     virtual TString GetName() const;
     virtual const TString &GetPath() const { return m_tstrPath; }
     virtual bool HasParent() const;
-    virtual bool IsParentArchive() const;
     virtual const EntryVector &GetEntries() const { return m_vspEntry; }
 
 protected:

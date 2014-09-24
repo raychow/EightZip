@@ -49,11 +49,6 @@ DriveModel::DriveModel()
     }
 }
 
-TString DriveModel::GetParentPath() const
-{
-    return wxEmptyString;
-}
-
 std::shared_ptr<IModel> DriveModel::GetParent() const
 {
     return nullptr;

@@ -31,7 +31,6 @@ class FolderModel
 public:
     FolderModel(TString tstrPath);
 
-    virtual TString GetParentPath() const;
     virtual std::shared_ptr<IModel> GetParent() const;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
     virtual bool IsArchive() const { return false; }

@@ -76,8 +76,6 @@ public:
         std::shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder);
     virtual ~ArchiveModel() {}
 
-    virtual TString GetParentPath() const;
-    virtual bool IsParentArchive() const;
     virtual std::shared_ptr<IModel> GetParent() const;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
     virtual bool IsArchive() const { return true; }
