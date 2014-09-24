@@ -47,18 +47,17 @@ private:
 
 };
 
-class Helper
+namespace Helper
 {
-public:
-    static void OpenFileExternal(const TString &tstrPath);
-    static wxSizer *AlignBorder(wxSizer *pSizer);
-    static FileAttributes GetFileAttributes(TString tstrPath);
-    static TString GetCanonicalPath(TString tstrPath);
-    static int GetCommonPrefixLength(const TString &tstr1,
+    void OpenFileExternal(const TString &tstrPath);
+    wxSizer *AlignBorder(wxSizer *pSizer);
+    FileAttributes GetFileAttributes(TString tstrPath);
+    TString GetCanonicalPath(TString tstrPath);
+    int GetCommonPrefixLength(const TString &tstr1,
         const TString &tstr2,
         bool isCaseSensitive = false);
-    static bool IsPathEqual(const TString &tstrLeft, const TString &tstrRight);
-    static TString GetParentPath(const TString &tstrPath);
+    bool IsPathEqual(const TString &tstrLeft, const TString &tstrRight);
+    TString GetParentPath(const TString &tstrPath);
 
 };
 
