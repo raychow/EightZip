@@ -32,6 +32,9 @@ void EightZipFrame::__Create()
     __CreateFileExplorer(pSizerMain);
 
     SetSizer(pSizerMain);
+
+    // Get rid of any focus.
+    SetFocus();
 }
 
 void EightZipFrame::__CreateMenu()
