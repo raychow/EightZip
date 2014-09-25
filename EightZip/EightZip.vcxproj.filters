@@ -189,6 +189,9 @@
     <ClInclude Include="SevenZipCore\IExtractIndicator.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
+    <ClInclude Include="ProgressDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -292,6 +295,9 @@
     </ClCompile>
     <ClCompile Include="WindowHelper.cpp">
       <Filter>源文件\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgressDialog.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

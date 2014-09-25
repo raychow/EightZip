@@ -22,6 +22,7 @@
 #include <wx/fileconf.h>
 #include <wx/filename.h>
 #include <wx/listctrl.h>
+#include <wx/statline.h>
 #include <wx/stdpaths.h>
 
 #ifdef __WINDOWS__

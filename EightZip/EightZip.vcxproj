@@ -101,6 +101,7 @@
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="FileListCtrl.h" />
     <ClInclude Include="FolderModel.h" />
+    <ClInclude Include="ProgressDialog.h" />
     <ClInclude Include="SevenZipCore\IExtractIndicator.h" />
     <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="IExtractable.h" />
@@ -156,6 +157,7 @@
     <ClCompile Include="FileInfo.cpp" />
     <ClCompile Include="FileListCtrl.cpp" />
     <ClCompile Include="FolderModel.cpp" />
+    <ClCompile Include="ProgressDialog.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
     <ClCompile Include="ModelBase.cpp" />
     <ClCompile Include="SevenZipCore\Archive.cpp">

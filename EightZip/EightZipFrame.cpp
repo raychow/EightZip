@@ -5,7 +5,8 @@
 #include "ExtractDialog.h"
 #include "FileExplorer.h"
 
-#define BIND_MENU_EVENT(functor, id) Bind(wxEVT_MENU, &EightZipFrame::functor, this, id)
+#define BIND_MENU_EVENT(functor, id) \
+    Bind(wxEVT_MENU, &EightZipFrame::functor, this, id)
 
 EightZipFrame::EightZipFrame()
     : wxFrame(nullptr, wxID_ANY, EIGHTZIP_NAME)
