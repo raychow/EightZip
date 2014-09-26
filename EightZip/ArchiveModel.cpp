@@ -12,6 +12,7 @@
 #include "SevenZipCore/ComPtr.h"
 #include "SevenZipCore/IArchive.h"
 #include "SevenZipCore/IArchiveAdapter.h"
+#include "SevenZipCore/IExtractIndicator.h"
 #include "SevenZipCore/OpenCallback.h"
 
 #include "CodecsLoader.h"
@@ -150,7 +151,7 @@ void ArchiveEntry::__ExtractToTempFolder()
     m_upTempFolder.reset(new TempFolder());
     m_upTempFolder->SetFilePath(dynamic_pointer_cast<ArchiveModel>(
         m_wpParent.lock())->Extract(GetArchiveIndex(),
-        m_upTempFolder->GetFolderPath()));
+        m_upTempFolder->GetFolderPath(), nullptr));
 }
 
 ArchiveModel::ArchiveModel(
@@ -234,7 +235,8 @@ const vector<IEntry::ItemType> & ArchiveModel::GetSupportedItems() const
     return vType;
 }
 
-void ArchiveModel::Extract(TString tstrPath) const
+void ArchiveModel::Extract(TString tstrPath
+    , SevenZipCore::IExtractIndicator *pExtractIndicator) const
 {
     vector<UINT32> vun32ArchiveIndex;
     queue<const SevenZipCore::ArchiveFolder *> qpFolder;
@@ -259,10 +261,11 @@ void ArchiveModel::Extract(TString tstrPath) const
         qpFolder.pop();
     }
 
-    Extract(vun32ArchiveIndex, move(tstrPath));
+    Extract(vun32ArchiveIndex, move(tstrPath), pExtractIndicator);
 }
 
-TString ArchiveModel::Extract(UINT32 un32ArchiveIndex, TString tstrPath) const
+TString ArchiveModel::Extract(UINT32 un32ArchiveIndex, TString tstrPath
+    , SevenZipCore::IExtractIndicator *pExtractIndicator) const
 {
     auto spArchiveEntry = m_spArchiveFolder->GetArchiveEntry();
     auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
@@ -276,7 +279,8 @@ TString ArchiveModel::Extract(UINT32 un32ArchiveIndex, TString tstrPath) const
         move(tstrPath),
         GetInternalPath(),
         SevenZipCore::ExtractPathMode::CurrentPathNames,
-        SevenZipCore::ExtractOverwriteMode::AskBefore));
+        SevenZipCore::ExtractOverwriteMode::AskBefore,
+        pExtractIndicator));
     inArchiveAdapter.Extract(
         vector<UINT32>(1, un32ArchiveIndex),
         false,
@@ -285,7 +289,7 @@ TString ArchiveModel::Extract(UINT32 un32ArchiveIndex, TString tstrPath) const
 }
 
 void ArchiveModel::Extract(const vector<UINT32> &vun32ArchiveIndex,
-    TString tstrPath) const
+    TString tstrPath, SevenZipCore::IExtractIndicator *pExtractIndicator) const
 {
     auto spArchiveEntry = m_spArchiveFolder->GetArchiveEntry();
     auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
@@ -299,7 +303,8 @@ void ArchiveModel::Extract(const vector<UINT32> &vun32ArchiveIndex,
         move(tstrPath),
         GetInternalPath(),
         SevenZipCore::ExtractPathMode::CurrentPathNames,
-        SevenZipCore::ExtractOverwriteMode::AskBefore));
+        SevenZipCore::ExtractOverwriteMode::AskBefore,
+        pExtractIndicator));
     inArchiveAdapter.Extract(
         vun32ArchiveIndex,
         false,

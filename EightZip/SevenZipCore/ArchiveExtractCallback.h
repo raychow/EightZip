@@ -15,6 +15,8 @@
 
 namespace SevenZipCore
 {
+    class IExtractIndicator;
+
     class ArchiveExtractCallback
         : public IArchiveExtractCallback
     {
@@ -27,7 +29,8 @@ namespace SevenZipCore
             TString tstrExtractFolder,
             TString tstrCurrentBeginPath,
             ExtractPathMode pathMode,
-            ExtractOverwriteMode overwriteMode);
+            ExtractOverwriteMode overwriteMode,
+            IExtractIndicator *extractIndicator);
 
         STDMETHOD(SetTotal)(UINT64 total);
         STDMETHOD(SetCompleted)(const UINT64 *completeValue);
@@ -37,7 +40,7 @@ namespace SevenZipCore
             INT32 askExtractMode);
 
         STDMETHOD(PrepareOperation)(INT32 askExtractMode);
-        STDMETHOD(SetOperationResult)(INT32 resultEOperationResult);
+        STDMETHOD(SetOperationResult)(INT32 operationResult);
 
         const TString &GetExtractFolder() const { return m_tstrExtractFolder; }
         const TString &GetExtractPath() const{ return m_tstrExtractPath; }
@@ -65,6 +68,8 @@ namespace SevenZipCore
         boost::optional<FILETIME> m_oftModified;
         ExtractPathMode m_pathMode;
         ExtractOverwriteMode m_overwriteMode;
+        IExtractIndicator *m_pExtractIndicator;
+
 
         TString m_tstrExtractPath;
         std::shared_ptr<OutFileStream> m_cpOutStream;

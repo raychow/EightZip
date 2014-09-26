@@ -10,6 +10,7 @@
 #include "ComPtr.h"
 #include "Exception.h"
 #include "IArchiveAdapter.h"
+#include "IExtractIndicator.h"
 
 using namespace std;
 
@@ -23,7 +24,8 @@ namespace SevenZipCore
         TString tstrExtractFolder,
         TString tstrCurrentBeginPath,
         ExtractPathMode pathMode,
-        ExtractOverwriteMode overwriteMode)
+        ExtractOverwriteMode overwriteMode,
+        IExtractIndicator *pExtractIndicator)
         : m_spArchive(move(spArchive))
         , m_isStandardOutMode(isStandardOutMode)
         , m_isTestMode(isTestMode)
@@ -33,20 +35,28 @@ namespace SevenZipCore
         move(tstrCurrentBeginPath), FOLDER_POSSIBLE_SEPARATOR, true))
         , m_pathMode(pathMode)
         , m_overwriteMode(overwriteMode)
+        , m_pExtractIndicator(pExtractIndicator)
     {
     }
 
     STDMETHODIMP ArchiveExtractCallback::SetTotal(UINT64 total)
     {
         m_un64Total = total;
-        // TODO: Set the progress window.
+        if (m_pExtractIndicator)
+        {
+            m_pExtractIndicator->SetTotal(total);
+        }
         return S_OK;
     }
 
     STDMETHODIMP ArchiveExtractCallback::SetCompleted(
         const UINT64 *completeValue)
     {
-        // TODO: Set the progress window.
+        if (m_pExtractIndicator)
+        {
+            m_pExtractIndicator->SetCompleted(completeValue ?
+                boost::optional<UINT64>(*completeValue) : boost::none);
+        }
         return S_OK;
     }
 
@@ -248,7 +258,12 @@ namespace SevenZipCore
                     case ExtractOverwriteMode::AutoRename:
                         if (!Helper::AutoRenamePath(tstrFullPath))
                         {
-                            // TODO: Add error message.
+                            if (m_pExtractIndicator)
+                            {
+                                m_pExtractIndicator->AddError(TEXT(
+                                    "Error: Cannot create file \"%s\" with auto name."),
+                                    tstrFullPath);
+                            }
                             return E_FAIL;
                         }
                         break;
@@ -260,7 +275,12 @@ namespace SevenZipCore
                         boost::filesystem::remove(tstrFullPath, errorCode);
                         if (errorCode)
                         {
-                            // TODO: Add error message.
+                            if (m_pExtractIndicator)
+                            {
+                                m_pExtractIndicator->AddError(TEXT(
+                                    "Error: Cannot delete output file \"%s\"."),
+                                    tstrFullPath);
+                            }
                             return S_OK;
                         }
                         break;
@@ -277,7 +297,12 @@ namespace SevenZipCore
                     }
                     catch (const FileException &)
                     {
-                        // TODO: Add error message.
+                        if (m_pExtractIndicator)
+                        {
+                            m_pExtractIndicator->AddError(
+                                TEXT("Cannot open output file \"%s\"."),
+                                tstrFullPath);
+                        }
                         return S_OK;
                     }
                     OutFileStreamAdapter streamAdapter(m_cpOutStream);
@@ -313,18 +338,23 @@ namespace SevenZipCore
         try
         {
             m_isExtractMode = false;
-            if (static_cast<int>(ExtractAskMode::Extract) == askExtractMode)
+            auto extractAskMode = static_cast<ExtractAskMode>(askExtractMode);
+            if (ExtractAskMode::Extract == extractAskMode)
             {
                 if (m_isTestMode)
                 {
-                    askExtractMode = static_cast<int>(ExtractAskMode::Test);
+                    extractAskMode = ExtractAskMode::Test;
                 }
                 else
                 {
                     m_isExtractMode = true;
                 }
             }
-            // TODO: Prepare for progress window.
+            if (m_pExtractIndicator)
+            {
+                m_pExtractIndicator->Prepare(m_tstrExtractPath,
+                    m_isDirectory, extractAskMode, m_oun64Position);
+            }
             return S_OK;
         }
         catch (...)
@@ -334,11 +364,12 @@ namespace SevenZipCore
     }
 
     STDMETHODIMP ArchiveExtractCallback::SetOperationResult(
-        INT32 resultEOperationResult)
+        INT32 operationResult)
     {
         try
         {
-            switch (static_cast<ExtractResult>(resultEOperationResult))
+            auto extractResult = static_cast<ExtractResult>(operationResult);
+            switch (extractResult)
             {
             case ExtractResult::OK:
             case ExtractResult::UnSupportedMethod:
@@ -360,6 +391,10 @@ namespace SevenZipCore
                 //m_oun64Size = streamAdapter.GetProcessedSize();
                 streamAdapter.Close();
                 m_cpOutStream.reset();
+            }
+            if (m_pExtractIndicator)
+            {
+                m_pExtractIndicator->SetOperationResult(extractResult);
             }
 
             return S_OK;

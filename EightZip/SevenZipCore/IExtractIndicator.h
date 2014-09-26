@@ -22,11 +22,15 @@ namespace SevenZipCore
             TString tstrNewPath,
             boost::optional<FILETIME> oftNewModified,
             boost::optional<UINT64> un64NewSize) = 0;
-        virtual void AddError(TString tstrMessage);
+        virtual void AddError(TString tstrMessage) = 0;
+        virtual void AddError(TString tstrMessage, TString tstrParameter) = 0;
         virtual void Prepare(TString tstrPath,
             bool isFolder,
             ExtractAskMode askMode,
             boost::optional<UINT64> oun64Position) = 0;
+        virtual void SetOperationResult(ExtractResult extractResult) = 0;
+
+        virtual ~IExtractIndicator() = 0 { };
 
     };
 }

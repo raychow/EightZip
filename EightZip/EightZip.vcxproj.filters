@@ -192,6 +192,9 @@
     <ClInclude Include="ProgressDialog.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ExtractIndicator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -297,6 +300,9 @@
       <Filter>源文件\Helper</Filter>
     </ClCompile>
     <ClCompile Include="ProgressDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractIndicator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

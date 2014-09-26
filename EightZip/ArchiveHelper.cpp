@@ -1,31 +1,60 @@
 #include "stdwx.h"
 #include "ArchiveHelper.h"
 
-#include "FileHelper.h"
+#include <thread>
 
-bool Helper::Extract(TString tstrPath, std::shared_ptr<ArchiveModel> spModel)
+#include "ExtractIndicator.h"
+#include "FileHelper.h"
+#include "ProgressDialog.h"
+
+using namespace std;
+
+namespace Helper
 {
-    try
+    static void ExtractThread(TString tstrPath,
+        shared_ptr<ArchiveModel> spModel,
+        shared_ptr<ProgressDialog> spProgressDialog)
     {
-        if (!spModel)
+        wxTheApp->CallAfter([spProgressDialog](){
+            spProgressDialog->ShowModal();
+        });
+        ExtractIndicator extractIndicator(spProgressDialog);
+
+        spModel->Extract(tstrPath, &extractIndicator);
+        wxTheApp->CallAfter([spProgressDialog](){
+            spProgressDialog->Close();
+        });
+    }
+
+    bool Extract(TString tstrPath, shared_ptr<ArchiveModel> spModel)
+    {
+        try
+        {
+            if (!spModel)
+            {
+                return false;
+            }
+            shared_ptr<IModel> spCurrentModel = spModel;
+            while (spCurrentModel->IsArchive())
+            {
+                spCurrentModel = spCurrentModel->GetParent();
+            }
+            assert(spCurrentModel);
+            auto tstrAbsPath = spCurrentModel->GetPath();
+            auto path = boost::filesystem::absolute(tstrPath, tstrAbsPath);
+            boost::filesystem::create_directories(path);
+
+            auto spProgressDialog = make_shared<ProgressDialog>(
+                wxTheApp->GetTopWindow(), wxID_ANY, "");
+            thread extractThread(ExtractThread,
+                Helper::GetCanonicalPath(path.wstring()), spModel,
+                spProgressDialog);
+            extractThread.detach();
+        }
+        catch (const boost::system::system_error &)
         {
             return false;
         }
-        shared_ptr<IModel> spCurrentModel = spModel;
-        while (spCurrentModel->IsArchive())
-        {
-            spCurrentModel = spCurrentModel->GetParent();
-        }
-        assert(spCurrentModel);
-        auto tstrAbsPath = spCurrentModel->GetPath();
-        auto path = boost::filesystem::absolute(tstrPath, tstrAbsPath);
-        boost::filesystem::create_directories(path);
-        auto tstrCanonicalPath = Helper::GetCanonicalPath(path.wstring());
-        spModel->Extract(tstrPath);
+        return true;
     }
-    catch (const boost::system::system_error &)
-    {
-        return false;
-    }
-    return true;
 }

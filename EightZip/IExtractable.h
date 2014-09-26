@@ -8,14 +8,22 @@
 #include "SevenZipCore/BaseType.h"
 #include "SevenZipCore/TString.h"
 
+namespace SevenZipCore
+{
+    class IExtractIndicator;
+}
+
 class IExtractable
 {
 public:
-    virtual void Extract(TString tstrPath) const = 0;
+    virtual void Extract(TString tstrPath,
+        SevenZipCore::IExtractIndicator *pExtractIndicator) const = 0;
     virtual TString Extract(
-        UINT32 un32ArchiveIndex, TString tstrPath) const = 0;
+        UINT32 un32ArchiveIndex, TString tstrPath,
+        SevenZipCore::IExtractIndicator *pExtractIndicator) const = 0;
     virtual void Extract(const std::vector<UINT32> &vun32ArchiveIndex,
-        TString tstrPath) const = 0;
+        TString tstrPath,
+        SevenZipCore::IExtractIndicator *pExtractIndicator) const = 0;
 
     virtual const TString &GetInternalPath() const = 0;
 

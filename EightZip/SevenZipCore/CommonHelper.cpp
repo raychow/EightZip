@@ -250,12 +250,13 @@ namespace SevenZipCore
             }
             else
             {
-                tstrPrefix = move(tstrPath);
+                tstrPrefix = tstrPath;
             }
             tstrPrefix.append(TEXT(" ("));
             tstrExtension = TEXT(")") + tstrExtension;
             int nLeft = 1;
             int nRight = 1 << 30;
+            bool isOK = false;
             while (nLeft != nRight)
             {
                 int nMid = (nLeft + nRight) >> 1;
@@ -266,11 +267,16 @@ namespace SevenZipCore
                 }
                 else
                 {
+                    isOK = true;
                     nRight = nMid;
                 }
             }
-            tstrPath = tstrPrefix + ToTString(nRight) + tstrExtension;
-            return boost::filesystem::exists(tstrPath);
+            if (!isOK)
+            {
+                return false;
+            }
+            tstrPath = move(tstrPrefix) + ToTString(nRight) + tstrExtension;
+            return true;
         }
 
         time_t GetUnixTimeFromFileTime(const FILETIME &fileTime)

@@ -17,6 +17,7 @@ namespace SevenZipCore
     class ArchiveFolder;
     struct IInStream;
     struct IArchiveOpenCallback;
+    class IExtractIndicator;
 }
 
 class ArchiveModel;
@@ -82,10 +83,13 @@ public:
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
     virtual bool IsArchive() const { return true; }
 
-    virtual void Extract(TString tstrPath) const;
-    virtual TString Extract(UINT32 un32ArchiveIndex, TString tstrPath) const;
+    virtual void Extract(TString tstrPath,
+        SevenZipCore::IExtractIndicator *pExtractIndicator) const;
+    virtual TString Extract(UINT32 un32ArchiveIndex, TString tstrPath,
+        SevenZipCore::IExtractIndicator *pExtractIndicator) const;
     virtual void Extract(const std::vector<UINT32> &vun32ArchiveIndex,
-        TString tstrPath) const;
+        TString tstrPath,
+        SevenZipCore::IExtractIndicator *pExtractIndicator) const;
 
     virtual const TString &GetInternalPath() const;
 

@@ -94,6 +94,7 @@
     <ClInclude Include="EightZipConfig.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="ExtractDialog.h" />
+    <ClInclude Include="ExtractIndicator.h" />
     <ClInclude Include="FileFinder.h" />
     <ClInclude Include="EightZipFrame.h" />
     <ClInclude Include="EightZipApp.h" />
@@ -149,6 +150,7 @@
     <ClCompile Include="EightDirDialog.cpp" />
     <ClCompile Include="EightZipConfig.cpp" />
     <ClCompile Include="ExtractDialog.cpp" />
+    <ClCompile Include="ExtractIndicator.cpp" />
     <ClCompile Include="FileFinder.cpp" />
     <ClCompile Include="EightZipFrame.cpp" />
     <ClCompile Include="EightZipApp.cpp" />
