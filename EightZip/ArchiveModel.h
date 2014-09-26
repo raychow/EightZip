@@ -80,6 +80,7 @@ public:
     virtual ~ArchiveModel() {}
 
     virtual std::shared_ptr<IModel> GetParent() const;
+    virtual const EntryVector &GetEntries() const;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
     virtual bool IsArchive() const { return true; }
 
@@ -91,11 +92,9 @@ public:
         TString tstrPath,
         SevenZipCore::IExtractIndicator *pExtractIndicator) const;
 
-    virtual const TString &GetInternalPath() const;
+    std::shared_ptr<SevenZipCore::Archive> GetArchive() const;
 
-    // Should call LoadChildren() manually since shared_from_this() is not
-    // available in constructor.
-    void LoadChildren();
+    virtual const TString &GetInternalPath() const;
 
 private:
     std::shared_ptr<IModel> m_spParent;
@@ -103,6 +102,9 @@ private:
     std::shared_ptr<SevenZipCore::Archive> m_spArchive;
 
     TString m_tstrInternalPath;
+
+    mutable bool m_isInitialized = false;
+    mutable EntryVector m_vspEntry;
 
 };
 

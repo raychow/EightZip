@@ -3,6 +3,8 @@
 
 #include <functional>
 
+#include "SevenZipCore/CommonHelper.h"
+
 #include "ProgressDialog.h"
 
 using namespace std;
@@ -14,10 +16,12 @@ ExtractIndicator::ExtractIndicator(shared_ptr<ProgressDialog> spProgressDialog)
 
 void ExtractIndicator::SetTotal(UINT64 un64Total)
 {
+    //wxMessageBox(wxString::Format("SetTotal: %I64u", un64Total));
 }
 
 void ExtractIndicator::SetCompleted(boost::optional<UINT64> oun64Value)
 {
+    //wxMessageBox(wxString::Format("SetCompleted: %I64u", oun64Value ? *oun64Value : 0));
 }
 
 SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
@@ -33,11 +37,12 @@ SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
 
 void ExtractIndicator::AddError(TString tstrMessage)
 {
+    //wxMessageBox(wxString::Format("AddError: %s", tstrMessage));
 }
 
 void ExtractIndicator::AddError(TString tstrMessage, TString tstrParameter)
 {
-
+    //wxMessageBox(wxString::Format("AddError: %s %s", tstrMessage, tstrParameter));
 }
 
 void ExtractIndicator::Prepare(TString tstrPath,
@@ -45,10 +50,12 @@ void ExtractIndicator::Prepare(TString tstrPath,
     SevenZipCore::ExtractAskMode askMode,
     boost::optional<UINT64> oun64Position)
 {
+    m_spProcessDialog->SetCurrentFile(
+        SevenZipCore::Helper::GetFileName(tstrPath));
 }
 
 void ExtractIndicator::SetOperationResult(
     SevenZipCore::ExtractResult extractResult)
 {
-
+    //wxMessageBox(wxString::Format("SetOperationResult: %d", extractResult));
 }

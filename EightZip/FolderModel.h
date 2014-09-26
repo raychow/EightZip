@@ -32,8 +32,13 @@ public:
     FolderModel(TString tstrPath);
 
     virtual std::shared_ptr<IModel> GetParent() const;
+    virtual const EntryVector &GetEntries() const;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
     virtual bool IsArchive() const { return false; }
+
+private:
+    mutable bool m_isInitialized = false;
+    mutable EntryVector m_vspEntry;
 
 };
 

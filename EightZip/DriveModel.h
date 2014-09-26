@@ -31,11 +31,14 @@ public:
     DriveModel();
 
     virtual std::shared_ptr<IModel> GetParent() const;
+    virtual const EntryVector &GetEntries() const { return m_vspEntry; }
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
     virtual bool IsArchive() const { return false; }
 
 private:
     static std::vector<TString> __GetDrives();
+
+    EntryVector m_vspEntry;
 
 };
 

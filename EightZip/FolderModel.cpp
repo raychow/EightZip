@@ -55,7 +55,6 @@ std::shared_ptr<IModel> FolderEntry::GetModel()
             wxEmptyString,
             tstrPath,
             SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
-        result->LoadChildren();
         return result;
     }
 }
@@ -102,18 +101,6 @@ FolderModel::FolderModel(TString tstrPath)
         {
             m_tstrPath.push_back(wxFILE_SEP_PATH);
         }
-        FileFinder finder(m_tstrPath);
-        while (finder.FindNext())
-        {
-            m_vspEntry.push_back(make_shared<FolderEntry>(
-                m_tstrPath,
-                finder.GetFileName(),
-                finder.IsDirectory(),
-                finder.GetSize(),
-                finder.GetAccessed(),
-                finder.GetModified(),
-                finder.GetCreated()));
-        }
     }
     else
     {
@@ -143,6 +130,27 @@ std::shared_ptr<IModel> FolderModel::GetParent() const
             return GetModelFromPath(tstrParentPath);
         }
     }
+}
+
+const FolderModel::EntryVector &FolderModel::GetEntries() const
+{
+    if (!m_isInitialized)
+    {
+        FileFinder finder(m_tstrPath);
+        while (finder.FindNext())
+        {
+            m_vspEntry.push_back(make_shared<FolderEntry>(
+                m_tstrPath,
+                finder.GetFileName(),
+                finder.IsDirectory(),
+                finder.GetSize(),
+                finder.GetAccessed(),
+                finder.GetModified(),
+                finder.GetCreated()));
+        }
+        m_isInitialized = true;
+    }
+    return m_vspEntry;
 }
 
 const vector<IEntry::ItemType> &FolderModel::GetSupportedItems() const

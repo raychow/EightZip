@@ -3,6 +3,8 @@
 
 #include <thread>
 
+#include "SevenZipCore/CommonHelper.h"
+
 #include "ExtractIndicator.h"
 #include "FileHelper.h"
 #include "ProgressDialog.h"
@@ -44,8 +46,14 @@ namespace Helper
             auto path = boost::filesystem::absolute(tstrPath, tstrAbsPath);
             boost::filesystem::create_directories(path);
 
+            auto tstrArchivePath = spModel->GetArchive()->GetPath();
             auto spProgressDialog = make_shared<ProgressDialog>(
-                wxTheApp->GetTopWindow(), wxID_ANY, "");
+                wxTheApp->GetTopWindow(), wxID_ANY,
+                wxString::Format(_("Extracting from %s"),
+                SevenZipCore::Helper::GetFileName(
+                tstrArchivePath)));
+            spProgressDialog->SetArchivePath(tstrArchivePath);
+
             thread extractThread(ExtractThread,
                 Helper::GetCanonicalPath(path.wstring()), spModel,
                 spProgressDialog);

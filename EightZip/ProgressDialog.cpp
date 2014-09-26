@@ -1,6 +1,7 @@
 #include "stdwx.h"
 #include "ProgressDialog.h"
 
+using namespace std;
 
 ProgressDialog::ProgressDialog(
     wxWindow *parent,
@@ -13,6 +14,21 @@ ProgressDialog::ProgressDialog(
     : wxDialog(parent, id, title, pos, size, style, name)
 {
     __Create();
+    __StartTimer();
+}
+
+void ProgressDialog::SetArchivePath(const TString &tstrPath)
+{
+    lock_guard<mutex> lg(m_mutex);
+    m_tstrArchivePath = tstrPath;
+    /*m_pLabelArchivePath->SetLabel(
+    wxString::Format(_("Archive %s"), tstrPath));*/
+}
+
+void ProgressDialog::SetCurrentFile(const TString &tstrFileName)
+{
+    lock_guard<mutex> lg(m_mutex);
+    m_tstrCurrentFile = tstrFileName;
 }
 
 void ProgressDialog::__Create()
@@ -22,10 +38,12 @@ void ProgressDialog::__Create()
     auto *pSizerCurrentFile = new wxStaticBoxSizer(
         new wxStaticBox(this, wxID_ANY, wxEmptyString), wxVERTICAL);
 
-    pSizerCurrentFile->Add(new wxStaticText(this, wxID_ANY, _("Archive %s")));
+    m_pLabelArchivePath = new wxStaticText(this, wxID_ANY, _("Archive %s"));
+    pSizerCurrentFile->Add(m_pLabelArchivePath);
 
     auto *pSizerCurrentFileName = new wxBoxSizer(wxHORIZONTAL);
-    pSizerCurrentFileName->Add(new wxStaticText(this, wxID_ANY, "%s"),
+    m_pLabelCurrentFile = new wxStaticText(this, wxID_ANY, "%s");
+    pSizerCurrentFileName->Add(m_pLabelCurrentFile,
         wxSizerFlags().Proportion(1));
     pSizerCurrentFileName->Add(new wxStaticText(this, wxID_ANY, "0%"));
     pSizerCurrentFile->Add(pSizerCurrentFileName, wxSizerFlags().Expand());
@@ -82,6 +100,18 @@ void ProgressDialog::__Create()
 
     SetSizer(pSizerMain);
     Fit();
-    
+}
+
+void ProgressDialog::__StartTimer()
+{
+    m_timer.Bind(wxEVT_TIMER, &ProgressDialog::__Update, this);
+    m_timer.Start(100);
+}
+
+void ProgressDialog::__Update(wxTimerEvent &WXUNUSED(event))
+{
+    lock_guard<mutex> lg(m_mutex);
+    m_pLabelArchivePath->SetLabel(m_tstrArchivePath);
+    m_pLabelCurrentFile->SetLabel(m_tstrCurrentFile);
 }
 

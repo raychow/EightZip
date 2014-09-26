@@ -234,7 +234,6 @@ shared_ptr<IModel> GetModelFromPath(
                     wxEmptyString,
                     tstrPath,
                     SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
-                spModel->LoadChildren();
                 return GetModelFromPath(spModel, tstrOriginalPath);
             }
             tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));
