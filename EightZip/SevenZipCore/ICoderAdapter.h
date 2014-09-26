@@ -12,13 +12,16 @@ namespace SevenZipCore
 {
     template<typename T = ISetCompressCodecsInfo>
     class ISetCompressCodecsInfoAdapter
-        : Adapter < T >
+        : protected virtual Adapter < T >
     {
     public:
         explicit ISetCompressCodecsInfoAdapter(std::shared_ptr<T> spTarget)
             : Adapter(spTarget)
         {
         }
+
+        using Adapter<T>::QueryInterface;
+        using Adapter<T>::GetTarget;
 
         void SetCompressCodecsInfo(ICompressCodecsInfo &compressCodecsInfo) const
         {

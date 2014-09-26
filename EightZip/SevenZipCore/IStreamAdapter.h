@@ -13,13 +13,16 @@ namespace SevenZipCore
 {
     template<typename T = IInStream>
     class IInStreamAdapter
-        : public virtual Adapter < T >
+        : protected virtual Adapter < T >
     {
     public:
         explicit IInStreamAdapter(std::shared_ptr<T> spTarget)
             : Adapter(spTarget)
         {
         }
+
+        using Adapter<T>::QueryInterface;
+        using Adapter<T>::GetTarget;
 
         std::vector<char> Read(UINT32 size) const;
         UINT64 Seek(INT64 offset, UINT32 seekOrigin) const;
@@ -28,13 +31,16 @@ namespace SevenZipCore
 
     template<typename T = IOutStream>
     class IOutStreamAdapter
-        : public virtual Adapter < T >
+        : protected virtual Adapter < T >
     {
     public:
         explicit IOutStreamAdapter(std::shared_ptr<T> spTarget)
             : Adapter(spTarget)
         {
         }
+
+        using Adapter<T>::QueryInterface;
+        using Adapter<T>::GetTarget;
 
         UINT32 Write(std::vector<char> data) const;
         UINT64 Seek(INT64 offset, UINT32 seekOrigin) const;
@@ -44,13 +50,16 @@ namespace SevenZipCore
 
     template<typename T = IStreamGetSize>
     class IStreamGetSizeAdapter
-        : public virtual Adapter < T >
+        : protected virtual Adapter < T >
     {
     public:
         explicit IStreamGetSizeAdapter(std::shared_ptr<T> spTarget)
             : Adapter(spTarget)
         {
         }
+
+        using Adapter<T>::QueryInterface;
+        using Adapter<T>::GetTarget;
 
         UINT64 GetSize() const;
 

@@ -51,6 +51,9 @@ public:
         const IEntry &otherEntry,
         ItemType itemType,
         bool isAscending) const = 0;
+
+    virtual ~IEntry() = 0 { }
+
 };
 
 class IModel
@@ -65,6 +68,8 @@ public:
     virtual const EntryVector &GetEntries() const = 0;
     virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const = 0;
     virtual bool IsArchive() const = 0;
+
+    virtual ~IModel() = 0 { }
 
 };
 

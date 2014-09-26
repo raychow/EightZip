@@ -34,6 +34,8 @@ namespace SevenZipCore
             return m_spTarget;
         }
 
+        virtual ~Adapter() { };
+
     private:
         std::shared_ptr<T> m_spTarget;
 

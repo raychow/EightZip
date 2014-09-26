@@ -27,6 +27,8 @@ public:
 
     virtual const TString &GetInternalPath() const = 0;
 
+    virtual ~IExtractable() = 0 { }
+
 };
 
 #endif // IEXTRACTABLE_H

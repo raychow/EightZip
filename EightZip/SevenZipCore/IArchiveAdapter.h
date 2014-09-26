@@ -15,7 +15,7 @@ namespace SevenZipCore
 {
     template<typename T = IInArchive>
     class IInArchiveAdapter
-        : public Adapter < T >
+        : protected virtual Adapter < T >
     {
     public:
         explicit IInArchiveAdapter(std::shared_ptr<T> spTarget)
@@ -23,6 +23,9 @@ namespace SevenZipCore
         {
         }
 
+        using Adapter<T>::QueryInterface;
+        using Adapter<T>::GetTarget;
+            
         void Open(
             IInStream *stream,
             UINT64 maxCheckStartPosition,
@@ -139,13 +142,16 @@ namespace SevenZipCore
 
     template<typename T = IInArchiveGetStream>
     class IInArchiveGetStreamAdapter
-        : public Adapter < T >
+        : protected virtual Adapter < T >
     {
     public:
         explicit IInArchiveGetStreamAdapter(std::shared_ptr<T> spTarget)
             : Adapter(spTarget)
         {
         }
+
+        using Adapter<T>::QueryInterface;
+        using Adapter<T>::GetTarget;
 
         std::shared_ptr<ISequentialInStream> GetStream(UINT32 index) const
         {
