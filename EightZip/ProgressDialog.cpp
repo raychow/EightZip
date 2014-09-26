@@ -8,7 +8,7 @@ ProgressDialog::ProgressDialog(
     const wxString& title,
     const wxPoint& pos /*= wxDefaultPosition*/,
     const wxSize& size /*= wxDefaultSize*/,
-    long style /*= wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER*/,
+    long style /*= wxDEFAULT_DIALOG_STYLE*/,
     const wxString& name /*= wxDialogNameStr*/)
     : wxDialog(parent, id, title, pos, size, style, name)
 {
@@ -70,6 +70,18 @@ void ProgressDialog::__Create()
     pSizerMain->Add(pSizerStatus,
         wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT, 8));
 
+    auto *pSizerButton = new wxBoxSizer(wxHORIZONTAL);
+    pSizerButton->Add(new wxButton(this, wxID_ANY, _("&Background")),
+        wxSizerFlags().Left().Border(wxRIGHT, 5));
+    pSizerButton->Add(new wxButton(this, wxID_ANY, _("&Pause")),
+        wxSizerFlags().Center());
+    pSizerButton->Add(new wxButton(this, wxID_CANCEL, _("Cancel")),
+        wxSizerFlags().Right().Border(wxLEFT, 5));
+    pSizerMain->Add(pSizerButton,
+        wxSizerFlags().Border(wxALL, 7).Expand());
+
     SetSizer(pSizerMain);
+    Fit();
+    
 }
 

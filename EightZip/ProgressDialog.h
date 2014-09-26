@@ -13,7 +13,7 @@ public:
         const wxString& title,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
-        long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER,
+        long style = wxDEFAULT_DIALOG_STYLE,
         const wxString& name = wxDialogNameStr);
 
     ~ProgressDialog() {}
