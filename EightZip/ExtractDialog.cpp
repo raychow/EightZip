@@ -62,6 +62,7 @@ void ExtractDialog::__Create()
 
     SetMinClientSize(wxSize(400, 150));
     SetSizer(pSizerMain);
+    m_windowStateManager.LoadState();
 
     m_pComboBoxPath->Bind(wxEVT_TEXT, &ExtractDialog::__OnPathChange, this);
     pButtonBrowse->Bind(wxEVT_BUTTON, &ExtractDialog::__OnBrowseClick, this);

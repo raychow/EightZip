@@ -39,7 +39,6 @@ void WindowStateManager::Create(wxTopLevelWindowBase *pWindow,
     m_indexIsMaximized = indexIsMaximized;
     m_pWindow->Bind(wxEVT_MOVE, &WindowStateManager::_OnMove, this);
     m_pWindow->Bind(wxEVT_SIZE, &WindowStateManager::_OnSize, this);
-    LoadState();
 }
 
 void WindowStateManager::LoadState()

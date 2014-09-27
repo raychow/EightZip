@@ -32,6 +32,7 @@ void EightZipFrame::__Create()
     __CreateFileExplorer(pSizerMain);
 
     SetSizer(pSizerMain);
+    m_windowStateManager.LoadState();
 
     // Get rid of any focus.
     SetFocus();
