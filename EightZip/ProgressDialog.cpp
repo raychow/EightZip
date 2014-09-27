@@ -1,6 +1,8 @@
 #include "stdwx.h"
 #include "ProgressDialog.h"
 
+#include "SevenZipCore/CommonHelper.h"
+
 using namespace std;
 
 ProgressDialog::ProgressDialog(
@@ -9,7 +11,7 @@ ProgressDialog::ProgressDialog(
     const wxString& title,
     const wxPoint& pos /*= wxDefaultPosition*/,
     const wxSize& size /*= wxDefaultSize*/,
-    long style /*= wxDEFAULT_DIALOG_STYLE*/,
+    long style /*= wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER*/,
     const wxString& name /*= wxDialogNameStr*/)
     : wxDialog(parent, id, title, pos, size, style, name)
 {
@@ -20,15 +22,19 @@ ProgressDialog::ProgressDialog(
 void ProgressDialog::SetArchivePath(const TString &tstrPath)
 {
     lock_guard<mutex> lg(m_mutex);
+    m_tstrArchiveFileName = SevenZipCore::Helper::GetFileName(tstrPath);
     m_tstrArchivePath = tstrPath;
-    /*m_pLabelArchivePath->SetLabel(
-    wxString::Format(_("Archive %s"), tstrPath));*/
 }
 
 void ProgressDialog::SetCurrentFile(const TString &tstrFileName)
 {
     lock_guard<mutex> lg(m_mutex);
     m_tstrCurrentFile = tstrFileName;
+}
+
+void ProgressDialog::SetCurrentPercent(int nPercent)
+{
+    m_nCurrentPercent = nPercent;
 }
 
 void ProgressDialog::__Create()
@@ -43,12 +49,14 @@ void ProgressDialog::__Create()
 
     auto *pSizerCurrentFileName = new wxBoxSizer(wxHORIZONTAL);
     m_pLabelCurrentFile = new wxStaticText(this, wxID_ANY, "%s");
-    pSizerCurrentFileName->Add(m_pLabelCurrentFile,
-        wxSizerFlags().Proportion(1));
-    pSizerCurrentFileName->Add(new wxStaticText(this, wxID_ANY, "0%"));
+    m_pLabelCurrentFile->SetWindowStyle(wxST_NO_AUTORESIZE | wxST_ELLIPSIZE_END);
+    pSizerCurrentFileName->Add(
+        m_pLabelCurrentFile, wxSizerFlags().Proportion(1).Border(wxRIGHT, 5));
+    m_pLabelCurrentPercent = new wxStaticText(this, wxID_ANY, "0%");
+    pSizerCurrentFileName->Add(m_pLabelCurrentPercent);
     pSizerCurrentFile->Add(pSizerCurrentFileName, wxSizerFlags().Expand());
 
-    m_pGaugeCurrentFile = new wxGauge(this, wxID_ANY, 100);
+    m_pGaugeCurrentFile = new wxGauge(this, wxID_ANY, PROGRESS_MAX);
     pSizerCurrentFile->Add(m_pGaugeCurrentFile,
         wxSizerFlags().Expand());
 
@@ -81,7 +89,7 @@ void ProgressDialog::__Create()
     pSizerProcessed->Add(new wxStaticText(this, wxID_ANY, ("0%")));
     pSizerStatus->Add(pSizerProcessed, wxSizerFlags().Expand());
 
-    m_pGaugeProcessed = new wxGauge(this, wxID_ANY, 100);
+    m_pGaugeProcessed = new wxGauge(this, wxID_ANY, PROGRESS_MAX);
     pSizerStatus->Add(m_pGaugeProcessed,
         wxSizerFlags().Expand());
     pSizerMain->AddSpacer(3);
@@ -111,7 +119,13 @@ void ProgressDialog::__StartTimer()
 void ProgressDialog::__Update(wxTimerEvent &WXUNUSED(event))
 {
     lock_guard<mutex> lg(m_mutex);
-    m_pLabelArchivePath->SetLabel(m_tstrArchivePath);
+    SetTitle(wxString::Format(_("Extracting from %s"),
+        m_tstrArchiveFileName));
+    m_pLabelArchivePath->SetLabel(wxString::Format(_("Archive %s"),
+        m_tstrArchivePath));
     m_pLabelCurrentFile->SetLabel(m_tstrCurrentFile);
+    m_pLabelCurrentPercent->SetLabel(
+        wxString::Format(_("%d%%"), m_nCurrentPercent / (PROGRESS_MAX / 100)));
+    m_pGaugeCurrentFile->SetValue(m_nCurrentPercent);
 }
 

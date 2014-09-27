@@ -3,6 +3,7 @@
 #ifndef EXTRACTINDICATOR_H
 #define EXTRACTINDICATOR_H
 
+#include <limits>
 #include <memory>
 
 #include "SevenZipCore/IExtractIndicator.h"
@@ -35,6 +36,8 @@ public:
 
 private:
     std::shared_ptr<ProgressDialog> m_spProcessDialog;
+
+    UINT64 m_un64Total = std::numeric_limits<UINT64>::max();
 
 };
 
