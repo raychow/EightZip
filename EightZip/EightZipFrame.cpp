@@ -102,6 +102,7 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
         spModel = spModel->GetParent();
     }
     dialog.SetPath(spModel->GetPath());
+    dialog.CenterOnParent();
     if (dialog.ShowModal() != wxID_OK)
     {
         return;

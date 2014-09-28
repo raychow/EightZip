@@ -23,6 +23,7 @@ ProgressDialog::ProgressDialog(
 void ProgressDialog::SetArchivePath(const TString &tstrPath)
 {
     lock_guard<mutex> lg(m_mutex);
+    CheckCancelled();
     m_tstrArchiveFileName = SevenZipCore::Helper::GetFileName(tstrPath);
     m_tstrArchivePath = tstrPath;
 }
@@ -30,19 +31,30 @@ void ProgressDialog::SetArchivePath(const TString &tstrPath)
 void ProgressDialog::SetCurrentFile(const TString &tstrFileName)
 {
     lock_guard<mutex> lg(m_mutex);
+    CheckCancelled();
     m_tstrCurrentFile = tstrFileName;
 }
 
 void ProgressDialog::SetTotal(UINT64 un64Total)
 {
     lock_guard<mutex> lg(m_mutex);
+    CheckCancelled();
     m_un64Total = un64Total;
 }
 
 void ProgressDialog::SetCompleted(UINT64 un64Completed)
 {
     lock_guard<mutex> lg(m_mutex);
+    CheckCancelled();
     m_un64Completed = un64Completed;
+}
+
+void ProgressDialog::CheckCancelled() const
+{
+    if (m_isCancelled)
+    {
+        throw Cancelled();
+    }
 }
 
 void ProgressDialog::__Create()
@@ -97,19 +109,21 @@ void ProgressDialog::__Create()
     pSizerMain->AddStretchSpacer();
 
     auto *pSizerButton = new wxBoxSizer(wxHORIZONTAL);
-    pSizerButton->Add(new wxButton(this, wxID_ANY, _("&Background")),
-        wxSizerFlags().Border(wxRIGHT, 5));
+    //pSizerButton->Add(new wxButton(this, wxID_ANY, _("&Background")),
+    //    wxSizerFlags().Border(wxRIGHT, 5));
     m_pButtonPause = new wxButton(this, wxID_ANY, _("&Pause"));
     pSizerButton->Add(m_pButtonPause, wxSizerFlags().Border(wxRIGHT, 5));
-    pSizerButton->Add(new wxButton(this, wxID_CANCEL, _("Cancel")),
+    auto *pButtonCancel = new wxButton(this, wxID_CANCEL, _("Cancel"));
+    pSizerButton->Add(pButtonCancel,
         wxSizerFlags());
     pSizerMain->Add(pSizerButton,
         wxSizerFlags().Border(wxALL, 7).Right());
 
     SetSizer(pSizerMain);
-    Fit();
+    SetSize(350, 220);
 
     m_pButtonPause->Bind(wxEVT_BUTTON, &ProgressDialog::__OnPauseClick, this);
+    pButtonCancel->Bind(wxEVT_BUTTON, &ProgressDialog::__OnCancelClick, this);
 
     m_timer.Bind(wxEVT_TIMER, &ProgressDialog::__Update, this);
 
@@ -166,14 +180,25 @@ void ProgressDialog::__OnPauseClick(wxCommandEvent &WXUNUSED(event))
 {
     if (m_ulPause.owns_lock())
     {
-        m_ulPause.unlock();
         m_pButtonPause->SetLabel(_("&Pause"));
         __StartTimer();
+        m_ulPause.unlock();
     }
     else
     {
-        m_ulPause.lock();
         m_pButtonPause->SetLabel(_("&Continue"));
         __StopTimer();
+        m_ulPause.lock();
     }
+}
+
+void ProgressDialog::__OnCancelClick(wxCommandEvent &event)
+{
+    m_isCancelled = true;
+    __StopTimer();
+    if (m_ulPause.owns_lock())
+    {
+        m_ulPause.unlock();
+    }
+    event.Skip();
 }

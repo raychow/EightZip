@@ -60,8 +60,8 @@ void ExtractDialog::__Create()
     m_pButtonOK = pStdDialogButtonSizer->GetAffirmativeButton();
     pSizerMain->Add(pSizerDialogButton, wxSizerFlags().Expand());
 
-    SetMinClientSize(wxSize(400, 150));
     SetSizer(pSizerMain);
+    SetMinClientSize(wxSize(300, 150));
     m_windowStateManager.LoadState();
 
     m_pComboBoxPath->Bind(wxEVT_TEXT, &ExtractDialog::__OnPathChange, this);

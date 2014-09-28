@@ -41,23 +41,37 @@ namespace SevenZipCore
 
     STDMETHODIMP ArchiveExtractCallback::SetTotal(UINT64 total)
     {
-        m_un64Total = total;
-        if (m_pExtractIndicator)
+        try
         {
-            m_pExtractIndicator->SetTotal(total);
+            m_un64Total = total;
+            if (m_pExtractIndicator)
+            {
+                m_pExtractIndicator->SetTotal(total);
+            }
+            return S_OK;
         }
-        return S_OK;
+        catch (...)
+        {
+            return E_FAIL;
+        }
     }
 
     STDMETHODIMP ArchiveExtractCallback::SetCompleted(
         const UINT64 *completeValue)
     {
-        if (m_pExtractIndicator)
+        try
         {
-            m_pExtractIndicator->SetCompleted(completeValue ?
-                boost::optional<UINT64>(*completeValue) : boost::none);
+            if (m_pExtractIndicator)
+            {
+                m_pExtractIndicator->SetCompleted(completeValue ?
+                    boost::optional<UINT64>(*completeValue) : boost::none);
+            }
+            return S_OK;
         }
-        return S_OK;
+        catch (...)
+        {
+            return E_FAIL;
+        }
     }
 
     STDMETHODIMP ArchiveExtractCallback::GetStream(

@@ -12,8 +12,8 @@ const EightZipConfig::Definition EightZipConfig::m_definitions[] = {
     { wxT("Layout/EightZipIsMaximized"), ConfigType::Boolean, ConfigIndex::EightZipIsMaximized, false },
     { wxT("Layout/ExtractLocationX"), ConfigType::Integer, ConfigIndex::ExtractLocationX },
     { wxT("Layout/ExtractLocationY"), ConfigType::Integer, ConfigIndex::ExtractLocationY },
-    { wxT("Layout/ExtractWidth"), ConfigType::Integer, ConfigIndex::ExtractWidth, 500 },
-    { wxT("Layout/ExtractHeight"), ConfigType::Integer, ConfigIndex::ExtractHeight, 240 },
+    { wxT("Layout/ExtractWidth"), ConfigType::Integer, ConfigIndex::ExtractWidth, 400 },
+    { wxT("Layout/ExtractHeight"), ConfigType::Integer, ConfigIndex::ExtractHeight, 180 },
     { wxT("Layout/ExtractIsMaximized"), ConfigType::Boolean, ConfigIndex::ExtractIsMaximized, false },
     { wxT("Path"), ConfigType::String, ConfigIndex::Path, wxFILE_SEP_PATH }
 };

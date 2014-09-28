@@ -3,15 +3,20 @@
 #ifndef PROGRESSDIALOG_H
 #define PROGRESSDIALOG_H
 
+#include <atomic>
 #include <chrono>
 #include <mutex>
 
 #include "SevenZipCore/TString.h"
 
+#include "Exception.h"
+
 class ProgressDialog
     : public wxDialog
 {
 public:
+    class Cancelled {};
+
     static const int PROGRESS_MAX = 1000;
     static const int UPDATE_INTERVAL = 100;
 
@@ -31,9 +36,12 @@ public:
     void SetTotal(UINT64 un64Total);
     void SetCompleted(UINT64 un64Completed);
 
+    void CheckCancelled() const;
+
 private:
     std::mutex m_mutex;
     std::unique_lock<std::mutex> m_ulPause;
+    std::atomic<bool> m_isCancelled = false;
 
     wxTimer m_timer;
 
@@ -60,6 +68,8 @@ private:
     void __StopTimer();
     void __Update(wxTimerEvent &WXUNUSED(event));
     void __OnPauseClick(wxCommandEvent &WXUNUSED(event));
+    void __OnCancelClick(wxCommandEvent &event);
+
 };
 
 #endif // PROGRESSDIALOG_H

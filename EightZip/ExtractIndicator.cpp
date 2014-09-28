@@ -16,7 +16,6 @@ ExtractIndicator::ExtractIndicator(shared_ptr<ProgressDialog> spProgressDialog)
 
 void ExtractIndicator::SetTotal(UINT64 un64Total)
 {
-    m_un64Total = un64Total;
     m_spProcessDialog->SetTotal(un64Total);
 }
 

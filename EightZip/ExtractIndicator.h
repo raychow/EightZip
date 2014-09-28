@@ -36,8 +36,6 @@ public:
 private:
     std::shared_ptr<ProgressDialog> m_spProcessDialog;
 
-    UINT64 m_un64Total = 0;
-
 };
 
 #endif // EXTRACTINDICATOR_H

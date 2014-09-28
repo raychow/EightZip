@@ -4,6 +4,7 @@
 #include <thread>
 
 #include "SevenZipCore/CommonHelper.h"
+#include "SevenZipCore/Exception.h"
 
 #include "ExtractIndicator.h"
 #include "FileHelper.h"
@@ -18,11 +19,18 @@ namespace Helper
         shared_ptr<ProgressDialog> spProgressDialog)
     {
         wxTheApp->CallAfter([spProgressDialog](){
+            spProgressDialog->CenterOnParent();
             spProgressDialog->ShowModal();
         });
         ExtractIndicator extractIndicator(spProgressDialog);
 
-        spModel->Extract(tstrPath, &extractIndicator);
+        try
+        {
+            spModel->Extract(tstrPath, &extractIndicator);
+        }
+        catch (const SevenZipCore::ArchiveException &)
+        {
+        }
         wxTheApp->CallAfter([spProgressDialog](){
             spProgressDialog->Close();
         });
