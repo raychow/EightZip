@@ -36,15 +36,12 @@ namespace SevenZipCore
             std::shared_ptr<IArchiveOpenCallback> cpCallback);
         void Close();
 
-        TString GetPath() const { return m_tstrPath; }
-        std::shared_ptr<ArchiveFolder> GetRootFolder() const
-        {
-            return m_spRootFolder;
-        }
+        inline TString GetPath() const { return m_tstrPath; }
+        std::shared_ptr<ArchiveFolder> GetRootFolder() const;
 
         std::shared_ptr<ArchiveEntry> GetArchiveEntry() const;
 
-        const boost::optional<FILETIME> &GetModifiedTime() const
+        inline const boost::optional<FILETIME> &GetModifiedTime() const
         {
             return m_oftModified;
         }
@@ -55,7 +52,7 @@ namespace SevenZipCore
         TString m_tstrPath;
 
         std::vector<std::shared_ptr<ArchiveEntry>> m_vspArchiveEntry;
-        std::shared_ptr<ArchiveFolder> m_spRootFolder;
+        mutable std::shared_ptr<ArchiveFolder> m_spRootFolder;
         boost::optional<FILETIME> m_oftModified;
 
     };

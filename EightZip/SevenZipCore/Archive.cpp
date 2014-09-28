@@ -59,7 +59,6 @@ namespace SevenZipCore
         }
 
         m_tstrPath = move(tstrPath);
-        m_spRootFolder = GetArchiveEntry()->GetRootFolder();
     }
 
     void Archive::Close()
@@ -67,6 +66,15 @@ namespace SevenZipCore
         m_tstrPath.clear();
         m_vspArchiveEntry.clear();
         m_spRootFolder.reset();
+    }
+
+    std::shared_ptr<ArchiveFolder> Archive::GetRootFolder() const
+    {
+        if (!m_spRootFolder)
+        {
+            m_spRootFolder = GetArchiveEntry()->GetRootFolder();
+        }
+        return m_spRootFolder;
     }
 
     std::shared_ptr<ArchiveEntry> Archive::GetArchiveEntry() const

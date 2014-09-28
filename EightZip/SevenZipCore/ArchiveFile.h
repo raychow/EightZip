@@ -37,19 +37,22 @@ namespace SevenZipCore
             std::weak_ptr<ArchiveFolder> wpParent);
         virtual ~ArchiveFile() {}
 
-        const UINT GetIndex() const { return m_unIndex; }
-        void SetIndex(UINT value) { m_unIndex = value; }
+        inline const UINT GetIndex() const { return m_unIndex; }
+        inline void SetIndex(UINT value) { m_unIndex = value; }
 
-        const TString &GetName() const { return m_tstrName; }
-        void SetName(TString value) { m_tstrName = move(value); }
+        inline const TString &GetName() const { return m_tstrName; }
+        inline void SetName(TString value) { m_tstrName = move(value); }
 
-        std::shared_ptr<ArchiveFolder> GetParent() const { return m_wpParent.lock(); }
-        void SetParent(std::weak_ptr<ArchiveFolder> value)
+        inline std::shared_ptr<ArchiveFolder> GetParent() const
+        {
+            return m_wpParent.lock();
+        }
+        inline void SetParent(std::weak_ptr<ArchiveFolder> value)
         {
             m_wpParent = move(value);
         }
 
-        std::shared_ptr<ArchiveEntry> GetArchiveEntry() const
+        inline std::shared_ptr<ArchiveEntry> GetArchiveEntry() const
         {
             return m_wpArchiveEntry.lock();
         }
@@ -102,17 +105,17 @@ namespace SevenZipCore
             TString tstrName,
             std::weak_ptr<ArchiveFolder> wpParent);
 
-        int GetPosition() const { return m_upInformation->Position; }
-        void SetPosition(int nPosition)
+        inline int GetPosition() const { return m_upInformation->Position; }
+        inline void SetPosition(int nPosition)
         {
             m_upInformation->Position = nPosition;
         }
 
-        const std::vector<std::shared_ptr<ArchiveFolder>> &GetFolders() const
+        inline const std::vector<std::shared_ptr<ArchiveFolder>> &GetFolders() const
         {
             return m_vspFolder;
         }
-        const std::vector<std::shared_ptr<ArchiveFile>> &GetFiles() const
+        inline const std::vector<std::shared_ptr<ArchiveFile>> &GetFiles() const
         {
             return m_vspFile;
         }
@@ -120,7 +123,7 @@ namespace SevenZipCore
         UINT GetSubFolderCount();
         UINT GetSubFileCount();
 
-        bool IsRealFolder() const { return m_unIndex != UINT_MAX; }
+        inline bool IsRealFolder() const { return m_unIndex != UINT_MAX; }
 
     protected:
         bool m_isInformationValid = false;

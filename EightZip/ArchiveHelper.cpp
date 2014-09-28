@@ -46,13 +46,13 @@ namespace Helper
             {
                 return false;
             }
-            shared_ptr<IModel> spCurrentModel = spModel;
-            while (spCurrentModel->IsArchive())
+            shared_ptr<IModel> spFolderModel = spModel;
+            while (spFolderModel->IsArchive())
             {
-                spCurrentModel = spCurrentModel->GetParent();
+                spFolderModel = spFolderModel->GetParent();
             }
-            assert(spCurrentModel);
-            auto tstrAbsPath = spCurrentModel->GetPath();
+            assert(spFolderModel);
+            auto tstrAbsPath = spFolderModel->GetPath();
             auto path = boost::filesystem::absolute(tstrPath, tstrAbsPath);
             boost::filesystem::create_directories(path);
 

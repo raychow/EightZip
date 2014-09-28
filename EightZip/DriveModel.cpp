@@ -16,6 +16,7 @@ DriveEntry::DriveEntry(
     m_un64TotalSize = un64TotalSize;
     m_un64FreeSpace = un64FreeSpace;
     m_tstrType = move(tstrType);
+    m_isDirectory = true;
 }
 
 std::shared_ptr<IModel> DriveEntry::GetModel()

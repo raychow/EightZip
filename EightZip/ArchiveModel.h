@@ -13,6 +13,7 @@
 
 namespace SevenZipCore
 {
+    class ArchiveExtractCallback;
     class ArchiveFile;
     class ArchiveFolder;
     struct IInStream;
@@ -98,13 +99,19 @@ public:
 
 private:
     std::shared_ptr<IModel> m_spParent;
-    std::shared_ptr<SevenZipCore::ArchiveFolder> m_spArchiveFolder;
+    mutable std::shared_ptr<SevenZipCore::ArchiveFolder> m_spArchiveFolder;
     std::shared_ptr<SevenZipCore::Archive> m_spArchive;
 
     TString m_tstrInternalPath;
 
     mutable bool m_isInitialized = false;
     mutable EntryVector m_vspEntry;
+
+    std::shared_ptr<SevenZipCore::ArchiveExtractCallback>  __CreateCallback(
+        TString tstrPath,
+        SevenZipCore::IExtractIndicator *pExtractIndicator) const;
+
+    std::shared_ptr<SevenZipCore::ArchiveFolder> __GetArchiveFolder() const;
 
 };
 

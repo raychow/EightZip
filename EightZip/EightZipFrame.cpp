@@ -1,6 +1,9 @@
 #include "stdwx.h"
 #include "EightZipFrame.h"
 
+#include "SevenZipCore/Exception.h"
+
+#include "ArchiveHelper.h"
 #include "EightZipConfig.h"
 #include "ExtractDialog.h"
 #include "FileExplorer.h"
@@ -86,26 +89,53 @@ void EightZipFrame::__OnFileExitClick(wxCommandEvent &WXUNUSED(event))
 void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
 {
     auto entry = m_pFileExplorer->GetSelectedEntry();
-    if (!m_pFileExplorer->GetModel()->IsArchive()
-        && !(entry && entry->CanExtract()))
+    auto spModel = m_pFileExplorer->GetModel();
+    auto spFolderModel = spModel;
+    if (spModel->IsArchive())
     {
-        wxMessageBox(
-            wxString::Format(_("Cannot extract \"%s\"."), entry
-            ? entry->GetPath() : m_pFileExplorer->GetModel()->GetPath()),
-            EIGHTZIP_NAME);
-        return;
+        if (entry && entry->IsDirectory())
+        {
+            spModel = entry->GetModel();
+        }
+        while (spFolderModel->IsArchive())
+        {
+            spFolderModel = spFolderModel->GetParent();
+        }
+    }
+    else
+    {
+        bool isSuccess = false;
+        if (entry && !entry->IsDirectory())
+        {
+            try
+            {
+                spModel = entry->GetModel();
+                isSuccess = true;
+            }
+            catch (const SevenZipCore::ArchiveException &)
+            {
+            }
+        }
+        if (!isSuccess)
+        {
+            wxMessageBox(
+                wxString::Format(_("Cannot extract \"%s\"."), entry
+                ? entry->GetPath() : spModel->GetPath()),
+                EIGHTZIP_NAME);
+            return;
+        }
     }
     ExtractDialog dialog(nullptr, wxID_ANY, _T("Extract"));
-    auto spModel = m_pFileExplorer->GetModel();
-    while (spModel->IsArchive())
-    {
-        spModel = spModel->GetParent();
-    }
-    dialog.SetPath(spModel->GetPath());
+    dialog.SetPath(spFolderModel->GetPath());
     dialog.CenterOnParent();
     if (dialog.ShowModal() != wxID_OK)
     {
         return;
     }
-    m_pFileExplorer->Extract(dialog.GetPath());
+
+    auto spArchiveModel = dynamic_pointer_cast<ArchiveModel>(spModel);
+    if (!spArchiveModel || !Helper::Extract(dialog.GetPath(), spArchiveModel))
+    {
+        wxMessageBox(_("Extract failed."));
+    }
 }

@@ -73,6 +73,18 @@ namespace SevenZipCore
                 "Can not extract files from the archive.");
         }
 
+        void ExtractAll(
+            bool testMode,
+            IArchiveExtractCallback *extractCallback) const
+        {
+            EnsureOk<ArchiveException>(GetTarget()->Extract(
+                nullptr,
+                -1,
+                testMode ? 1 : 0,
+                extractCallback),
+                "Can not extract files from the archive.");
+        }
+
         PROPVARIANT GetArchiveProperty(PropertyId propID) const
         {
             PROPVARIANT result = {};

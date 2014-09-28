@@ -157,15 +157,14 @@ ArchiveModel::ArchiveModel(
     TString tstrInternalPath,
     shared_ptr<SevenZipCore::IInStream> cpStream,
     shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
-    : m_tstrInternalPath(
-    SevenZipCore::Helper::MakePathSlash(move(tstrInternalPath)))
+    : m_spParent(move(spParent))
     , m_spArchive(make_shared<SevenZipCore::Archive>(
     CodecsLoader::GetInstance().GetCodecs()))
-    , m_spParent(move(spParent))
+    , m_tstrInternalPath(
+    SevenZipCore::Helper::MakePathSlash(move(tstrInternalPath)))
 {
     m_tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrVirtualPath));
     m_spArchive->Open(tstrVirtualPath, move(cpStream), move(cpCallback));
-    m_spArchiveFolder = m_spArchive->GetRootFolder();
 }
 
 ArchiveModel::ArchiveModel(
@@ -174,15 +173,14 @@ ArchiveModel::ArchiveModel(
     TString tstrInternalPath,
     TString tstrRealPath,
     shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback)
-    : m_tstrInternalPath(
-    SevenZipCore::Helper::MakePathSlash(move(tstrInternalPath)))
+    : m_spParent(move(spParent))
     , m_spArchive(make_shared<SevenZipCore::Archive>(
     CodecsLoader::GetInstance().GetCodecs()))
-    , m_spParent(move(spParent))
+    , m_tstrInternalPath(
+    SevenZipCore::Helper::MakePathSlash(move(tstrInternalPath)))
 {
     m_tstrPath = SevenZipCore::Helper::RemovePathSlash(tstrVirtualPath);
     m_spArchive->Open(move(tstrRealPath), move(cpCallback));
-    m_spArchiveFolder = m_spArchive->GetRootFolder();
 }
 
 ArchiveModel::ArchiveModel(
@@ -190,10 +188,11 @@ ArchiveModel::ArchiveModel(
     TString tstrPath,
     TString tstrInternalPath,
     shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder)
-    : m_tstrInternalPath(
-    SevenZipCore::Helper::MakePathSlash(move(tstrInternalPath)))
-    , m_spParent(move(spParent))
+    : m_spParent(move(spParent))
     , m_spArchiveFolder(move(spArchiveFolder))
+    , m_spArchive(m_spArchiveFolder->GetArchiveEntry()->GetArchive())
+    , m_tstrInternalPath(
+    SevenZipCore::Helper::MakePathSlash(move(tstrInternalPath)))
 {
     m_tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));
 }
@@ -224,7 +223,7 @@ const ArchiveModel::EntryVector &ArchiveModel::GetEntries() const
     if (!m_isInitialized)
     {
         m_vspEntry.clear();
-        for (const auto &folder : m_spArchiveFolder->GetFolders())
+        for (const auto &folder : __GetArchiveFolder()->GetFolders())
         {
             m_vspEntry.push_back(make_shared<ArchiveEntry>(
                 const_pointer_cast<ArchiveModel>(shared_from_this()),
@@ -232,7 +231,7 @@ const ArchiveModel::EntryVector &ArchiveModel::GetEntries() const
                 m_tstrPath,
                 true));
         }
-        for (const auto &file : m_spArchiveFolder->GetFiles())
+        for (const auto &file : __GetArchiveFolder()->GetFiles())
         {
             m_vspEntry.push_back(make_shared<ArchiveEntry>(
                 const_pointer_cast<ArchiveModel>(shared_from_this()),
@@ -261,49 +260,50 @@ const vector<IEntry::ItemType> & ArchiveModel::GetSupportedItems() const
 void ArchiveModel::Extract(TString tstrPath
     , SevenZipCore::IExtractIndicator *pExtractIndicator) const
 {
-    vector<UINT32> vun32ArchiveIndex;
-    queue<const SevenZipCore::ArchiveFolder *> qpFolder;
-    qpFolder.push(m_spArchiveFolder.get());
-
-    while (!qpFolder.empty())
+    if (m_spParent)
     {
-        const auto &folder = *qpFolder.front();
-        qpFolder.pop();
-        for (const auto &spFile : folder.GetFiles())
-        {
-            vun32ArchiveIndex.push_back(spFile->GetIndex());
-        }
-        for (const auto &spFolder : folder.GetFolders())
-        {
-            auto un32ArchiveIndex = spFolder->GetIndex();
-            if (UINT32_MAX != un32ArchiveIndex)
-            {
-                vun32ArchiveIndex.push_back(un32ArchiveIndex);
-            }
-            qpFolder.push(spFolder.get());
-        }
-    }
+        vector<UINT32> vun32ArchiveIndex;
+        queue<const SevenZipCore::ArchiveFolder *> qpFolder;
+        qpFolder.push(m_spArchiveFolder.get());
 
-    Extract(move(vun32ArchiveIndex), move(tstrPath), pExtractIndicator);
+        while (!qpFolder.empty())
+        {
+            const auto &folder = *qpFolder.front();
+            qpFolder.pop();
+            for (const auto &spFile : folder.GetFiles())
+            {
+                vun32ArchiveIndex.push_back(spFile->GetIndex());
+            }
+            for (const auto &spFolder : folder.GetFolders())
+            {
+                auto un32ArchiveIndex = spFolder->GetIndex();
+                if (UINT32_MAX != un32ArchiveIndex)
+                {
+                    vun32ArchiveIndex.push_back(un32ArchiveIndex);
+                }
+                qpFolder.push(spFolder.get());
+            }
+        }
+
+        Extract(move(vun32ArchiveIndex), move(tstrPath), pExtractIndicator);
+    }
+    else
+    {
+        auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
+            __GetArchiveFolder()->GetArchiveEntry()->GetInArchive());
+        inArchiveAdapter.ExtractAll(
+            false,
+            __CreateCallback(tstrPath, pExtractIndicator).get());
+    }
 }
 
 TString ArchiveModel::Extract(UINT32 un32ArchiveIndex, TString tstrPath
     , SevenZipCore::IExtractIndicator *pExtractIndicator) const
 {
-    auto spArchiveEntry = m_spArchiveFolder->GetArchiveEntry();
     auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
-        spArchiveEntry->GetInArchive());
-    auto cpArchiveExtractCallback = SevenZipCore::MakeComPtr(
-        new SevenZipCore::ArchiveExtractCallback(
-        spArchiveEntry->GetArchive(),
-        false,
-        false,
-        false,
-        move(tstrPath),
-        GetInternalPath(),
-        SevenZipCore::ExtractPathMode::CurrentPathNames,
-        SevenZipCore::ExtractOverwriteMode::AskBefore,
-        pExtractIndicator));
+        __GetArchiveFolder()->GetArchiveEntry()->GetInArchive());
+    auto cpArchiveExtractCallback
+        = __CreateCallback(tstrPath, pExtractIndicator);
     inArchiveAdapter.Extract(
         vector<UINT32>(1, un32ArchiveIndex),
         false,
@@ -314,25 +314,13 @@ TString ArchiveModel::Extract(UINT32 un32ArchiveIndex, TString tstrPath
 void ArchiveModel::Extract(vector<UINT32> vun32ArchiveIndex,
     TString tstrPath, SevenZipCore::IExtractIndicator *pExtractIndicator) const
 {
-    auto spArchiveEntry = m_spArchiveFolder->GetArchiveEntry();
     auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
-        spArchiveEntry->GetInArchive());
-    auto cpArchiveExtractCallback = SevenZipCore::MakeComPtr(
-        new SevenZipCore::ArchiveExtractCallback(
-        spArchiveEntry->GetArchive(),
-        false,
-        false,
-        false,
-        move(tstrPath),
-        GetInternalPath(),
-        SevenZipCore::ExtractPathMode::CurrentPathNames,
-        SevenZipCore::ExtractOverwriteMode::AskBefore,
-        pExtractIndicator));
+        __GetArchiveFolder()->GetArchiveEntry()->GetInArchive());
     sort(vun32ArchiveIndex.begin(), vun32ArchiveIndex.end());
     inArchiveAdapter.Extract(
         vun32ArchiveIndex,
         false,
-        cpArchiveExtractCallback.get());
+        __CreateCallback(tstrPath, pExtractIndicator).get());
 }
 
 std::shared_ptr<SevenZipCore::Archive> ArchiveModel::GetArchive() const
@@ -343,4 +331,29 @@ std::shared_ptr<SevenZipCore::Archive> ArchiveModel::GetArchive() const
 const TString & ArchiveModel::GetInternalPath() const
 {
     return m_tstrInternalPath;
+}
+
+shared_ptr<SevenZipCore::ArchiveExtractCallback> ArchiveModel::__CreateCallback(
+    TString tstrPath, SevenZipCore::IExtractIndicator *pExtractIndicator) const
+{
+    return SevenZipCore::MakeComPtr(
+        new SevenZipCore::ArchiveExtractCallback(
+        __GetArchiveFolder()->GetArchiveEntry()->GetArchive(),
+        false,
+        false,
+        false,
+        move(tstrPath),
+        GetInternalPath(),
+        SevenZipCore::ExtractPathMode::CurrentPathNames,
+        SevenZipCore::ExtractOverwriteMode::AskBefore,
+        pExtractIndicator));
+}
+
+std::shared_ptr<SevenZipCore::ArchiveFolder> ArchiveModel::__GetArchiveFolder() const
+{
+    if (!m_spArchiveFolder)
+    {
+        m_spArchiveFolder = m_spArchive->GetRootFolder();
+    }
+    return m_spArchiveFolder;
 }
