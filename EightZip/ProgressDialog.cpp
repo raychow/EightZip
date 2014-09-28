@@ -32,61 +32,58 @@ void ProgressDialog::SetCurrentFile(const TString &tstrFileName)
     m_tstrCurrentFile = tstrFileName;
 }
 
-void ProgressDialog::SetCurrentPercent(int nPercent)
+void ProgressDialog::SetTotal(UINT64 un64Total)
 {
-    m_nCurrentPercent = nPercent;
+    lock_guard<mutex> lg(m_mutex);
+    m_un64Total = un64Total;
+}
+
+void ProgressDialog::SetCompleted(UINT64 un64Completed)
+{
+    lock_guard<mutex> lg(m_mutex);
+    m_un64Completed = un64Completed;
 }
 
 void ProgressDialog::__Create()
 {
     auto *pSizerMain = new wxBoxSizer(wxVERTICAL);
     
-    auto *pSizerCurrentFile = new wxStaticBoxSizer(
-        new wxStaticBox(this, wxID_ANY, wxEmptyString), wxVERTICAL);
-
-    m_pLabelArchivePath = new wxStaticText(this, wxID_ANY, _("Archive %s"));
-    pSizerCurrentFile->Add(m_pLabelArchivePath);
-
-    auto *pSizerCurrentFileName = new wxBoxSizer(wxHORIZONTAL);
-    m_pLabelCurrentFile = new wxStaticText(this, wxID_ANY, "%s");
-    m_pLabelCurrentFile->SetWindowStyle(wxST_NO_AUTORESIZE | wxST_ELLIPSIZE_END);
-    pSizerCurrentFileName->Add(
-        m_pLabelCurrentFile, wxSizerFlags().Proportion(1).Border(wxRIGHT, 5));
-    m_pLabelCurrentPercent = new wxStaticText(this, wxID_ANY, "0%");
-    pSizerCurrentFileName->Add(m_pLabelCurrentPercent);
-    pSizerCurrentFile->Add(pSizerCurrentFileName, wxSizerFlags().Expand());
-
-    m_pGaugeCurrentFile = new wxGauge(this, wxID_ANY, PROGRESS_MAX);
-    pSizerCurrentFile->Add(m_pGaugeCurrentFile,
-        wxSizerFlags().Expand());
-
-    pSizerMain->AddSpacer(3);
-    pSizerMain->Add(pSizerCurrentFile,
-        wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT, 8));
-
-
     auto *pSizerStatus = new wxStaticBoxSizer(
         new wxStaticBox(this, wxID_ANY, wxEmptyString), wxVERTICAL);
 
     auto *pSizerElapsedTime = new wxBoxSizer(wxHORIZONTAL);
-    pSizerElapsedTime->Add(new wxStaticText(this, wxID_ANY, _("Elapsed time")),
-        wxSizerFlags().Proportion(1));
-    pSizerElapsedTime->Add(new wxStaticText(this, wxID_ANY, ("00:00:00")));
+    pSizerElapsedTime->Add(new wxStaticText(this, wxID_ANY, _("Elapsed time")));
+    m_pLabelElaspedTime = new wxStaticText(this, wxID_ANY, "00:00:00");
+    m_pLabelElaspedTime->SetWindowStyle(wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
+    pSizerElapsedTime->Add(m_pLabelElaspedTime, wxSizerFlags().Proportion(1));
     pSizerStatus->Add(pSizerElapsedTime, wxSizerFlags().Expand());
 
     auto *pSizerTimeLeft = new wxBoxSizer(wxHORIZONTAL);
-    pSizerTimeLeft->Add(new wxStaticText(this, wxID_ANY, _("Time left")),
-        wxSizerFlags().Proportion(1));
-    pSizerTimeLeft->Add(new wxStaticText(this, wxID_ANY, ("00:00:00")));
+    pSizerTimeLeft->Add(new wxStaticText(this, wxID_ANY, _("Time left")));
+    m_pLabelTimeLeft = new wxStaticText(this, wxID_ANY, "00:00:00");
+    m_pLabelTimeLeft->SetWindowStyle(wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
+    pSizerTimeLeft->Add(m_pLabelTimeLeft, wxSizerFlags().Proportion(1));
     pSizerStatus->Add(pSizerTimeLeft, wxSizerFlags().Expand());
 
     pSizerStatus->Add(new wxStaticLine(this),
         wxSizerFlags().Expand().Border(wxTOP | wxBOTTOM, 5));
 
+    m_pLabelArchivePath = new wxStaticText(this, wxID_ANY, _("Archive %s"));
+    pSizerStatus->Add(m_pLabelArchivePath);
+
+    auto *pSizerCurrentFileName = new wxBoxSizer(wxHORIZONTAL);
+    m_pLabelCurrentFile = new wxStaticText(this, wxID_ANY, "%s");
+    m_pLabelCurrentFile->SetWindowStyle(
+        wxST_NO_AUTORESIZE | wxST_ELLIPSIZE_END);
+    pSizerCurrentFileName->Add(
+        m_pLabelCurrentFile, wxSizerFlags().Proportion(1));
+    pSizerStatus->Add(pSizerCurrentFileName, wxSizerFlags().Expand());
+
     auto *pSizerProcessed = new wxBoxSizer(wxHORIZONTAL);
-    pSizerProcessed->Add(new wxStaticText(this, wxID_ANY, _("Processed")),
-        wxSizerFlags().Proportion(1));
-    pSizerProcessed->Add(new wxStaticText(this, wxID_ANY, ("0%")));
+    pSizerProcessed->Add(new wxStaticText(this, wxID_ANY, _("Processed")));
+    m_pLabelPercent = new wxStaticText(this, wxID_ANY, "100%");
+    m_pLabelPercent->SetWindowStyle(wxALIGN_RIGHT | wxST_NO_AUTORESIZE);
+    pSizerProcessed->Add(m_pLabelPercent, wxSizerFlags().Proportion(1));
     pSizerStatus->Add(pSizerProcessed, wxSizerFlags().Expand());
 
     m_pGaugeProcessed = new wxGauge(this, wxID_ANY, PROGRESS_MAX);
@@ -96,15 +93,17 @@ void ProgressDialog::__Create()
     pSizerMain->Add(pSizerStatus,
         wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT, 8));
 
+    pSizerMain->AddStretchSpacer();
+
     auto *pSizerButton = new wxBoxSizer(wxHORIZONTAL);
     pSizerButton->Add(new wxButton(this, wxID_ANY, _("&Background")),
-        wxSizerFlags().Left().Border(wxRIGHT, 5));
+        wxSizerFlags().Border(wxRIGHT, 5));
     pSizerButton->Add(new wxButton(this, wxID_ANY, _("&Pause")),
-        wxSizerFlags().Center());
+        wxSizerFlags().Border(wxRIGHT, 5));
     pSizerButton->Add(new wxButton(this, wxID_CANCEL, _("Cancel")),
-        wxSizerFlags().Right().Border(wxLEFT, 5));
+        wxSizerFlags());
     pSizerMain->Add(pSizerButton,
-        wxSizerFlags().Border(wxALL, 7).Expand());
+        wxSizerFlags().Border(wxALL, 7).Right());
 
     SetSizer(pSizerMain);
     Fit();
@@ -112,20 +111,42 @@ void ProgressDialog::__Create()
 
 void ProgressDialog::__StartTimer()
 {
+    m_tpStart = chrono::system_clock::now();
     m_timer.Bind(wxEVT_TIMER, &ProgressDialog::__Update, this);
-    m_timer.Start(100);
+    m_timer.Start(UPDATE_INTERVAL);
 }
 
 void ProgressDialog::__Update(wxTimerEvent &WXUNUSED(event))
 {
     lock_guard<mutex> lg(m_mutex);
+    int nElasped = (m_msElasped + chrono::duration_cast<chrono::milliseconds>(
+        chrono::system_clock::now() - m_tpStart)).count();
+
+    int nElaspedSecond = nElasped / 1000;
+    int nElaspedMinute = nElaspedSecond / 60;
+    int nElaspedHour = nElaspedMinute / 60;
+    m_pLabelElaspedTime->SetLabel(wxString::Format("%02d:%02d:%02d",
+        nElaspedHour, nElaspedMinute % 60, nElaspedSecond % 60));
+
+    if (0 != m_un64Completed)
+    {
+        int nLeft = nElasped * (m_un64Total - m_un64Completed) / m_un64Completed;
+        int nLeftSecond = nLeft / 1000;
+        int nLeftMinute = nLeftSecond / 60;
+        int nLeftHour = nLeftMinute / 60;
+        m_pLabelTimeLeft->SetLabel(wxString::Format(
+            "%02d:%02d:%02d", nLeftHour, nLeftMinute % 60, nLeftSecond % 60));
+    }
+
     SetTitle(wxString::Format(_("Extracting from %s"),
         m_tstrArchiveFileName));
     m_pLabelArchivePath->SetLabel(wxString::Format(_("Archive %s"),
         m_tstrArchivePath));
     m_pLabelCurrentFile->SetLabel(m_tstrCurrentFile);
-    m_pLabelCurrentPercent->SetLabel(
-        wxString::Format(_("%d%%"), m_nCurrentPercent / (PROGRESS_MAX / 100)));
-    m_pGaugeCurrentFile->SetValue(m_nCurrentPercent);
+    int nPercent = 0 == m_un64Total ? 0
+        : static_cast<double>(m_un64Completed) / m_un64Total * PROGRESS_MAX;
+    m_pLabelPercent->SetLabel(
+        wxString::Format(_("%d%%"), nPercent / (PROGRESS_MAX / 100)));
+    m_pGaugeProcessed->SetValue(nPercent);
 }
 

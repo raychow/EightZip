@@ -17,14 +17,12 @@ ExtractIndicator::ExtractIndicator(shared_ptr<ProgressDialog> spProgressDialog)
 void ExtractIndicator::SetTotal(UINT64 un64Total)
 {
     m_un64Total = un64Total;
-    m_spProcessDialog->SetCurrentPercent(0);
+    m_spProcessDialog->SetTotal(un64Total);
 }
 
 void ExtractIndicator::SetCompleted(boost::optional<UINT64> oun64Value)
 {
-    m_spProcessDialog->SetCurrentPercent(oun64Value && m_un64Total
-        ? static_cast<double>(*oun64Value) / m_un64Total * m_spProcessDialog->PROGRESS_MAX
-        : 0);
+    m_spProcessDialog->SetCompleted(oun64Value ? *oun64Value : 0);
 }
 
 SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
