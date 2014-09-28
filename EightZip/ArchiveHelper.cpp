@@ -16,23 +16,25 @@ namespace Helper
 {
     static void ExtractThread(TString tstrPath,
         shared_ptr<ArchiveModel> spModel,
-        shared_ptr<ProgressDialog> spProgressDialog)
+        ProgressDialog *pProgressDialog)
     {
-        wxTheApp->CallAfter([spProgressDialog](){
-            spProgressDialog->CenterOnParent();
-            spProgressDialog->ShowModal();
+        wxTheApp->CallAfter([pProgressDialog](){
+            pProgressDialog->CenterOnParent();
+            pProgressDialog->ShowModal();
         });
-        ExtractIndicator extractIndicator(spProgressDialog);
+        ExtractIndicator extractIndicator(pProgressDialog);
 
+        bool isSuccess = true;
         try
         {
             spModel->Extract(tstrPath, &extractIndicator);
         }
         catch (const SevenZipCore::ArchiveException &)
         {
+            isSuccess = false;
         }
-        wxTheApp->CallAfter([spProgressDialog](){
-            spProgressDialog->Close();
+        wxTheApp->CallAfter([pProgressDialog, isSuccess](){
+            pProgressDialog->Done(isSuccess);
         });
     }
 
@@ -55,16 +57,16 @@ namespace Helper
             boost::filesystem::create_directories(path);
 
             auto tstrArchivePath = spModel->GetArchive()->GetPath();
-            auto spProgressDialog = make_shared<ProgressDialog>(
+            auto *pProgressDialog = new ProgressDialog(
                 wxTheApp->GetTopWindow(), wxID_ANY,
                 wxString::Format(_("Extracting from %s"),
                 SevenZipCore::Helper::GetFileName(
                 tstrArchivePath)));
-            spProgressDialog->SetArchivePath(tstrArchivePath);
+            pProgressDialog->SetArchivePath(tstrArchivePath);
 
             thread extractThread(ExtractThread,
                 Helper::GetCanonicalPath(path.wstring()), spModel,
-                spProgressDialog);
+                pProgressDialog);
             extractThread.detach();
         }
         catch (const boost::system::system_error &)

@@ -14,7 +14,7 @@ class ExtractIndicator
     : public SevenZipCore::IExtractIndicator
 {
 public:
-    ExtractIndicator(std::shared_ptr<ProgressDialog> spProgressDialog);
+    ExtractIndicator(ProgressDialog *pProgressDialog);
 
     virtual void SetTotal(UINT64 un64Total);
     virtual void SetCompleted(boost::optional<UINT64> oun64Value);
@@ -34,7 +34,7 @@ public:
         SevenZipCore::ExtractResult extractResult);
 
 private:
-    std::shared_ptr<ProgressDialog> m_spProcessDialog;
+    ProgressDialog *m_pProcessDialog;
 
 };
 

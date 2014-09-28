@@ -11,6 +11,10 @@
 
 #include "Exception.h"
 
+#ifdef __WXMSW__
+#include "TaskbarProgressHelper.h"
+#endif
+
 class ProgressDialog
     : public wxDialog
 {
@@ -29,16 +33,22 @@ public:
         long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER,
         const wxString& name = wxDialogNameStr);
 
-    ~ProgressDialog() {}
+    virtual ~ProgressDialog();
 
     void SetArchivePath(const TString &tstrPath);
     void SetCurrentFile(const TString &tstrFileName);
     void SetTotal(UINT64 un64Total);
     void SetCompleted(UINT64 un64Completed);
 
-    void CheckCancelled() const;
+    void Done(bool isSuccess);
+
+    void CheckCancelled();
 
 private:
+#ifdef __WXMSW__
+    Helper::TaskbarProgress m_taskerProgress;
+#endif
+
     std::mutex m_mutex;
     std::unique_lock<std::mutex> m_ulPause;
     std::atomic<bool> m_isCancelled = false;

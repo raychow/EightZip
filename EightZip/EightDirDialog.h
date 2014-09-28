@@ -19,6 +19,8 @@ public:
         : wxDirDialog(parent, message, defaultPath, style, pos, size, name)
     {}
 
+    virtual ~EightDirDialog() {}
+
     virtual int ShowModal();
 
 private:

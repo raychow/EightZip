@@ -20,7 +20,7 @@ public:
         long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER,
         const wxString& name = wxDialogNameStr);
 
-    ~ExtractDialog() {}
+    virtual ~ExtractDialog() {}
 
     void SetPath(const TString &tstrPath)
     {

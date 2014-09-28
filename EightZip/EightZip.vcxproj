@@ -23,7 +23,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -143,6 +143,7 @@
     <ClInclude Include="FolderModel.h" />
     <ClInclude Include="ProgressDialog.h" />
     <ClInclude Include="SevenZipCore\IExtractIndicator.h" />
+    <ClInclude Include="TaskbarProgressHelper.h" />
     <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="IExtractable.h" />
     <ClInclude Include="IModel.h" />
@@ -199,6 +200,7 @@
     <ClCompile Include="FileListCtrl.cpp" />
     <ClCompile Include="FolderModel.cpp" />
     <ClCompile Include="ProgressDialog.cpp" />
+    <ClCompile Include="TaskbarProgressHelper.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
     <ClCompile Include="ModelBase.cpp" />
     <ClCompile Include="SevenZipCore\Archive.cpp">

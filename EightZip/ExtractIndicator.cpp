@@ -9,19 +9,19 @@
 
 using namespace std;
 
-ExtractIndicator::ExtractIndicator(shared_ptr<ProgressDialog> spProgressDialog)
-    : m_spProcessDialog(spProgressDialog)
+ExtractIndicator::ExtractIndicator(ProgressDialog *pProgressDialog)
+    : m_pProcessDialog(pProgressDialog)
 {
 }
 
 void ExtractIndicator::SetTotal(UINT64 un64Total)
 {
-    m_spProcessDialog->SetTotal(un64Total);
+    m_pProcessDialog->SetTotal(un64Total);
 }
 
 void ExtractIndicator::SetCompleted(boost::optional<UINT64> oun64Value)
 {
-    m_spProcessDialog->SetCompleted(oun64Value ? *oun64Value : 0);
+    m_pProcessDialog->SetCompleted(oun64Value ? *oun64Value : 0);
 }
 
 SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
@@ -50,7 +50,7 @@ void ExtractIndicator::Prepare(TString tstrPath,
     SevenZipCore::ExtractAskMode askMode,
     boost::optional<UINT64> oun64Position)
 {
-    m_spProcessDialog->SetCurrentFile(
+    m_pProcessDialog->SetCurrentFile(
         SevenZipCore::Helper::GetFileName(tstrPath));
 }
 

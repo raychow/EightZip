@@ -14,10 +14,17 @@ ProgressDialog::ProgressDialog(
     long style /*= wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER*/,
     const wxString& name /*= wxDialogNameStr*/)
     : wxDialog(parent, id, title, pos, size, style, name)
+#ifdef __WXMSW__
+    , m_taskerProgress(wxTheApp->GetTopWindow()->GetHandle())
+#endif
     , m_ulPause(m_mutex, defer_lock)
 {
     __Create();
     __StartTimer();
+}
+
+ProgressDialog::~ProgressDialog()
+{
 }
 
 void ProgressDialog::SetArchivePath(const TString &tstrPath)
@@ -47,9 +54,25 @@ void ProgressDialog::SetCompleted(UINT64 un64Completed)
     lock_guard<mutex> lg(m_mutex);
     CheckCancelled();
     m_un64Completed = un64Completed;
+#ifdef __WXMSW__
+    m_taskerProgress.SetState(TBPF_NORMAL);
+    m_taskerProgress.SetValue(m_un64Completed, m_un64Total);
+#endif
 }
 
-void ProgressDialog::CheckCancelled() const
+void ProgressDialog::Done(bool isSuccess)
+{
+#ifdef __WXMSW__
+    if (isSuccess)
+    {
+        FlashWindow(wxTheApp->GetTopWindow()->GetHandle(), true);
+    }
+#endif
+    __StopTimer();
+    Destroy();
+}
+
+void ProgressDialog::CheckCancelled()
 {
     if (m_isCancelled)
     {
@@ -82,15 +105,14 @@ void ProgressDialog::__Create()
         wxSizerFlags().Expand().Border(wxTOP | wxBOTTOM, 5));
 
     m_pLabelArchivePath = new wxStaticText(this, wxID_ANY, _("Archive %s"));
-    pSizerStatus->Add(m_pLabelArchivePath);
+    m_pLabelArchivePath->SetWindowStyle(
+        wxST_NO_AUTORESIZE | wxST_ELLIPSIZE_END);
+    pSizerStatus->Add(m_pLabelArchivePath, wxSizerFlags().Expand());
 
-    auto *pSizerCurrentFileName = new wxBoxSizer(wxHORIZONTAL);
     m_pLabelCurrentFile = new wxStaticText(this, wxID_ANY, "%s");
     m_pLabelCurrentFile->SetWindowStyle(
         wxST_NO_AUTORESIZE | wxST_ELLIPSIZE_END);
-    pSizerCurrentFileName->Add(
-        m_pLabelCurrentFile, wxSizerFlags().Proportion(1));
-    pSizerStatus->Add(pSizerCurrentFileName, wxSizerFlags().Expand());
+    pSizerStatus->Add(m_pLabelCurrentFile, wxSizerFlags().Expand());
 
     auto *pSizerProcessed = new wxBoxSizer(wxHORIZONTAL);
     pSizerProcessed->Add(new wxStaticText(this, wxID_ANY, _("Processed")));
@@ -102,6 +124,7 @@ void ProgressDialog::__Create()
     m_pGaugeProcessed = new wxGauge(this, wxID_ANY, PROGRESS_MAX);
     pSizerStatus->Add(m_pGaugeProcessed,
         wxSizerFlags().Expand());
+
     pSizerMain->AddSpacer(3);
     pSizerMain->Add(pSizerStatus,
         wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT, 8));
@@ -182,12 +205,18 @@ void ProgressDialog::__OnPauseClick(wxCommandEvent &WXUNUSED(event))
     {
         m_pButtonPause->SetLabel(_("&Pause"));
         __StartTimer();
+#ifdef __WXMSW__
+        m_taskerProgress.SetState(TBPF_NORMAL);
+#endif
         m_ulPause.unlock();
     }
     else
     {
         m_pButtonPause->SetLabel(_("&Continue"));
         __StopTimer();
+#ifdef __WXMSW__
+        m_taskerProgress.SetState(TBPF_PAUSED);
+#endif
         m_ulPause.lock();
     }
 }
@@ -200,5 +229,4 @@ void ProgressDialog::__OnCancelClick(wxCommandEvent &event)
     {
         m_ulPause.unlock();
     }
-    event.Skip();
 }
