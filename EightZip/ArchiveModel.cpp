@@ -268,6 +268,11 @@ void ArchiveModel::Extract(TString tstrPath
     while (!qpFolder.empty())
     {
         const auto &folder = *qpFolder.front();
+        qpFolder.pop();
+        for (const auto &spFile : folder.GetFiles())
+        {
+            vun32ArchiveIndex.push_back(spFile->GetIndex());
+        }
         for (const auto &spFolder : folder.GetFolders())
         {
             auto un32ArchiveIndex = spFolder->GetIndex();
@@ -277,14 +282,9 @@ void ArchiveModel::Extract(TString tstrPath
             }
             qpFolder.push(spFolder.get());
         }
-        for (const auto &spFile : folder.GetFiles())
-        {
-            vun32ArchiveIndex.push_back(spFile->GetIndex());
-        }
-        qpFolder.pop();
     }
 
-    Extract(vun32ArchiveIndex, move(tstrPath), pExtractIndicator);
+    Extract(move(vun32ArchiveIndex), move(tstrPath), pExtractIndicator);
 }
 
 TString ArchiveModel::Extract(UINT32 un32ArchiveIndex, TString tstrPath
@@ -311,7 +311,7 @@ TString ArchiveModel::Extract(UINT32 un32ArchiveIndex, TString tstrPath
     return cpArchiveExtractCallback->GetExtractPath();
 }
 
-void ArchiveModel::Extract(const vector<UINT32> &vun32ArchiveIndex,
+void ArchiveModel::Extract(vector<UINT32> vun32ArchiveIndex,
     TString tstrPath, SevenZipCore::IExtractIndicator *pExtractIndicator) const
 {
     auto spArchiveEntry = m_spArchiveFolder->GetArchiveEntry();
@@ -328,6 +328,7 @@ void ArchiveModel::Extract(const vector<UINT32> &vun32ArchiveIndex,
         SevenZipCore::ExtractPathMode::CurrentPathNames,
         SevenZipCore::ExtractOverwriteMode::AskBefore,
         pExtractIndicator));
+    sort(vun32ArchiveIndex.begin(), vun32ArchiveIndex.end());
     inArchiveAdapter.Extract(
         vun32ArchiveIndex,
         false,
