@@ -33,6 +33,7 @@ public:
 
 private:
     std::mutex m_mutex;
+    std::unique_lock<std::mutex> m_ulPause;
 
     wxTimer m_timer;
 
@@ -50,12 +51,15 @@ private:
     wxStaticText *m_pLabelArchivePath = nullptr;
     wxStaticText *m_pLabelCurrentFile = nullptr;
     wxStaticText *m_pLabelPercent = nullptr;
+    wxButton *m_pButtonPause = nullptr;
 
     wxGauge *m_pGaugeProcessed = nullptr;
 
     void __Create();
     void __StartTimer();
+    void __StopTimer();
     void __Update(wxTimerEvent &WXUNUSED(event));
+    void __OnPauseClick(wxCommandEvent &WXUNUSED(event));
 };
 
 #endif // PROGRESSDIALOG_H

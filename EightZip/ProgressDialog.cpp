@@ -14,6 +14,7 @@ ProgressDialog::ProgressDialog(
     long style /*= wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER*/,
     const wxString& name /*= wxDialogNameStr*/)
     : wxDialog(parent, id, title, pos, size, style, name)
+    , m_ulPause(m_mutex, defer_lock)
 {
     __Create();
     __StartTimer();
@@ -98,8 +99,8 @@ void ProgressDialog::__Create()
     auto *pSizerButton = new wxBoxSizer(wxHORIZONTAL);
     pSizerButton->Add(new wxButton(this, wxID_ANY, _("&Background")),
         wxSizerFlags().Border(wxRIGHT, 5));
-    pSizerButton->Add(new wxButton(this, wxID_ANY, _("&Pause")),
-        wxSizerFlags().Border(wxRIGHT, 5));
+    m_pButtonPause = new wxButton(this, wxID_ANY, _("&Pause"));
+    pSizerButton->Add(m_pButtonPause, wxSizerFlags().Border(wxRIGHT, 5));
     pSizerButton->Add(new wxButton(this, wxID_CANCEL, _("Cancel")),
         wxSizerFlags());
     pSizerMain->Add(pSizerButton,
@@ -107,13 +108,24 @@ void ProgressDialog::__Create()
 
     SetSizer(pSizerMain);
     Fit();
+
+    m_pButtonPause->Bind(wxEVT_BUTTON, &ProgressDialog::__OnPauseClick, this);
+
+    m_timer.Bind(wxEVT_TIMER, &ProgressDialog::__Update, this);
+
 }
 
 void ProgressDialog::__StartTimer()
 {
     m_tpStart = chrono::system_clock::now();
-    m_timer.Bind(wxEVT_TIMER, &ProgressDialog::__Update, this);
     m_timer.Start(UPDATE_INTERVAL);
+}
+
+void ProgressDialog::__StopTimer()
+{
+    m_msElasped += chrono::duration_cast<chrono::milliseconds>(
+        chrono::system_clock::now() - m_tpStart);
+    m_timer.Stop();
 }
 
 void ProgressDialog::__Update(wxTimerEvent &WXUNUSED(event))
@@ -150,3 +162,18 @@ void ProgressDialog::__Update(wxTimerEvent &WXUNUSED(event))
     m_pGaugeProcessed->SetValue(nPercent);
 }
 
+void ProgressDialog::__OnPauseClick(wxCommandEvent &WXUNUSED(event))
+{
+    if (m_ulPause.owns_lock())
+    {
+        m_ulPause.unlock();
+        m_pButtonPause->SetLabel(_("&Pause"));
+        __StartTimer();
+    }
+    else
+    {
+        m_ulPause.lock();
+        m_pButtonPause->SetLabel(_("&Continue"));
+        __StopTimer();
+    }
+}
