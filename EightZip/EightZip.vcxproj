@@ -141,6 +141,7 @@
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="FileListCtrl.h" />
     <ClInclude Include="FolderModel.h" />
+    <ClInclude Include="OverwriteDialog.h" />
     <ClInclude Include="ProgressDialog.h" />
     <ClInclude Include="SevenZipCore\IExtractIndicator.h" />
     <ClInclude Include="TaskbarProgressHelper.h" />
@@ -199,6 +200,7 @@
     <ClCompile Include="FileInfo.cpp" />
     <ClCompile Include="FileListCtrl.cpp" />
     <ClCompile Include="FolderModel.cpp" />
+    <ClCompile Include="OverwriteDialog.cpp" />
     <ClCompile Include="ProgressDialog.cpp" />
     <ClCompile Include="TaskbarProgressHelper.cpp" />
     <ClCompile Include="WindowHelper.cpp" />

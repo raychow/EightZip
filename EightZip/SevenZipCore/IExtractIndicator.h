@@ -16,11 +16,10 @@ namespace SevenZipCore
     public:
         virtual void SetTotal(UINT64 un64Total) = 0;
         virtual void SetCompleted(boost::optional<UINT64> oun64Value) = 0;
-        virtual OverwriteAnswer AskOverwrite(TString tstrExistPath,
-            boost::optional<FILETIME> oftExistModified,
+        virtual OverwriteAnswer AskOverwrite(TString tstrPath,
+            boost::optional<time_t> oftExistModified,
             boost::optional<UINT64> un64ExistSize,
-            TString tstrNewPath,
-            boost::optional<FILETIME> oftNewModified,
+            boost::optional<time_t> oftNewModified,
             boost::optional<UINT64> un64NewSize) = 0;
         virtual void AddError(TString tstrMessage) = 0;
         virtual void AddError(TString tstrMessage, TString tstrParameter) = 0;

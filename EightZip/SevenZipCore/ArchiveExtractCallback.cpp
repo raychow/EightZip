@@ -85,6 +85,24 @@ namespace SevenZipCore
             IInArchiveAdapter<> inArchiveAdapter(
                 m_spArchive->GetArchiveEntry()->GetInArchive());
             m_tstrInternalPath = inArchiveAdapter.GetItemPath(index);
+
+            try
+            {
+                m_oun64Size = PropertyHelper::GetUInt64(
+                    inArchiveAdapter.GetProperty(index, PropertyId::Size));
+            }
+            catch (const PropertyException &ex)
+            {
+                if (PropertyErrorCode::EMPTY_VALUE == ex.GetErrorCode())
+                {
+                    m_oun64Size.reset();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
             m_isDirectory = PropertyHelper::GetBool(
                 inArchiveAdapter.GetProperty(index, PropertyId::IsDir), false);
 
@@ -240,10 +258,15 @@ namespace SevenZipCore
                         catch (const PropertyException &)
                         {
                         }
-                        int nDialogResult =
-                            static_cast<int>(OverwriteAnswer::YesToAll);
-                        // TODO: nDialogResult = ShowOverwriteDialog();
-                        switch (static_cast<OverwriteAnswer>(nDialogResult))
+
+                        switch (m_pExtractIndicator->AskOverwrite(tstrFullPath,
+                            boost::filesystem::last_write_time(tstrFullPath),
+                            boost::filesystem::file_size(tstrFullPath),
+                            m_oftModified ? boost::optional<time_t>(
+                            Helper::GetUnixTimeFromFileTime(
+                            *m_oftModified)) : boost::none,
+                            m_oun64Size
+                            ))
                         {
                         case OverwriteAnswer::Cancel:
                             return E_ABORT;
@@ -402,7 +425,7 @@ namespace SevenZipCore
                     m_oftCreated ? &*m_oftCreated : nullptr,
                     m_oftAccessed ? &*m_oftAccessed : nullptr,
                     m_oftModified ? &*m_oftModified : nullptr);
-                //m_oun64Size = streamAdapter.GetProcessedSize();
+                m_oun64Size = streamAdapter.GetProcessedSize();
                 streamAdapter.Close();
                 m_cpOutStream.reset();
             }

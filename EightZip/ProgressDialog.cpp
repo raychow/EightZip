@@ -3,6 +3,8 @@
 
 #include "SevenZipCore/CommonHelper.h"
 
+#include "OverwriteDialog.h"
+
 using namespace std;
 
 ProgressDialog::ProgressDialog(
@@ -58,6 +60,17 @@ void ProgressDialog::SetCompleted(UINT64 un64Completed)
     m_taskerProgress.SetState(TBPF_NORMAL);
     m_taskerProgress.SetValue(m_un64Completed, m_un64Total);
 #endif
+}
+
+SevenZipCore::OverwriteAnswer ProgressDialog::AskOverwrite(
+    TString tstrPath,
+    boost::optional<time_t> oftExistModified,
+    boost::optional<UINT64> un64ExistSize,
+    boost::optional<time_t> oftNewModified,
+    boost::optional<UINT64> un64NewSize)
+{
+    return static_cast<SevenZipCore::OverwriteAnswer>(OverwriteDialog(
+        nullptr, wxID_ANY, _("Confirm file replace")).ShowModal());
 }
 
 void ProgressDialog::Done(bool isSuccess)

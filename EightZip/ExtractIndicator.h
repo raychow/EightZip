@@ -18,11 +18,10 @@ public:
 
     virtual void SetTotal(UINT64 un64Total);
     virtual void SetCompleted(boost::optional<UINT64> oun64Value);
-    virtual SevenZipCore::OverwriteAnswer AskOverwrite(TString tstrExistPath,
-        boost::optional<FILETIME> oftExistModified,
+    virtual SevenZipCore::OverwriteAnswer AskOverwrite(TString tstrPath,
+        boost::optional<time_t> oftExistModified,
         boost::optional<UINT64> un64ExistSize,
-        TString tstrNewPath,
-        boost::optional<FILETIME> oftNewModified,
+        boost::optional<time_t> oftNewModified,
         boost::optional<UINT64> un64NewSize);
     virtual void AddError(TString tstrMessage);
     virtual void AddError(TString tstrMessage, TString tstrParameter);

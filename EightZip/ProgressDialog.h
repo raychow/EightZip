@@ -7,6 +7,9 @@
 #include <chrono>
 #include <mutex>
 
+#include <boost/optional.hpp>
+
+#include "SevenZipCore/IArchive.h"
 #include "SevenZipCore/TString.h"
 
 #include "Exception.h"
@@ -39,6 +42,13 @@ public:
     void SetCurrentFile(const TString &tstrFileName);
     void SetTotal(UINT64 un64Total);
     void SetCompleted(UINT64 un64Completed);
+
+    SevenZipCore::OverwriteAnswer AskOverwrite(
+        TString tstrPath,
+        boost::optional<time_t> oftExistModified,
+        boost::optional<UINT64> un64ExistSize,
+        boost::optional<time_t> oftNewModified,
+        boost::optional<UINT64> un64NewSize);
 
     void Done(bool isSuccess);
 

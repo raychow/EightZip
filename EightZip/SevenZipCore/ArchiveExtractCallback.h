@@ -61,6 +61,7 @@ namespace SevenZipCore
         bool m_isSplit;
         TString m_tstrInternalPath;
         bool m_isDirectory;
+        boost::optional<UINT64> m_oun64Size;
         boost::optional<UINT64> m_oun64Position;
         boost::optional<UINT32> m_ounAttribute;
         boost::optional<FILETIME> m_oftCreated;
@@ -69,7 +70,6 @@ namespace SevenZipCore
         ExtractPathMode m_pathMode;
         ExtractOverwriteMode m_overwriteMode;
         IExtractIndicator *m_pExtractIndicator;
-
 
         TString m_tstrExtractPath;
         std::shared_ptr<OutFileStream> m_cpOutStream;

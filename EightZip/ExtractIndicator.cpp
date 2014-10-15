@@ -2,6 +2,7 @@
 #include "ExtractIndicator.h"
 
 #include <functional>
+#include <future>
 
 #include "SevenZipCore/CommonHelper.h"
 
@@ -25,14 +26,18 @@ void ExtractIndicator::SetCompleted(boost::optional<UINT64> oun64Value)
 }
 
 SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
-    TString tstrExistPath,
-    boost::optional<FILETIME> oftExistModified,
+    TString tstrPath,
+    boost::optional<time_t> oftExistModified,
     boost::optional<UINT64> un64ExistSize,
-    TString tstrNewPath,
-    boost::optional<FILETIME> oftNewModified,
+    boost::optional<time_t> oftNewModified,
     boost::optional<UINT64> un64NewSize)
 {
-    return SevenZipCore::OverwriteAnswer::Yes;
+    promise<SevenZipCore::OverwriteAnswer> result;
+    wxTheApp->GetTopWindow()->CallAfter([&](){
+        result.set_value(m_pProcessDialog->AskOverwrite(move(tstrPath),
+            oftExistModified, un64ExistSize, oftNewModified, un64NewSize));
+    });
+    return result.get_future().get();
 }
 
 void ExtractIndicator::AddError(TString tstrMessage)
