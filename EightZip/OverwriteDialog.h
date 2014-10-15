@@ -25,7 +25,7 @@ public:
 private:
     void __Create();
 
-    TString m_tstrPath;
+    wxTextCtrl *m_pTextCtrlPath = nullptr;
 
 };
 

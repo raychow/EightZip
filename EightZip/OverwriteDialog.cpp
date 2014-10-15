@@ -22,7 +22,7 @@ OverwriteDialog::~OverwriteDialog()
 
 void OverwriteDialog::SetFilePath(TString tstrPath)
 {
-    m_tstrPath = tstrPath;
+    m_pTextCtrlPath->SetValue(tstrPath);
 }
 
 void OverwriteDialog::__Create()
@@ -34,10 +34,13 @@ void OverwriteDialog::__Create()
 
     pSizerFileInfo->Add(new wxStaticText(this, wxID_ANY,
         _("The following file already exists:")));
-    auto pTextCtrlPath = new wxTextCtrl(this, wxID_ANY, m_tstrPath);
-    pTextCtrlPath->Enable(false);
-    pSizerFileInfo->Add(pTextCtrlPath);
+    m_pTextCtrlPath = new wxTextCtrl(this, wxID_ANY, wxEmptyString,
+        wxDefaultPosition, wxSize(-1, 70), wxTE_MULTILINE);
+    m_pTextCtrlPath->SetEditable(false);
+    pSizerFileInfo->Add(m_pTextCtrlPath, wxSizerFlags().Expand());
 
-    pSizerMain->Add(pSizerFileInfo);
+    pSizerMain->Add(pSizerFileInfo,
+        wxSizerFlags().Expand().Border(wxLEFT | wxRIGHT, 8));
 
+    SetSizer(pSizerMain);
 }
