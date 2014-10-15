@@ -14,28 +14,55 @@ using namespace std;
 
 namespace Helper
 {
-    static void ExtractThread(TString tstrPath,
+    class ProgressDialogManager
+    {
+    public:
+        ProgressDialogManager(ProgressDialog *pProgressDialog)
+            : m_pDialog(pProgressDialog)
+        {
+            wxTheApp->CallAfter([&](){
+                m_pDialog->CenterOnParent();
+                m_pDialog->ShowModal();
+            });
+        }
+
+        ~ProgressDialogManager()
+        {
+            wxTheApp->CallAfter(bind(
+                [](ProgressDialog *pDialog, bool isSuccess) {
+                pDialog->Done(isSuccess);
+            }, m_pDialog, m_isSuccess));
+        }
+
+        void SetSuccess(bool isSuccess)
+        {
+            m_isSuccess = isSuccess;
+        }
+
+    private:
+        ProgressDialog *m_pDialog = nullptr;
+        bool m_isSuccess = false;
+
+        ProgressDialogManager(const ProgressDialogManager&) = delete;
+        ProgressDialogManager &operator=(const ProgressDialogManager&) = delete;
+
+    };
+
+    static void ExtractThread(TString tstrExtractPath,
         shared_ptr<ArchiveModel> spModel,
         ProgressDialog *pProgressDialog)
     {
-        wxTheApp->CallAfter([pProgressDialog](){
-            pProgressDialog->CenterOnParent();
-            pProgressDialog->ShowModal();
-        });
+        ProgressDialogManager dialogManager(pProgressDialog);
         ExtractIndicator extractIndicator(pProgressDialog);
-
-        bool isSuccess = true;
         try
         {
-            spModel->Extract(tstrPath, &extractIndicator);
+            spModel->Extract(tstrExtractPath, &extractIndicator);
         }
         catch (const SevenZipCore::ArchiveException &)
         {
-            isSuccess = false;
+            return;
         }
-        wxTheApp->CallAfter([pProgressDialog, isSuccess](){
-            pProgressDialog->Done(isSuccess);
-        });
+        dialogManager.SetSuccess(true);
     }
 
     bool Extract(TString tstrPath, shared_ptr<ArchiveModel> spModel)
@@ -53,8 +80,9 @@ namespace Helper
             }
             assert(spFolderModel);
             auto tstrAbsPath = spFolderModel->GetPath();
-            auto path = boost::filesystem::absolute(tstrPath, tstrAbsPath);
-            boost::filesystem::create_directories(path);
+            auto extractPath = boost::filesystem::absolute(
+                tstrPath, tstrAbsPath);
+            boost::filesystem::create_directories(extractPath);
 
             auto tstrArchivePath = spModel->GetArchive()->GetPath();
             auto *pProgressDialog = new ProgressDialog(
@@ -65,7 +93,7 @@ namespace Helper
             pProgressDialog->SetArchivePath(tstrArchivePath);
 
             thread extractThread(ExtractThread,
-                Helper::GetCanonicalPath(path.wstring()), spModel,
+                Helper::GetCanonicalPath(extractPath.wstring()), spModel,
                 pProgressDialog);
             extractThread.detach();
         }
