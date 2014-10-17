@@ -268,23 +268,23 @@ namespace SevenZipCore
                             m_oun64Size
                             ))
                         {
-                        case OverwriteAnswer::Cancel:
-                            return E_ABORT;
+                        case OverwriteAnswer::Yes:
+                            break;
                         case OverwriteAnswer::No:
                             return S_OK;
-                        case OverwriteAnswer::NoToAll:
-                            m_overwriteMode
-                                = ExtractOverwriteMode::SkipExisting;
-                            return S_OK;
+                        case OverwriteAnswer::AutoRename:
+                            m_overwriteMode = ExtractOverwriteMode::AutoRename;
+                            break;
                         case OverwriteAnswer::YesToAll:
                             m_overwriteMode
                                 = ExtractOverwriteMode::WithoutPrompt;
                             break;
-                        case OverwriteAnswer::Yes:
-                            break;
-                        case OverwriteAnswer::AutoRename:
-                            m_overwriteMode = ExtractOverwriteMode::AutoRename;
-                            break;
+                        case OverwriteAnswer::NoToAll:
+                            m_overwriteMode
+                                = ExtractOverwriteMode::SkipExisting;
+                            return S_OK;
+                        case OverwriteAnswer::Cancel:
+                            return E_ABORT;
                         default:
                             return E_FAIL;
                         }
@@ -308,7 +308,7 @@ namespace SevenZipCore
                         // Unused?
                         // Not implement yet.
                         return E_FAIL;
-                    case ExtractOverwriteMode::WithoutPrompt:
+                    default:
                         boost::filesystem::remove(tstrFullPath, errorCode);
                         if (errorCode)
                         {
@@ -320,9 +320,6 @@ namespace SevenZipCore
                             }
                             return S_OK;
                         }
-                        break;
-                    default:
-                        return E_FAIL;
                     }
                 }
                 if (!isAnti)

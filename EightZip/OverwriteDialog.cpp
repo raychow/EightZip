@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <sstream>
 
+#include "SevenZipCore/IArchive.h"
+
 #include "FileInfo.h"
 
 using namespace std;
@@ -132,7 +134,7 @@ void OverwriteDialog::__Create(TString tstrPath,
     pSizerButton->Add(pButtonNo);
     auto pButtonRename = new wxButton(this, wxID_ANY, _("&Rename"));
     pSizerButton->Add(pButtonRename);
-    pSizerButton->Add(new wxWindow());
+    pSizerButton->Add(new wxWindow(this, wxID_ANY));
     auto pButtonYesToAll = new wxButton(this, wxID_ANY, _("Yes to &All"));
     pSizerButton->Add(pButtonYesToAll);
     auto pButtonNoToAll = new wxButton(this, wxID_ANY, _("No to A&ll"));
@@ -146,4 +148,26 @@ void OverwriteDialog::__Create(TString tstrPath,
         wxSizerFlags().Border(wxBOTTOM, 8).Center());
 
     SetSizerAndFit(pSizerMain);
+
+    pButtonYes->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+        EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::Yes));
+    });
+    pButtonNo->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+        EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::No));
+    });
+    pButtonRename->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+        EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::AutoRename));
+    });
+    pButtonYesToAll->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+        EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::YesToAll));
+    });
+    pButtonNoToAll->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+        EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::NoToAll));
+    });
+    pButtonRenameAll->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+        EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::AutoRename));
+    });
+    pButtonCancel->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+        EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::Cancel));
+    });
 }

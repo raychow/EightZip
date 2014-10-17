@@ -25,7 +25,7 @@ public:
     class Cancelled {};
 
     static const int PROGRESS_MAX = 1000;
-    static const int UPDATE_INTERVAL = 100;
+    static const int UPDATE_INTERVAL = 500;
 
     ProgressDialog(
         wxWindow *parent,
