@@ -3,7 +3,11 @@
 #ifndef OVERWRITEDIALOG_H
 #define OVERWRITEDIALOG_H
 
+#include <boost/optional.hpp>
+
 #include "SevenZipCore/TString.h"
+
+#include "SystemImageList.h"
 
 class OverwriteDialog
     : public wxDialog
@@ -13,6 +17,11 @@ public:
         wxWindow *parent,
         wxWindowID id,
         const wxString& title,
+        TString tstrPath,
+        boost::optional<time_t> oftExistModified,
+        boost::optional<UINT64> oun64ExistSize,
+        boost::optional<time_t> oftNewModified,
+        boost::optional<UINT64> oun64NewSize,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxDEFAULT_DIALOG_STYLE,
@@ -20,12 +29,14 @@ public:
 
     virtual ~OverwriteDialog();
 
-    void SetFilePath(TString tstrPath);
-
 private:
-    void __Create();
+    void __Create(TString tstrPath,
+        boost::optional<time_t> oftExistModified,
+        boost::optional<UINT64> oun64ExistSize,
+        boost::optional<time_t> oftNewModified,
+        boost::optional<UINT64> oun64NewSize);
 
-    wxTextCtrl *m_pTextCtrlPath = nullptr;
+    SystemImageList m_imageList;
 
 };
 

@@ -6,7 +6,7 @@ SystemImageList::SystemImageList(bool isSmallIcon)
 {
 #ifdef __WXMSW__
     SHFILEINFO info;
-    m_hImageList = (WXHIMAGELIST)SHGetFileInfo(wxT(""),
+    m_hImageList = (WXHIMAGELIST)SHGetFileInfo(wxEmptyString,
         FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_DIRECTORY,
         &info,
         sizeof(SHFILEINFO),

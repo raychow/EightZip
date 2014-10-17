@@ -65,13 +65,13 @@ void ProgressDialog::SetCompleted(UINT64 un64Completed)
 SevenZipCore::OverwriteAnswer ProgressDialog::AskOverwrite(
     TString tstrPath,
     boost::optional<time_t> oftExistModified,
-    boost::optional<UINT64> un64ExistSize,
+    boost::optional<UINT64> oun64ExistSize,
     boost::optional<time_t> oftNewModified,
-    boost::optional<UINT64> un64NewSize)
+    boost::optional<UINT64> oun64NewSize)
 {
-    OverwriteDialog dialog(this, wxID_ANY, _("Confirm file replace"));
+    OverwriteDialog dialog(this, wxID_ANY, _("Confirm file replace"), tstrPath,
+        oftExistModified, oun64ExistSize, oftNewModified, oun64NewSize);
     dialog.CenterOnParent();
-    dialog.SetFilePath(tstrPath);
     return static_cast<SevenZipCore::OverwriteAnswer>(dialog.ShowModal());
 }
 

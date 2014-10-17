@@ -28,14 +28,14 @@ void ExtractIndicator::SetCompleted(boost::optional<UINT64> oun64Value)
 SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
     TString tstrPath,
     boost::optional<time_t> oftExistModified,
-    boost::optional<UINT64> un64ExistSize,
+    boost::optional<UINT64> oun64ExistSize,
     boost::optional<time_t> oftNewModified,
-    boost::optional<UINT64> un64NewSize)
+    boost::optional<UINT64> oun64NewSize)
 {
     promise<SevenZipCore::OverwriteAnswer> result;
     wxTheApp->GetTopWindow()->CallAfter([&](){
         result.set_value(m_pProcessDialog->AskOverwrite(move(tstrPath),
-            oftExistModified, un64ExistSize, oftNewModified, un64NewSize));
+            oftExistModified, oun64ExistSize, oftNewModified, oun64NewSize));
     });
     return result.get_future().get();
 }
