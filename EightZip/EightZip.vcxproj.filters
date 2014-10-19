@@ -165,9 +165,6 @@
     <ClInclude Include="EightZipConfig.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="EightDirDialog.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="WindowStateManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -291,9 +288,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="EightZipConfig.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="EightDirDialog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="WindowStateManager.cpp">

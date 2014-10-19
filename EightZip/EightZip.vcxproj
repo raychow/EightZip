@@ -129,7 +129,6 @@
     <ClInclude Include="ArchiveModel.h" />
     <ClInclude Include="CodecsLoader.h" />
     <ClInclude Include="DriveModel.h" />
-    <ClInclude Include="EightDirDialog.h" />
     <ClInclude Include="EightZipConfig.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="ExtractDialog.h" />
@@ -189,7 +188,6 @@
     <ClCompile Include="ArchiveModel.cpp" />
     <ClCompile Include="CodecsLoader.cpp" />
     <ClCompile Include="DriveModel.cpp" />
-    <ClCompile Include="EightDirDialog.cpp" />
     <ClCompile Include="EightZipConfig.cpp" />
     <ClCompile Include="ExtractDialog.cpp" />
     <ClCompile Include="ExtractIndicator.cpp" />

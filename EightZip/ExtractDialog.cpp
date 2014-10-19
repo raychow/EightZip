@@ -3,7 +3,6 @@
 
 #include <wx/filepicker.h>
 
-#include "EightDirDialog.h"
 #include "WindowHelper.h"
 
 ExtractDialog::ExtractDialog(
@@ -71,7 +70,7 @@ void ExtractDialog::__Create()
 
 void ExtractDialog::__OnBrowseClick(wxCommandEvent &WXUNUSED(event))
 {
-    EightDirDialog dialog(this,
+    wxDirDialog dialog(this,
         _("Select a directory"),
         m_pComboBoxPath->GetValue());
     if (dialog.ShowModal() == wxID_OK)
