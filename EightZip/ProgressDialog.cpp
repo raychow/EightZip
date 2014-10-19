@@ -178,6 +178,7 @@ void ProgressDialog::__Create()
 void ProgressDialog::__StartTimer()
 {
     m_tpStart = chrono::system_clock::now();
+    __DoUpdate();
     m_timer.Start(UPDATE_INTERVAL);
 }
 
@@ -188,7 +189,7 @@ void ProgressDialog::__StopTimer()
     m_timer.Stop();
 }
 
-void ProgressDialog::__Update(wxTimerEvent &WXUNUSED(event))
+void ProgressDialog::__DoUpdate()
 {
     lock_guard<mutex> lg(m_mutex);
     int nElasped = (m_msElasped + chrono::duration_cast<chrono::milliseconds>(
@@ -220,6 +221,11 @@ void ProgressDialog::__Update(wxTimerEvent &WXUNUSED(event))
     m_pLabelPercent->SetLabel(
         wxString::Format(_("%d%%"), nPercent / (PROGRESS_MAX / 100)));
     m_pGaugeProcessed->SetValue(nPercent);
+}
+
+void ProgressDialog::__Update(wxTimerEvent &WXUNUSED(event))
+{
+    __DoUpdate();
 }
 
 void ProgressDialog::__OnPauseClick(wxCommandEvent &WXUNUSED(event))

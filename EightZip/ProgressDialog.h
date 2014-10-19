@@ -87,6 +87,9 @@ private:
     void __Create();
     void __StartTimer();
     void __StopTimer();
+
+    void __DoUpdate();
+
     void __Update(wxTimerEvent &WXUNUSED(event));
     void __OnPauseClick(wxCommandEvent &WXUNUSED(event));
     void __OnCancelClick(wxCommandEvent &event);
