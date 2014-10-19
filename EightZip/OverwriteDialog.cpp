@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <sstream>
 
+#include "SevenZipCore/CommonHelper.h"
 #include "SevenZipCore/IArchive.h"
 
 #include "FileInfo.h"
@@ -105,7 +106,8 @@ void OverwriteDialog::__Create(
 
     auto *pSizerNewFile = new wxBoxSizer(wxHORIZONTAL);
     pSizerNewFile->Add(new wxStaticBitmap(this, wxID_ANY,
-        m_imageList.GetIcon(FileInfo::GetIconIndex(m_tstrPath))),
+        m_imageList.GetIcon(FileInfo::GetIconIndex(
+        SevenZipCore::Helper::GetFileName(m_tstrPath)))),
         wxSizerFlags().Border(wxRIGHT, 6));
     auto *pSizerNewFileInfo = new wxBoxSizer(wxVERTICAL);
     if (oun64NewSize)
