@@ -21,6 +21,7 @@
 #include <wx/dir.h>
 #include <wx/fileconf.h>
 #include <wx/filename.h>
+#include <wx/filepicker.h>
 #include <wx/listctrl.h>
 #include <wx/statline.h>
 #include <wx/stdpaths.h>

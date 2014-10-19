@@ -23,11 +23,11 @@ public:
 
     inline TString GetPath() const
     {
-        return m_pTextCtrlNewPath->GetValue().ToStdWstring();
+        return m_pFilePickerCtrl->GetPath().ToStdWstring();
     }
 
 private:
-    wxTextCtrl *m_pTextCtrlNewPath = nullptr;
+    wxFilePickerCtrl *m_pFilePickerCtrl = nullptr;
 
     void __Create(TString tstrPath);
 

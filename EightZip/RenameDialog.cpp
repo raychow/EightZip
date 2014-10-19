@@ -1,6 +1,8 @@
 #include "stdwx.h"
 #include "RenameDialog.h"
 
+#include "FileHelper.h"
+
 RenameDialog::RenameDialog(
     wxWindow *parent,
     wxWindowID id,
@@ -33,14 +35,20 @@ void RenameDialog::__Create(TString tstrPath)
 
     pSizerPath->Add(new wxStaticText(this, wxID_ANY, _("to")),
         wxSizerFlags().Border(wxTOP, 3));
-    m_pTextCtrlNewPath = new wxTextCtrl(this, wxID_ANY, tstrPath);
-    pSizerPath->Add(m_pTextCtrlNewPath, wxSizerFlags().Expand());
+
+    m_pFilePickerCtrl = new wxFilePickerCtrl(this, wxID_ANY, tstrPath,
+        _("Choose a file name"), wxFileSelectorDefaultWildcardStr,
+        wxDefaultPosition, wxSize(400, -1),
+        wxFLP_USE_TEXTCTRL | wxFLP_SAVE | wxFLP_OVERWRITE_PROMPT);
+    m_pFilePickerCtrl->GetPickerCtrl()->SetLabel(_("&Browse"));
+    pSizerPath->Add(m_pFilePickerCtrl, wxSizerFlags().Expand());
 
     pSizerMain->Add(pSizerPath,
         wxSizerFlags().Border(wxTOP | wxRIGHT | wxLEFT, 6).Expand());
 
     pSizerMain->Add(CreateStdDialogButtonSizer(wxOK | wxCANCEL),
-        wxSizerFlags().Border(wxTOP, 12).Center());
+        wxSizerFlags().Border(wxTOP | wxBOTTOM, 6).Center());
 
-    SetSizer(pSizerMain);
+    SetSizerAndFit(pSizerMain);
+    CenterOnParent();
 }
