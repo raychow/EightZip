@@ -15,8 +15,8 @@ ExtractDialog::ExtractDialog(
     const wxString& name /*= wxDialogNameStr*/)
     : wxDialog(parent, id, title, pos, size, style, name)
     , m_windowStateManager(this,
-    ConfigIndex::ExtractLocationX,
-    ConfigIndex::ExtractLocationY,
+    ConfigIndex::Nothing,
+    ConfigIndex::Nothing,
     ConfigIndex::ExtractWidth,
     ConfigIndex::ExtractHeight,
     ConfigIndex::ExtractIsMaximized)
@@ -62,6 +62,7 @@ void ExtractDialog::__Create()
     SetSizer(pSizerMain);
     SetMinClientSize(wxSize(300, 150));
     m_windowStateManager.LoadState();
+    CenterOnParent();
 
     m_pComboBoxPath->Bind(wxEVT_TEXT, &ExtractDialog::__OnPathChange, this);
     pButtonBrowse->Bind(wxEVT_BUTTON, &ExtractDialog::__OnBrowseClick, this);

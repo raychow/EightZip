@@ -10,8 +10,6 @@ const EightZipConfig::Definition EightZipConfig::m_definitions[] = {
     { wxT("Layout/EightZipWidth"), ConfigType::Integer, ConfigIndex::EightZipWidth, 1000 },
     { wxT("Layout/EightZipHeight"), ConfigType::Integer, ConfigIndex::EightZipHeight, 560 },
     { wxT("Layout/EightZipIsMaximized"), ConfigType::Boolean, ConfigIndex::EightZipIsMaximized, false },
-    { wxT("Layout/ExtractLocationX"), ConfigType::Integer, ConfigIndex::ExtractLocationX },
-    { wxT("Layout/ExtractLocationY"), ConfigType::Integer, ConfigIndex::ExtractLocationY },
     { wxT("Layout/ExtractWidth"), ConfigType::Integer, ConfigIndex::ExtractWidth, 400 },
     { wxT("Layout/ExtractHeight"), ConfigType::Integer, ConfigIndex::ExtractHeight, 180 },
     { wxT("Layout/ExtractIsMaximized"), ConfigType::Boolean, ConfigIndex::ExtractIsMaximized, false },

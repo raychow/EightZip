@@ -37,47 +37,71 @@ void WindowStateManager::Create(wxTopLevelWindowBase *pWindow,
     m_indexWidth = indexWidth;
     m_indexHeight = indexHeight;
     m_indexIsMaximized = indexIsMaximized;
-    m_pWindow->Bind(wxEVT_MOVE, &WindowStateManager::_OnMove, this);
-    m_pWindow->Bind(wxEVT_SIZE, &WindowStateManager::_OnSize, this);
+    if (__IsConfigLocation())
+    {
+        m_pWindow->Bind(wxEVT_MOVE, &WindowStateManager::_OnMove, this);
+    }
+    if (__IsConfigSize())
+    {
+        m_pWindow->Bind(wxEVT_SIZE, &WindowStateManager::_OnSize, this);
+    }
 }
 
 void WindowStateManager::LoadState()
 {
     assert(m_pWindow);
     auto &config = EightZipConfig::GetInstance();
-    m_pWindow->SetClientSize(
-        config.GetInteger(m_indexWidth),
-        config.GetInteger(m_indexHeight));
-    int nX;
-    int nY;
-    if (config.GetInteger(m_indexLocationX, &nX)
-        && config.GetInteger(m_indexLocationY, &nY))
+    if (__IsConfigLocation())
     {
-        m_pWindow->SetPosition(wxPoint(nX, nY));
+        int nX;
+        int nY;
+        if (config.GetInteger(m_indexLocationX, &nX)
+            && config.GetInteger(m_indexLocationY, &nY))
+        {
+            m_pWindow->SetPosition(wxPoint(nX, nY));
+        }
+        else
+        {
+            m_pWindow->Center();
+        }
     }
-    else
+    if (__IsConfigSize())
     {
-        m_pWindow->Center();
+        m_pWindow->SetClientSize(
+            config.GetInteger(m_indexWidth),
+            config.GetInteger(m_indexHeight));
+        m_pWindow->Maximize(config.GetBoolean(m_indexIsMaximized));
     }
-    m_pWindow->Maximize(config.GetBoolean(m_indexIsMaximized));
 }
 
 void WindowStateManager::SaveState() const
 {
     auto &config = EightZipConfig::GetInstance();
-    config.Set(m_indexLocationX, m_lastPosition.x);
-    config.Set(m_indexLocationY, m_lastPosition.y);
-    config.Set(m_indexWidth, m_lastSize.GetWidth());
-    config.Set(m_indexHeight, m_lastSize.GetHeight());
-    config.Set(m_indexIsMaximized, m_isLastMaxmized);
+    if (__IsConfigLocation())
+    {
+        config.Set(m_indexLocationX, m_lastPosition.x);
+        config.Set(m_indexLocationY, m_lastPosition.y);
+    }
+    if (__IsConfigSize())
+    {
+        config.Set(m_indexWidth, m_lastSize.GetWidth());
+        config.Set(m_indexHeight, m_lastSize.GetHeight());
+        config.Set(m_indexIsMaximized, m_isLastMaxmized);
+    }
 }
 
 void WindowStateManager::Destroy()
 {
     if (m_pWindow)
     {
-        m_pWindow->Unbind(wxEVT_MOVE, &WindowStateManager::_OnMove, this);
-        m_pWindow->Unbind(wxEVT_SIZE, &WindowStateManager::_OnSize, this);
+        if (__IsConfigLocation())
+        {
+            m_pWindow->Unbind(wxEVT_MOVE, &WindowStateManager::_OnMove, this);
+        }
+        if (__IsConfigSize())
+        {
+            m_pWindow->Unbind(wxEVT_SIZE, &WindowStateManager::_OnSize, this);
+        }
         m_pWindow = nullptr;
         SaveState();
     }

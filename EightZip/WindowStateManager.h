@@ -30,6 +30,12 @@ public:
     void Destroy();
 
 protected:
+    void _OnMove(wxMoveEvent& event);
+    void _OnSize(wxSizeEvent& event);
+
+    void _UpdateLastLayout();
+
+private:
     wxTopLevelWindowBase *m_pWindow = nullptr;
     ConfigIndex m_indexLocationX;
     ConfigIndex m_indexLocationY;
@@ -41,10 +47,18 @@ protected:
     wxPoint m_lastPosition;
     wxSize m_lastSize;
 
-    void _OnMove(wxMoveEvent& event);
-    void _OnSize(wxSizeEvent& event);
+    bool __IsConfigLocation() const
+    {
+        return ConfigIndex::Nothing != m_indexLocationX
+            && ConfigIndex::Nothing != m_indexLocationY;
+    }
 
-    void _UpdateLastLayout();
+    bool __IsConfigSize() const
+    {
+        return ConfigIndex::Nothing != m_indexWidth
+            && ConfigIndex::Nothing != m_indexHeight
+            && ConfigIndex::Nothing != m_indexIsMaximized;
+    }
 
 };
 

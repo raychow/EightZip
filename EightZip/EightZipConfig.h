@@ -9,13 +9,13 @@
 
 enum struct ConfigIndex
 {
+    Nothing = -1,
+
     EightZipLocationX = 0,
     EightZipLocationY,
     EightZipWidth,
     EightZipHeight,
     EightZipIsMaximized,
-    ExtractLocationX,
-    ExtractLocationY,
     ExtractWidth,
     ExtractHeight,
     ExtractIsMaximized,

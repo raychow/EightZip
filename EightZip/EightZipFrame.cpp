@@ -125,7 +125,7 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
             return;
         }
     }
-    ExtractDialog dialog(nullptr, wxID_ANY, _T("Extract"));
+    ExtractDialog dialog(this, wxID_ANY, _T("Extract"));
     dialog.SetPath(spFolderModel->GetPath());
     dialog.CenterOnParent();
     if (dialog.ShowModal() != wxID_OK)
