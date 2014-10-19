@@ -22,7 +22,8 @@ public:
         boost::optional<time_t> oftExistModified,
         boost::optional<UINT64> oun64ExistSize,
         boost::optional<time_t> oftNewModified,
-        boost::optional<UINT64> oun64NewSize);
+        boost::optional<UINT64> oun64NewSize,
+        TString *ptstrNewPath);
     virtual void AddError(TString tstrMessage);
     virtual void AddError(TString tstrMessage, TString tstrParameter);
     virtual void Prepare(TString tstrPath,

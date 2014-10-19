@@ -7,6 +7,7 @@
 #include "SevenZipCore/IArchive.h"
 
 #include "FileInfo.h"
+#include "RenameDialog.h"
 
 using namespace std;
 
@@ -42,9 +43,9 @@ OverwriteDialog::OverwriteDialog(
     const wxString& name /*= wxDialogNameStr*/)
     : wxDialog(parent, id, title, pos, size, style, name)
     , m_imageList(false)
+    , m_tstrPath(tstrPath)
 {
-    __Create(tstrPath,
-        oftExistModified, oun64ExistSize, oftNewModified, oun64NewSize);
+    __Create(oftExistModified, oun64ExistSize, oftNewModified, oun64NewSize);
 }
 
 OverwriteDialog::~OverwriteDialog()
@@ -52,7 +53,7 @@ OverwriteDialog::~OverwriteDialog()
 
 }
 
-void OverwriteDialog::__Create(TString tstrPath,
+void OverwriteDialog::__Create(
     boost::optional<time_t> oftExistModified,
     boost::optional<UINT64> oun64ExistSize,
     boost::optional<time_t> oftNewModified,
@@ -67,7 +68,7 @@ void OverwriteDialog::__Create(TString tstrPath,
     pSizerFileInfo->Add(new wxStaticText(this, wxID_ANY,
         _("The following file already exists:")),
         wxSizerFlags().Border(wxBOTTOM, 3));
-    auto pTextCtrlPath = new wxTextCtrl(this, wxID_ANY, tstrPath,
+    auto pTextCtrlPath = new wxTextCtrl(this, wxID_ANY, m_tstrPath,
         wxDefaultPosition, wxSize(350, 60), wxTE_MULTILINE);
     pTextCtrlPath->SetEditable(false);
     pSizerFileInfo->Add(pTextCtrlPath,
@@ -78,7 +79,7 @@ void OverwriteDialog::__Create(TString tstrPath,
 
     auto *pSizerExistFile = new wxBoxSizer(wxHORIZONTAL);
     pSizerExistFile->Add(new wxStaticBitmap(this, wxID_ANY,
-        m_imageList.GetIcon(FileInfo::GetIconIndex(tstrPath))),
+        m_imageList.GetIcon(FileInfo::GetIconIndex(m_tstrPath, false, false))),
         wxSizerFlags().Border(wxRIGHT, 6));
     auto *pSizerExistFileInfo = new wxBoxSizer(wxVERTICAL);
     if (oun64ExistSize)
@@ -104,7 +105,7 @@ void OverwriteDialog::__Create(TString tstrPath,
 
     auto *pSizerNewFile = new wxBoxSizer(wxHORIZONTAL);
     pSizerNewFile->Add(new wxStaticBitmap(this, wxID_ANY,
-        m_imageList.GetIcon(FileInfo::GetIconIndex(tstrPath))),
+        m_imageList.GetIcon(FileInfo::GetIconIndex(m_tstrPath))),
         wxSizerFlags().Border(wxRIGHT, 6));
     auto *pSizerNewFileInfo = new wxBoxSizer(wxVERTICAL);
     if (oun64NewSize)
@@ -149,25 +150,30 @@ void OverwriteDialog::__Create(TString tstrPath,
 
     SetSizerAndFit(pSizerMain);
 
-    pButtonYes->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+    pButtonYes->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)) {
         EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::Yes));
     });
-    pButtonNo->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+    pButtonNo->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)) {
         EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::No));
     });
-    pButtonRename->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
-        EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::AutoRename));
+    pButtonRename->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)) {
+        RenameDialog dialog(this, wxID_ANY, _("Rename"), m_tstrPath);
+        if (dialog.ShowModal() == wxID_OK)
+        {
+            m_tstrPath = dialog.GetPath();
+            EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::Rename));
+        }
     });
-    pButtonYesToAll->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+    pButtonYesToAll->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)) {
         EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::YesToAll));
     });
-    pButtonNoToAll->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+    pButtonNoToAll->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)) {
         EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::NoToAll));
     });
-    pButtonRenameAll->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+    pButtonRenameAll->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)) {
         EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::AutoRename));
     });
-    pButtonCancel->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)){
+    pButtonCancel->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)) {
         EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::Cancel));
     });
 }

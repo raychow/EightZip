@@ -30,12 +30,14 @@ SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
     boost::optional<time_t> oftExistModified,
     boost::optional<UINT64> oun64ExistSize,
     boost::optional<time_t> oftNewModified,
-    boost::optional<UINT64> oun64NewSize)
+    boost::optional<UINT64> oun64NewSize,
+    TString *ptstrNewPath)
 {
     promise<SevenZipCore::OverwriteAnswer> result;
     wxTheApp->GetTopWindow()->CallAfter([&](){
         result.set_value(m_pProcessDialog->AskOverwrite(move(tstrPath),
-            oftExistModified, oun64ExistSize, oftNewModified, oun64NewSize));
+            oftExistModified, oun64ExistSize, oftNewModified, oun64NewSize,
+            ptstrNewPath));
     });
     return result.get_future().get();
 }

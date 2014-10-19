@@ -48,7 +48,8 @@ public:
         boost::optional<time_t> oftExistModified,
         boost::optional<UINT64> oun64ExistSize,
         boost::optional<time_t> oftNewModified,
-        boost::optional<UINT64> oun64NewSize);
+        boost::optional<UINT64> oun64NewSize,
+        TString *ptstrNewPath);
 
     void Done(bool isSuccess);
 

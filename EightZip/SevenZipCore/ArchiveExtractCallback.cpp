@@ -259,21 +259,23 @@ namespace SevenZipCore
                         {
                         }
 
+                        TString tstrNewPath;
                         switch (m_pExtractIndicator->AskOverwrite(tstrFullPath,
                             boost::filesystem::last_write_time(tstrFullPath),
                             boost::filesystem::file_size(tstrFullPath),
                             m_oftModified ? boost::optional<time_t>(
                             Helper::GetUnixTimeFromFileTime(
                             *m_oftModified)) : boost::none,
-                            m_oun64Size
+                            m_oun64Size,
+                            &tstrNewPath
                             ))
                         {
                         case OverwriteAnswer::Yes:
                             break;
                         case OverwriteAnswer::No:
                             return S_OK;
-                        case OverwriteAnswer::AutoRename:
-                            m_overwriteMode = ExtractOverwriteMode::AutoRename;
+                        case OverwriteAnswer::Rename:
+                            tstrFullPath = tstrNewPath;
                             break;
                         case OverwriteAnswer::YesToAll:
                             m_overwriteMode
@@ -283,6 +285,9 @@ namespace SevenZipCore
                             m_overwriteMode
                                 = ExtractOverwriteMode::SkipExisting;
                             return S_OK;
+                        case OverwriteAnswer::AutoRename:
+                            m_overwriteMode = ExtractOverwriteMode::AutoRename;
+                            break;
                         case OverwriteAnswer::Cancel:
                             return E_ABORT;
                         default:

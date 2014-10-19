@@ -20,7 +20,8 @@ namespace SevenZipCore
             boost::optional<time_t> oftExistModified,
             boost::optional<UINT64> un64ExistSize,
             boost::optional<time_t> oftNewModified,
-            boost::optional<UINT64> un64NewSize) = 0;
+            boost::optional<UINT64> un64NewSize,
+            TString *ptstrNewPath) = 0;
         virtual void AddError(TString tstrMessage) = 0;
         virtual void AddError(TString tstrMessage, TString tstrParameter) = 0;
         virtual void Prepare(TString tstrPath,

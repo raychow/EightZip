@@ -29,14 +29,17 @@ public:
 
     virtual ~OverwriteDialog();
 
+    inline TString GetPath() const { return m_tstrPath; }
+
 private:
-    void __Create(TString tstrPath,
+    SystemImageList m_imageList;
+    TString m_tstrPath;
+
+    void __Create(
         boost::optional<time_t> oftExistModified,
         boost::optional<UINT64> oun64ExistSize,
         boost::optional<time_t> oftNewModified,
         boost::optional<UINT64> oun64NewSize);
-
-    SystemImageList m_imageList;
 
 };
 

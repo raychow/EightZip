@@ -74,6 +74,7 @@ namespace SevenZipCore
         YesToAll,
         No,
         NoToAll,
+        Rename,
         AutoRename,
         Cancel
     };
