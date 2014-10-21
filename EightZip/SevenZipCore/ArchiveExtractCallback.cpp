@@ -391,7 +391,7 @@ namespace SevenZipCore
             }
             if (m_pExtractIndicator)
             {
-                m_pExtractIndicator->Prepare(m_tstrExtractPath,
+                m_pExtractIndicator->Prepare(m_tstrInternalPath,
                     m_isDirectory, extractAskMode, m_oun64Position);
             }
             return S_OK;
