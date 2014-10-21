@@ -29,6 +29,12 @@ TString FormatDateTime(time_t value)
     return tss.str();
 }
 
+wxString GetBytesString(UINT64 value)
+{
+    return wxString::Format(value <= 1 ? _("%s byte") : _("%s bytes"),
+        FormatWithCommas(value));
+}
+
 OverwriteDialog::OverwriteDialog(
     wxWindow *parent,
     wxWindowID id,
@@ -86,8 +92,7 @@ void OverwriteDialog::__Create(
     if (oun64ExistSize)
     {
         pSizerExistFileInfo->Add(new wxStaticText(this, wxID_ANY,
-            wxString::Format(_("%s bytes"),
-            FormatWithCommas(*oun64ExistSize))));
+            GetBytesString(*oun64ExistSize)));
     }
     if (oftExistModified)
     {
@@ -113,8 +118,7 @@ void OverwriteDialog::__Create(
     if (oun64NewSize)
     {
         pSizerNewFileInfo->Add(new wxStaticText(this, wxID_ANY,
-            wxString::Format(_("%s bytes"),
-            FormatWithCommas(*oun64NewSize))));
+            GetBytesString(*oun64ExistSize)));
     }
     if (oftNewModified)
     {
