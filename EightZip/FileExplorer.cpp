@@ -214,23 +214,3 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
             wxOK | wxICON_ERROR);
     }
 }
-
-void FileExplorer::Extract(TString tstrPath)
-{
-    shared_ptr<IModel> spModel;
-    auto entry = GetSelectedEntry();
-    if (entry && entry->CanExtract())
-    {
-        spModel = entry->GetModel();
-    }
-    else
-    {
-        spModel = m_spModel;
-    }
-    if (!spModel->IsArchive()
-        || !Helper::Extract(
-        tstrPath, dynamic_pointer_cast<ArchiveModel>(spModel)))
-    {
-        wxMessageBox(_("Extract failed."));
-    }
-}

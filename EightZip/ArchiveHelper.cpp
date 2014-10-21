@@ -50,7 +50,8 @@ namespace Helper
 
     static void ExtractThread(TString tstrExtractPath,
         shared_ptr<ArchiveModel> spModel,
-        ProgressDialog *pProgressDialog)
+        ProgressDialog *pProgressDialog,
+        bool isLaunchFolder)
     {
         ProgressDialogManager dialogManager(pProgressDialog);
         ExtractIndicator extractIndicator(pProgressDialog);
@@ -63,9 +64,26 @@ namespace Helper
             return;
         }
         dialogManager.SetSuccess(true);
+        if (isLaunchFolder)
+        {
+            try
+            {
+                OpenFileExternal(tstrExtractPath);
+            }
+            catch (const SystemException &)
+            {
+                wxMessageBox(
+                    wxString::Format(_("Cannot open \"%s\"."),
+                    tstrExtractPath),
+                    EIGHTZIP_NAME,
+                    wxOK | wxICON_ERROR);
+            }
+        }
     }
 
-    bool Extract(TString tstrPath, shared_ptr<ArchiveModel> spModel)
+    bool Extract(TString tstrPath,
+        shared_ptr<ArchiveModel> spModel,
+        bool isLaunchFolder)
     {
         try
         {
@@ -94,7 +112,7 @@ namespace Helper
 
             thread extractThread(ExtractThread,
                 Helper::GetCanonicalPath(extractPath.wstring()), spModel,
-                pProgressDialog);
+                pProgressDialog, isLaunchFolder);
             extractThread.detach();
         }
         catch (const boost::system::system_error &)

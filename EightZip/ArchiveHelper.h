@@ -11,7 +11,9 @@
 
 namespace Helper
 {
-    bool Extract(TString tstrPath, std::shared_ptr<ArchiveModel> spModel);
+    bool Extract(TString tstrPath,
+        std::shared_ptr<ArchiveModel> spModel,
+        bool isLaunchFolder);
 }
 
 #endif // ARCHIVEHELPER_H

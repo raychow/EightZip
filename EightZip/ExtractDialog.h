@@ -26,10 +26,13 @@ public:
     {
         m_pComboBoxPath->SetValue(tstrPath);
     }
+
     TString GetPath() const
     {
         return m_pComboBoxPath->GetValue().ToStdWstring();
     }
+
+    bool IsLaunchFolder() const { return m_pCheckBoxLaunchFolder->IsChecked(); }
 
 private:
     WindowStateManager m_windowStateManager;
