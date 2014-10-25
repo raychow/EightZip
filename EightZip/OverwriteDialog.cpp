@@ -96,8 +96,6 @@ void OverwriteDialog::__Create(
     }
     if (oftExistModified)
     {
-        TStringStream tss;
-        tss << put_time(localtime(&*oftExistModified), wxT("%c"));
         pSizerExistFileInfo->Add(new wxStaticText(this, wxID_ANY,
             wxString::Format(_("modified on %s"),
             FormatDateTime(*oftExistModified))));
