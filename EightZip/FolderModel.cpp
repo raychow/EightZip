@@ -3,104 +3,44 @@
 
 #include "SevenZipCore/ArchiveEntry.h"
 #include "SevenZipCore/CommonHelper.h"
-#include "SevenZipCore/ComPtr.h"
-#include "SevenZipCore/OpenCallback.h"
 
 #include "ArchiveModel.h"
 #include "CodecsLoader.h"
-#include "DriveModel.h"
+#include "ComputerModel.h"
 #include "Exception.h"
 #include "FileFinder.h"
 #include "FileHelper.h"
 #include "FileInfo.h"
+#include "FileModel.h"
 
 using namespace std;
 
-FolderEntry::FolderEntry(
-    TString tstrPath,
-    TString tstrName,
-    bool isDirectory,
-    wxULongLong_t un64Size,
-    wxDateTime dtAccessed,
-    wxDateTime dtModified,
-    wxDateTime dtCreated)
-{
-    m_tstrFolder = SevenZipCore::Helper::MakePathSlash(move(tstrPath));
-    m_tstrName = move(tstrName);
-    m_isDirectory = isDirectory;
-    m_un64Size = un64Size;
-    m_dtAccessed = dtAccessed;
-    m_dtModified = dtModified;
-    m_dtCreated = dtCreated;
-    m_tstrType = FileInfo::GetType(GetPath(), IsDirectory());
-}
-
-bool FolderEntry::IsOpenDirectly() const
-{
-    return false;
-}
-
-std::shared_ptr<IModel> FolderEntry::GetModel()
-{
-    auto tstrPath = GetPath();
-    if (IsDirectory())
-    {
-        return make_shared<FolderModel>(tstrPath);
-    }
-    else
-    {
-        auto result = make_shared<ArchiveModel>(
-            nullptr,
-            tstrPath,
-            wxEmptyString,
-            tstrPath,
-            SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
-        return result;
-    }
-}
-
-bool FolderEntry::CanExtract() const
-{
-    if (IsDirectory())
-    {
-        return false;
-    }
-    else
-    {
-        auto tstrPath = GetPath();
-        try
-        {
-            SevenZipCore::ArchiveEntry(
-                weak_ptr<SevenZipCore::Archive>(),
-                CodecsLoader::GetInstance().GetCodecs(),
-                tstrPath,
-                nullptr,
-                -1,
-                SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
-            return true;
-        }
-        catch (const SevenZipCore::SevenZipCoreException &)
-        {
-            return false;
-        }
-    }
-}
-
 FolderModel::FolderModel(TString tstrPath)
+    : ModelBase(wxEmptyString, wxEmptyString, wxEmptyString, true, false)
 {
     FileInfo fileInfo(move(tstrPath));
     if (fileInfo.IsOK())
     {
-        m_tstrPath = SevenZipCore::Helper::RemovePathSlash(
+        tstrPath = SevenZipCore::Helper::RemovePathSlash(
             fileInfo.GetCanonicalPath());
 #ifdef __WXMSW__
-        if (m_tstrPath.size() == 2 && m_tstrPath.back() == ':')
+        if (tstrPath.size() == 2 && tstrPath.back() == ':')
 #else
-        if (m_tstrPath.empty())
+        if (tstrPath.empty())
 #endif
         {
-            m_tstrPath.push_back(wxFILE_SEP_PATH);
+            tstrPath.push_back(wxFILE_SEP_PATH);
+            SetFileName(tstrPath);
         }
+        else
+        {
+            SetLocation(Helper::GetParentPath(tstrPath));
+            SetFileName(SevenZipCore::Helper::GetFileName(tstrPath));
+        }
+        SetType(fileInfo.GetType());
+        m_dtAccessed = fileInfo.GetAccessed();
+        m_dtModified = fileInfo.GetModified();
+        m_dtCreated = fileInfo.GetCreated();
     }
     else
     {
@@ -108,15 +48,28 @@ FolderModel::FolderModel(TString tstrPath)
     }
 }
 
-std::shared_ptr<IModel> FolderModel::GetParent() const
+FolderModel::FolderModel(TString tstrLocation,
+    TString tstrFileName,
+    wxDateTime dtAccessed,
+    wxDateTime dtModified,
+    wxDateTime dtCreated)
+    : ModelBase(tstrLocation, tstrFileName, true, false)
+    , m_dtAccessed(dtAccessed)
+    , m_dtModified(dtModified)
+    , m_dtCreated(dtCreated)
 {
-    auto tstrParentPath = Helper::GetParentPath(m_tstrPath);
+
+}
+
+shared_ptr<ModelBase> FolderModel::GetParent() const
+{
+    auto tstrParentPath = GetLocation();
     if (tstrParentPath.empty())
     {
 #ifdef __WXMSW__
-        return make_shared<DriveModel>();
+        return make_shared<ComputerModel>();
 #else
-        return make_shared<FolderModel>("/");
+        return make_shared<FolderModel>(wxFILE_SEP_PATH);
 #endif
     }
     else
@@ -132,36 +85,50 @@ std::shared_ptr<IModel> FolderModel::GetParent() const
     }
 }
 
-const FolderModel::EntryVector &FolderModel::GetEntries() const
+const vector<ModelItemType> &FolderModel::GetSupportedItems() const
 {
-    if (!m_isInitialized)
+    static vector<ModelItemType> vType = {
+        ModelItemType::Name,
+        ModelItemType::Type,
+        ModelItemType::Size,
+        ModelItemType::Modified,
+        ModelItemType::Created,
+        ModelItemType::Accessed,
+    };
+    return vType;
+}
+
+bool FolderModel::CanExtract() const
+{
+    return false;
+}
+
+const ModelBase::Models FolderModel::GetChildren() const
+{
+    Models result;
+    auto tstrPath = GetPath();
+    FileFinder finder(GetPath());
+    tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));
+    while (finder.FindNext())
     {
-        FileFinder finder(m_tstrPath);
-        while (finder.FindNext())
+        if (finder.IsDirectory())
         {
-            m_vspEntry.push_back(make_shared<FolderEntry>(
-                m_tstrPath,
+            result.push_back(make_shared<FolderModel>(
+                tstrPath,
                 finder.GetFileName(),
-                finder.IsDirectory(),
-                finder.GetSize(),
                 finder.GetAccessed(),
                 finder.GetModified(),
                 finder.GetCreated()));
         }
-        m_isInitialized = true;
+        else
+        {
+            result.push_back(make_shared<FileModel>(
+                tstrPath,
+                finder.GetFileName(),
+                finder.GetAccessed(),
+                finder.GetModified(),
+                finder.GetCreated()));
+        }
     }
-    return m_vspEntry;
-}
-
-const vector<IEntry::ItemType> &FolderModel::GetSupportedItems() const
-{
-    static vector<IEntry::ItemType> vType = {
-        IEntry::ItemType::Name,
-        IEntry::ItemType::Type,
-        IEntry::ItemType::Size,
-        IEntry::ItemType::Modified,
-        IEntry::ItemType::Created,
-        IEntry::ItemType::Accessed,
-    };
-    return vType;
+    return result;
 }

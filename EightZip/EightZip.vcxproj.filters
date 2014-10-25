@@ -25,6 +25,12 @@
     <Filter Include="源文件\Helper">
       <UniqueIdentifier>{5bad4c04-bbb8-45a9-a143-a57261c6d56c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="头文件\Model">
+      <UniqueIdentifier>{ada977d8-8d85-4161-8ba7-c1cf1948a327}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Model">
+      <UniqueIdentifier>{1614c72e-be7c-4037-b425-4b602554bc48}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdwx.h">
@@ -108,13 +114,7 @@
     <ClInclude Include="SevenZipCore\TString.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
-    <ClInclude Include="IModel.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="FileListCtrl.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ModelBase.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="SystemImageList.h">
@@ -126,16 +126,7 @@
     <ClInclude Include="FileFinder.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="DriveModel.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Exception.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ArchiveModel.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FolderModel.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="SevenZipCore\ArchiveExtractCallback.h">
@@ -201,6 +192,27 @@
     <ClInclude Include="RenameDialog.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ComputerModel.h">
+      <Filter>头文件\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="ArchiveModel.h">
+      <Filter>头文件\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="FolderModel.h">
+      <Filter>头文件\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="DriveModel.h">
+      <Filter>头文件\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelBase.h">
+      <Filter>头文件\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="FileModel.h">
+      <Filter>头文件\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="ArchiveFileModel.h">
+      <Filter>头文件\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -245,9 +257,6 @@
     <ClCompile Include="SevenZipCore\TString.cpp">
       <Filter>源文件\SevenZipCore</Filter>
     </ClCompile>
-    <ClCompile Include="ModelBase.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="FileListCtrl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -258,15 +267,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="FileFinder.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="DriveModel.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FolderModel.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ArchiveModel.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SevenZipCore\ArchiveExtractCallback.cpp">
@@ -316,6 +316,27 @@
     </ClCompile>
     <ClCompile Include="RenameDialog.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchiveModel.cpp">
+      <Filter>源文件\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputerModel.cpp">
+      <Filter>源文件\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="FolderModel.cpp">
+      <Filter>源文件\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="DriveModel.cpp">
+      <Filter>源文件\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="ModelBase.cpp">
+      <Filter>源文件\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="FileModel.cpp">
+      <Filter>源文件\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchiveFileModel.cpp">
+      <Filter>源文件\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -3,45 +3,28 @@
 #ifndef DRIVEMODEL_H
 #define DRIVEMODEL_H
 
-#ifdef __WXMSW__
-
-#include <memory>
-
-#include "ModelBase.h"
-
-class DriveEntry
-    : public EntryBase
-{
-public:
-    DriveEntry(TString tstrName,
-        wxULongLong_t un64TotalSize,
-        wxULongLong_t un64FreeSpace,
-        TString tstrType);
-
-    virtual std::shared_ptr<IModel> GetModel();
-    virtual bool IsOpenExternal() { return false; }
-    virtual bool CanExtract() const { return false; }
-
-};
+#include "FolderModel.h"
 
 class DriveModel
-    : public ModelBase
+    : public FolderModel
 {
 public:
-    DriveModel();
+    DriveModel(TString tstrDriveName);
 
-    virtual std::shared_ptr<IModel> GetParent() const;
-    virtual const EntryVector &GetEntries() const { return m_vspEntry; }
-    virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
-    virtual bool IsArchive() const { return false; }
+    virtual TString GetItem(ModelItemType itemType) const;
+
+    virtual bool Compare(const ModelBase &otherModel,
+        ModelItemType itemType,
+        bool isAscending) const;
+
+    virtual bool CanExtract() const;
+
+    virtual ~DriveModel() { }
 
 private:
-    static std::vector<TString> __GetDrives();
-
-    EntryVector m_vspEntry;
+    wxULongLong_t m_un64TotalSize = 0;
+    wxULongLong_t m_un64FreeSpace = 0;
 
 };
-
-#endif
 
 #endif // DRIVEMODEL_H

@@ -12,6 +12,68 @@
 
 using namespace std;
 
+bool IsOpenExternal(TString tstrFileName)
+{
+#ifdef __WXMSW__
+    static array<TString, 44> atstrDirectExtension = {
+        wxT("bat"),
+        wxT("chm"),
+        wxT("com"),
+        wxT("doc"),
+        wxT("docm"),
+        wxT("docx"),
+        wxT("dotm"),
+        wxT("dotx"),
+        wxT("dwf"),
+        wxT("exe"),
+        wxT("flv"),
+        wxT("mpp"),
+        wxT("msg"),
+        wxT("msi"),
+        wxT("ods"),
+        wxT("odt"),
+        wxT("pdf"),
+        wxT("potm"),
+        wxT("potx"),
+        wxT("ppam"),
+        wxT("pps"),
+        wxT("ppsm"),
+        wxT("ppsx"),
+        wxT("ppt"),
+        wxT("pptm"),
+        wxT("pptx"),
+        wxT("pub"),
+        wxT("swf"),
+        wxT("vsd"),
+        wxT("wb3"),
+        wxT("wdb"),
+        wxT("wks"),
+        wxT("wps"),
+        wxT("wpt"),
+        wxT("xlam"),
+        wxT("xlr"),
+        wxT("xls"),
+        wxT("xlsb"),
+        wxT("xlsm"),
+        wxT("xlsx"),
+        wxT("xltm"),
+        wxT("xltx"),
+        wxT("xps"),
+        wxT("xsn")
+    };
+#else
+#endif
+    auto szPointLocation = tstrFileName.rfind(wxFILE_SEP_EXT);
+    if (tstrFileName.npos == szPointLocation)
+    {
+        return false;
+    }
+    auto tstrExtension = tstrFileName.substr(szPointLocation + 1);
+    return binary_search(atstrDirectExtension.cbegin(),
+        atstrDirectExtension.cend(),
+        tstrExtension);
+}
+
 FileExplorer::FileExplorer(
     wxWindow *parent,
     wxWindowID winid /*= wxID_ANY*/,
@@ -42,7 +104,7 @@ int FileExplorer::GetSelectedIndex() const
         wxLIST_STATE_SELECTED);
 }
 
-std::vector<int> FileExplorer::GetSelectedIndexes() const
+vector<int> FileExplorer::GetSelectedIndexes() const
 {
     int index = -1;
     vector<int> result;
@@ -66,7 +128,7 @@ int FileExplorer::GetSelectedEntryIndex() const
     return m_pListCtrl->GetEntryIndex(GetSelectedIndex());
 }
 
-std::vector<int> FileExplorer::GetSelectedEntryIndexes() const
+vector<int> FileExplorer::GetSelectedEntryIndexes() const
 {
     auto result = GetSelectedIndexes();
     for (auto &index : result)
@@ -76,23 +138,38 @@ std::vector<int> FileExplorer::GetSelectedEntryIndexes() const
     return result;
 }
 
-std::shared_ptr<IEntry> FileExplorer::GetSelectedEntry() const
+shared_ptr<IEntry> FileExplorer::GetSelectedEntry() const
 {
     return GetEntry(GetSelectedEntryIndex());
 }
 
-std::shared_ptr<IEntry> FileExplorer::GetEntry(int nIndex) const
+vector<shared_ptr<IEntry>> FileExplorer::GetSelectedEntries() const
+{
+    vector<shared_ptr<IEntry>> result;
+    if (!m_spModel)
+    {
+        return result;
+    }
+    auto entries = m_spModel->GetChildren();
+    for (auto i : GetSelectedEntryIndexes())
+    {
+        result.push_back(entries[i]);
+    }
+    return result;
+}
+
+shared_ptr<IEntry> FileExplorer::GetEntry(int nIndex) const
 {
     if (0 > nIndex || !m_spModel)
     {
         return nullptr;
     }
-    auto entries = m_spModel->GetEntries();
+    auto entries = m_spModel->GetChildren();
     if (nIndex > static_cast<int>(entries.size()))
     {
         return nullptr;
     }
-    return entries.at(nIndex);
+    return entries[nIndex];
 }
 
 void FileExplorer::__Create()
@@ -148,7 +225,7 @@ void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
         wxEVT_LIST_ITEM_ACTIVATED, &FileExplorer::__OnListItemActivated, this);
 }
 
-void FileExplorer::__SetModel(std::shared_ptr<IModel> spModel,
+void FileExplorer::__SetModel(shared_ptr<IModel> spModel,
     TString tstrFocusedName/* = wxEmptyString*/)
 {
     m_pListCtrl->SetModel(spModel, tstrFocusedName);
@@ -163,7 +240,7 @@ void FileExplorer::__OnParentFolderClick(wxCommandEvent &event)
 {
     if (m_spModel->HasParent())
     {
-        __SetModel(m_spModel->GetParent(), m_spModel->GetName());
+        __SetModel(m_spModel->GetParent(), m_spModel->GetFileName());
     }
 }
 
@@ -179,7 +256,7 @@ void FileExplorer::__OnPathComboBoxKeyDown(wxKeyEvent& event)
 void FileExplorer::__OnListItemActivated(wxListEvent &event)
 {
     const auto spEntry = GetEntry(m_pListCtrl->GetEntryIndex(event.GetIndex()));
-    if (!spEntry->IsOpenExternal())
+    if (!IsOpenExternal(spEntry->GetFileName()))
     {
         try
         {
@@ -195,7 +272,7 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
                 wxOK | wxICON_ERROR);
             return;
         }
-        catch (const std::exception &)
+        catch (const exception &)
         {
             // Open external.
         }

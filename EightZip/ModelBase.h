@@ -5,66 +5,132 @@
 
 #include <memory>
 #include <mutex>
+#include <vector>
 
+#include <boost/optional.hpp>
 #include <boost/thread.hpp>
 
-#include "IModel.h"
+#include "SevenZipCore/TString.h"
 
-#define COMPARE(left, right, isAscending) \
-    isAscending ? (left < right) : (left > right)
+#include "FileInfo.h"
 
-class EntryBase
-    : public IEntry
+template<typename T>
+bool OrderCompare(const T &lhs, const T &rhs, bool isAscending)
 {
-public:
-    virtual const TString &GetName() const { return m_tstrName; }
-    virtual const TString &GetFolder() const { return m_tstrFolder; }
-    virtual TString GetPath() const { return GetFolder() + GetName(); }
-    virtual int GetIconIndex() const;
-    TString GetItem(ItemType itemType) const;
-    virtual bool IsDirectory() const { return m_isDirectory; }
-    virtual bool IsOpenExternal() const;
-    virtual void OpenExternal();
+    return isAscending ? (lhs < rhs) : (lhs > rhs);
+}
 
-    virtual bool Compare(
-        const IEntry &otherEntry, ItemType itemType, bool isAscending) const;
-
-protected:
-    TString m_tstrName;
-    TString m_tstrFolder;
-    mutable int m_nIconIndex = -1;
-    wxULongLong_t m_un64Size = 0;
-    wxULongLong_t m_un64PackedSize = 0;
-    wxULongLong_t m_un64TotalSize = 0;
-    wxULongLong_t m_un64FreeSpace = 0;
-    TString m_tstrType;
-    wxDateTime m_dtModified;
-    wxDateTime m_dtCreated;
-    wxDateTime m_dtAccessed;
-    boost::optional<UINT32> m_oun32CRC;
-    bool m_isDirectory = false;
-
-    static bool _LocaleCompare(
-        const TString &tstrLeft, const TString & tstrRight, bool isAscending);
-
+enum class ModelItemType
+{
+    Name,
+    Size,
+    PackedSize,
+    TotalSize,
+    FreeSpace,
+    Type,
+    Modified,
+    Created,
+    Accessed,
+    Attributes,
+    Comment,
+    Encrypted,
+    Method,
+    Block,
+    Folders,
+    Files,
+    CRC
 };
 
 class ModelBase
-    : public IModel
 {
 public:
-    virtual TString GetName() const;
-    virtual const TString &GetPath() const { return m_tstrPath; }
-    virtual bool HasParent() const;
+    typedef std::vector<std::shared_ptr<ModelBase>> Models;
+
+    inline TString GetLocation() const { return m_tstrLocation; }
+
+    inline void SetLocation(TString tstrLocation)
+    {
+        m_tstrLocation = move(tstrLocation);
+    }
+
+    inline TString GetFileName() const { return m_tstrFileName; }
+
+    inline void SetFileName(TString tstrFileName)
+    {
+        m_tstrFileName = move(tstrFileName);
+    }
+
+    inline const TString GetPath() const
+    {
+        return m_tstrLocation + m_tstrFileName;
+    }
+
+    inline const TString &GetType() const { return m_tstrType; }
+
+    inline void SetType(TString tstrType) { m_tstrType = tstrType; }
+
+    inline bool IsDirectory() const { return m_isDirectory; }
+
+    inline bool IsVirtual() const { return m_isVirtual; }
+
+    inline bool HasParent() const
+    {
+        return !m_tstrLocation.empty();
+    }
+
+    inline int GetIconIndex() const
+    {
+        if (-1 == m_nIconIndex)
+        {
+            m_nIconIndex = FileInfo::GetIconIndex(
+                GetPath(), IsDirectory(), IsVirtual());
+        }
+        return m_nIconIndex;
+    }
+
+    virtual std::shared_ptr<ModelBase> GetParent() const = 0;
+
+    virtual const std::vector<ModelItemType> &GetSupportedItems() const = 0;
+
+    virtual bool CanExtract() const = 0;
+
+    virtual const Models GetChildren() const = 0;
+
+    virtual TString GetItem(ModelItemType itemType) const;
+
+    virtual void OpenExternal() const;
+
+    virtual bool Compare(const ModelBase &otherModel,
+        ModelItemType itemType,
+        bool isAscending) const;
+
+    virtual ~ModelBase() = 0 { }
 
 protected:
-    TString m_tstrPath;
-    
+    ModelBase(TString tstrLocation,
+        TString tstrFileName,
+        TString tstrType,
+        bool isDirectory,
+        bool isVirtual);
+
+    ModelBase(TString tstrLocation,
+        TString tstrFileName,
+        bool isDirectory,
+        bool isVirtual);
+
+private:
+    TString m_tstrLocation;
+    TString m_tstrFileName;
+    TString m_tstrType;
+    bool m_isDirectory;
+    bool m_isVirtual;
+    mutable int m_nIconIndex = -1;
+
 };
 
-std::shared_ptr<IModel> GetModelFromPath(
+std::shared_ptr<ModelBase> GetModelFromPath(
     TString tstrPath, bool isTryOpenArchive = true);
-std::shared_ptr<IModel> GetModelFromPath(
-    std::shared_ptr<IModel> spModel, TString tstrPath);
+std::shared_ptr<ModelBase> GetModelFromPath(
+    std::shared_ptr<ModelBase> spModel, TString tstrPath);
 
 #endif // MODELBASE_H

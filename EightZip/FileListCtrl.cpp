@@ -31,7 +31,7 @@ void FileListCtrl::SetModel(shared_ptr<IModel> spModel
         AppendColumn(
             GetColumnCaption(t), GetColumnFormat(t), GetColumnWidth(t));
     }
-    const auto &children = m_spModel->GetEntries();
+    const auto &children = m_spModel->GetChildren();
     m_vnChildrenMap.resize(children.size());
     int i = 0;
     int nSelectedIndex = -1;
@@ -95,7 +95,7 @@ void FileListCtrl::Sort(int nColumn, bool isAscending, bool isForce /*= false*/)
     }
     else
     {
-        const auto &children = m_spModel->GetEntries();
+        const auto &children = m_spModel->GetChildren();
         sort(
             m_vnChildrenMap.begin(),
             m_vnChildrenMap.end(),
@@ -141,7 +141,8 @@ void FileListCtrl::Sort(int nColumn, bool isAscending, bool isForce /*= false*/)
 
 int FileListCtrl::GetEntryIndex(int nListItemIndex) const
 {
-    if (0 > nListItemIndex || static_cast<int>(m_vnChildrenMap.size()) <= nListItemIndex)
+    if (0 > nListItemIndex
+        || static_cast<int>(m_vnChildrenMap.size()) <= nListItemIndex)
     {
         return -1;
     }
@@ -152,7 +153,7 @@ wxString FileListCtrl::OnGetItemText(long item, long column) const
 {
     try
     {
-        const auto &spChild = m_spModel->GetEntries().at(m_vnChildrenMap[item]);
+        const auto &spChild = m_spModel->GetChildren().at(m_vnChildrenMap[item]);
         return spChild->GetItem(m_spModel->GetSupportedItems().at(column));
     }
     catch (const out_of_range &)
@@ -163,7 +164,7 @@ wxString FileListCtrl::OnGetItemText(long item, long column) const
 
 int FileListCtrl::OnGetItemImage(long item) const
 {
-    const auto &children = m_spModel->GetEntries();
+    const auto &children = m_spModel->GetChildren();
     try
     {
         const auto spChild = children.at(m_vnChildrenMap[item]);

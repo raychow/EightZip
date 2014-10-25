@@ -36,20 +36,19 @@ public:
 
     virtual int GetIconIndex() const;
     virtual TString GetItem(ItemType itemType) const;
-    virtual std::shared_ptr<IModel> GetModel();
+    virtual std::shared_ptr<IModel> GetModel() const;
     virtual bool CanExtract() const { return true; }
 
-    virtual UINT32 GetArchiveIndex() const;
-    virtual void OpenExternal();
+    UINT32 GetArchiveIndex() const;
+    std::vector<UINT32> GetAllArchiveIndexes() const;
+    void OpenExternal() const;
 
 private:
     std::weak_ptr<ArchiveModel> m_wpParent;
     std::shared_ptr<SevenZipCore::ArchiveFile> m_spArchiveFile;
-    std::unique_ptr<TempFolder> m_upTempFolder;
+    mutable std::unique_ptr<TempFolder> m_upTempFolder;
 
-    bool m_canOpenInternal = false;
-
-    void __ExtractToTempFolder();
+    void __ExtractToTempFolder() const;
 
 };
 
@@ -62,28 +61,28 @@ public:
     // For stream.
     // Virtual path should be a file path and not end with a slash.
     ArchiveModel(
-        std::shared_ptr<IModel> spParent,
-        TString tstrVirtualPath,
+        shared_ptr<ModelBase> spParent,
+        TString tstrVirtualLocation,
+        TString tstrVirtualFileName,
         TString tstrInternalPath,
-        std::shared_ptr<SevenZipCore::IInStream> cpStream,
-        std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback);
+        std::shared_ptr<SevenZipCore::IInStream> cpStream);
     ArchiveModel(
-        std::shared_ptr<IModel> spParent,
-        TString tstrVirtualPath,
+        std::shared_ptr<ModelBase> spParent,
+        TString tstrVirtualLocation,
+        TString tstrVirtualFileName,
         TString tstrInternalPath,
-        TString tstrRealPath,
-        std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback);
+        TString tstrArchivePath);
     ArchiveModel(
-        std::shared_ptr<IModel> spParent,
-        TString tstrPath,
+        std::shared_ptr<ModelBase> spParent,
+        TString tstrVirtualLocation,
+        TString tstrVirtualFileName,
         TString tstrInternalPath,
         std::shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder);
     virtual ~ArchiveModel() {}
 
-    virtual std::shared_ptr<IModel> GetParent() const;
-    virtual const EntryVector &GetEntries() const;
-    virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
-    virtual bool IsArchive() const { return true; }
+    virtual std::shared_ptr<ModelBase> GetParent() const;
+    virtual const std::vector<ModelItemType> &GetSupportedItems() const;
+    virtual bool CanExtract() const;
 
     virtual void Extract(TString tstrPath,
         SevenZipCore::IExtractIndicator *pExtractIndicator) const;
@@ -94,24 +93,34 @@ public:
         SevenZipCore::IExtractIndicator *pExtractIndicator) const;
 
     std::shared_ptr<SevenZipCore::Archive> GetArchive() const;
+    std::vector<UINT32> GetArchiveIndexes() const;
 
-    virtual const TString &GetInternalPath() const;
+    inline const TString &GetInternalPath() const
+    {
+        return m_tstrInternalPath;
+    }
+
+    virtual ~ArchiveModel() { }
 
 private:
-    std::shared_ptr<IModel> m_spParent;
-    mutable std::shared_ptr<SevenZipCore::ArchiveFolder> m_spArchiveFolder;
+    wxULongLong_t m_un64Size = 0;
+    wxULongLong_t m_un64PackedSize = 0;
+    wxDateTime m_dtModified;
+    boost::optional<UINT32> m_oun32CRC;
+
+    std::shared_ptr<ModelBase> m_spParent;
+    std::shared_ptr<SevenZipCore::ArchiveFile> m_spArchiveFile;
     std::shared_ptr<SevenZipCore::Archive> m_spArchive;
+    mutable std::unique_ptr<TempFolder> m_upTempFolder;
 
     TString m_tstrInternalPath;
-
-    mutable bool m_isInitialized = false;
-    mutable EntryVector m_vspEntry;
 
     std::shared_ptr<SevenZipCore::ArchiveExtractCallback>  __CreateCallback(
         TString tstrPath,
         SevenZipCore::IExtractIndicator *pExtractIndicator) const;
 
-    std::shared_ptr<SevenZipCore::ArchiveFolder> __GetArchiveFolder() const;
+    void __ExtractToTempFolder() const;
+
 
 };
 

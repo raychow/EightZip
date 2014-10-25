@@ -125,9 +125,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ArchiveFileModel.h" />
     <ClInclude Include="ArchiveHelper.h" />
     <ClInclude Include="ArchiveModel.h" />
     <ClInclude Include="CodecsLoader.h" />
+    <ClInclude Include="ComputerModel.h" />
     <ClInclude Include="DriveModel.h" />
     <ClInclude Include="EightZipConfig.h" />
     <ClInclude Include="Exception.h" />
@@ -139,6 +141,7 @@
     <ClInclude Include="FileExplorer.h" />
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="FileListCtrl.h" />
+    <ClInclude Include="FileModel.h" />
     <ClInclude Include="FolderModel.h" />
     <ClInclude Include="OverwriteDialog.h" />
     <ClInclude Include="ProgressDialog.h" />
@@ -147,7 +150,6 @@
     <ClInclude Include="TaskbarProgressHelper.h" />
     <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="IExtractable.h" />
-    <ClInclude Include="IModel.h" />
     <ClInclude Include="ModelBase.h" />
     <ClInclude Include="FileHelper.h" />
     <ClInclude Include="SevenZipCore\Adapter.h" />
@@ -185,8 +187,10 @@
     <ClInclude Include="WindowStateManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ArchiveFileModel.cpp" />
     <ClCompile Include="ArchiveModel.cpp" />
     <ClCompile Include="CodecsLoader.cpp" />
+    <ClCompile Include="ComputerModel.cpp" />
     <ClCompile Include="DriveModel.cpp" />
     <ClCompile Include="EightZipConfig.cpp" />
     <ClCompile Include="ExtractDialog.cpp" />
@@ -198,6 +202,7 @@
     <ClCompile Include="FileHelper.cpp" />
     <ClCompile Include="FileInfo.cpp" />
     <ClCompile Include="FileListCtrl.cpp" />
+    <ClCompile Include="FileModel.cpp" />
     <ClCompile Include="FolderModel.cpp" />
     <ClCompile Include="OverwriteDialog.cpp" />
     <ClCompile Include="ProgressDialog.cpp" />

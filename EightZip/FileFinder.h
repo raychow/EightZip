@@ -7,6 +7,8 @@
 
 #include "SevenZipCore/TString.h"
 
+#include "FileInfo.h"
+
 extern wxDateTime GetTimeFromFileTime(_In_ CONST FILETIME *lpFileTime);
 
 class FileFinder
@@ -40,6 +42,10 @@ public:
     wxDateTime GetCreated() const
     {
         return GetTimeFromFileTime(&m_findData.ftCreationTime);
+    }
+    TString GetType() const
+    {
+        return FileInfo::GetType(GetFileName(), IsDirectory(), false);
     }
 
 private:
