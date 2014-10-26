@@ -9,6 +9,7 @@ using namespace std;
 #include "SevenZipCore/IArchiveAdapter.h"
 #include "SevenZipCore/OpenCallback.h"
 
+#include "FileHelper.h"
 #include "VirtualModel.h"
 
 VirtualEntry::VirtualEntry(TString tstrLocation,
@@ -95,6 +96,15 @@ shared_ptr<ModelBase> VirtualEntry::GetModel() const
     }
 }
 
+void VirtualEntry::OpenExternal() const
+{
+    if (!m_upTempFolder)
+    {
+        __ExtractToTempFolder();
+    }
+    Helper::OpenFileExternal(m_upTempFolder->GetFilePath());
+}
+
 TString VirtualEntry::GetItem(EntryItemType itemType) const
 {
     switch (itemType)
@@ -146,9 +156,8 @@ bool VirtualEntry::Compare(const EntryBase &otherEntry,
 
 void VirtualEntry::__ExtractToTempFolder() const
 {
-    // TODO
-    //m_upTempFolder.reset(new TempFolder());
-    //m_upTempFolder->SetFilePath(dynamic_pointer_cast<VirtualModel>(
-    //    m_wpParent.lock())->Extract(GetArchiveIndex(),
-    //    m_upTempFolder->GetLocation(), nullptr));
+    m_upTempFolder.reset(new TempFolder());
+    m_upTempFolder->SetFilePath(dynamic_pointer_cast<VirtualModel>(
+        m_wpParent.lock())->Extract(m_spArchiveFile->GetIndex(),
+        m_upTempFolder->GetLocation(), nullptr));
 }

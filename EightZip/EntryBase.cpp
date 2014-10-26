@@ -88,7 +88,7 @@ EntryBase::EntryBase(TString tstrLocation,
     bool isVirtual)
     : m_tstrLocation(SevenZipCore::Helper::MakePathSlash(move(tstrLocation)))
     , m_tstrName(move(tstrName))
-    , m_tstrType(FileInfo::GetType(GetName(), isDirectory, isVirtual))
+    , m_tstrType(FileInfo::GetType(GetPath(), isDirectory, isVirtual))
     , m_isDirectory(isDirectory)
     , m_isVirtual(isVirtual)
 {

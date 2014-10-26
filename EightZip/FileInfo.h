@@ -47,11 +47,11 @@ public:
         return GetType(m_tstrPath, IsDirectory(), false);
     }
     static TString GetType(
-        TString tstrFileName,
+        TString tstrPath,
         bool isDirectory = false,
         bool isVirtual = true);
     static int GetIconIndex(
-        TString tstrFileName,
+        TString tstrPath,
         bool isDirectory = false,
         bool isVirtual = true);
 

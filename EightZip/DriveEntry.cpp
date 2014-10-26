@@ -8,9 +8,8 @@
 using namespace std;
 
 DriveEntry::DriveEntry(TString tstrName)
-    : EntryBase(wxEmptyString,
-    SevenZipCore::Helper::MakePathSlash(move(tstrName)),
-    true, false)
+    : EntryBase(SevenZipCore::Helper::MakePathSlash(move(tstrName)),
+    wxEmptyString, true, false)
 {
     if (FALSE == ::GetDiskFreeSpaceEx(
         GetName().c_str(),
@@ -32,6 +31,8 @@ TString DriveEntry::GetItem(EntryItemType itemType) const
 {
     switch (itemType)
     {
+    case EntryItemType::Name:
+        return GetLocation();
     case EntryItemType::TotalSize:
         return ToTString(m_un64TotalSize);
     case EntryItemType::FreeSpace:
@@ -47,6 +48,9 @@ bool DriveEntry::Compare(const EntryBase &otherEntry,
     auto &otherDriveEntry = dynamic_cast<const DriveEntry &>(otherEntry);
     switch (itemType)
     {
+    case EntryItemType::Name:
+        return OrderCompare(
+            GetLocation(), otherDriveEntry.GetLocation(), isAscending);
     case EntryItemType::TotalSize:
         return OrderCompare(
             m_un64TotalSize, otherDriveEntry.m_un64TotalSize, isAscending);

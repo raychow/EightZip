@@ -25,6 +25,7 @@ public:
 
     virtual std::shared_ptr<ModelBase> GetModel() const;
     virtual bool CanExtract() const { return true; }
+    virtual void OpenExternal() const;
     virtual TString GetItem(EntryItemType itemType) const;
     virtual bool Compare(const EntryBase &otherEntry,
         EntryItemType itemType,

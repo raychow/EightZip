@@ -51,8 +51,7 @@ FolderModel::FolderModel(TString tstrLocation, TString tstrName)
 
 std::shared_ptr<ModelBase> FolderModel::GetParent() const
 {
-    auto tstrLocation = GetLocation();
-    if (tstrLocation.empty())
+    if (GetName().empty())
     {
 #ifdef __WXMSW__
         return make_shared<DriveModel>();
@@ -62,6 +61,7 @@ std::shared_ptr<ModelBase> FolderModel::GetParent() const
     }
     else
     {
+        auto tstrLocation = GetLocation();
         try
         {
             return make_shared<FolderModel>(tstrLocation);

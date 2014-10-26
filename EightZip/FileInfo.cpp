@@ -30,7 +30,7 @@ TString FileInfo::GetCanonicalPath() const
 }
 
 TString FileInfo::GetType(
-    TString tstrFileName,
+    TString tstrPath,
     bool isDirectory /*= false*/,
     bool isVirtual /*= true*/)
 {
@@ -44,9 +44,9 @@ TString FileInfo::GetType(
         }
         else
         {
-            auto szPointPosition = tstrFileName.rfind(wxFILE_SEP_EXT);
+            auto szPointPosition = tstrPath.rfind(wxFILE_SEP_EXT);
             tstrFakeName = TString(wxT("fake."))
-                + tstrFileName.substr(szPointPosition + 1);
+                + tstrPath.substr(szPointPosition + 1);
         }
         auto iter = m_mTypeCache.find(tstrFakeName);
         if (iter != m_mTypeCache.end())
@@ -56,7 +56,7 @@ TString FileInfo::GetType(
     }
 
     SHFILEINFO info;
-    if (SUCCEEDED(SHGetFileInfo(tstrFileName.c_str(),
+    if (SUCCEEDED(SHGetFileInfo(tstrPath.c_str(),
         isDirectory ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL,
         &info,
         sizeof(SHFILEINFO),
@@ -74,13 +74,13 @@ TString FileInfo::GetType(
 }
 
 int FileInfo::GetIconIndex(
-    TString tstrFileName,
+    TString tstrPath,
     bool isDirectory /*= false*/,
     bool isVirtual /*= true*/)
 {
 #ifdef __WXMSW__
     SHFILEINFO info;
-    if (SUCCEEDED(SHGetFileInfo(tstrFileName.c_str(),
+    if (SUCCEEDED(SHGetFileInfo(tstrPath.c_str(),
         isDirectory ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL,
         &info,
         sizeof(SHFILEINFO),

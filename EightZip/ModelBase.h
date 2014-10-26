@@ -37,7 +37,11 @@ public:
         return m_tstrLocation + m_tstrName;
     }
 
-    inline bool HasParent() const { return !m_tstrName.empty(); }
+    inline bool HasParent() const
+    {
+        return !(m_tstrName.empty() &&
+            m_tstrLocation.size() == 1 && wxIsPathSeparator(m_tstrLocation[0]));
+    }
 
     inline std::shared_ptr<EntryBase> GetEntry(int index) const
     {

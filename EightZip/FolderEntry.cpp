@@ -20,7 +20,7 @@ FolderEntry::FolderEntry(TString tstrLocation,
     wxDateTime dtAccessed,
     wxDateTime dtModified,
     wxDateTime dtCreated)
-    : EntryBase(move(tstrLocation), move(tstrName), true, false)
+    : EntryBase(move(tstrLocation), move(tstrName), isDirectory, false)
     , m_un64Size(un64Size)
     , m_dtAccessed(dtAccessed)
     , m_dtModified(dtModified)
