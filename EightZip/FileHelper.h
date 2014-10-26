@@ -21,7 +21,7 @@ namespace Helper
         const TString &tstr2,
         bool isCaseSensitive = false);
     bool IsPathEqual(const TString &tstrLeft, const TString &tstrRight);
-    TString GetParentPath(const TString &tstrPath);
+    TString GetLocation(const TString &tstrPath);
 
 };
 

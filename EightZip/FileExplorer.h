@@ -5,9 +5,10 @@
 
 #include <memory>
 
-#include "ArchiveModel.h"
+#include "EntryBase.h"
 #include "FileListCtrl.h"
-#include "IModel.h"
+#include "ModelBase.h"
+#include "VirtualModel.h"
 
 class FileExplorer
     : public wxPanel
@@ -28,14 +29,14 @@ public:
 
     void NavigateTo(TString tstrPath);
 
-    std::shared_ptr<IModel> GetModel() const { return m_spModel; }
+    std::shared_ptr<ModelBase> GetModel() const { return m_spModel; }
     
     int GetSelectedIndex() const;
     std::vector<int> GetSelectedIndexes() const;
     int GetSelectedEntryIndex() const;
     std::vector<int> GetSelectedEntryIndexes() const;
-    std::shared_ptr<IEntry> GetSelectedEntry() const;
-    std::shared_ptr<IEntry> GetEntry(int nIndex) const;
+    std::shared_ptr<EntryBase> GetSelectedEntry() const;
+    std::shared_ptr<EntryBase> GetEntry(int nIndex) const;
 
     void Extract(TString tstrPath);
 
@@ -44,13 +45,13 @@ private:
     wxComboBox *m_pAddressComboBox = nullptr;
     FileListCtrl *m_pListCtrl = nullptr;
 
-    std::shared_ptr<IModel> m_spModel;
+    std::shared_ptr<ModelBase> m_spModel;
 
     void __Create();
     void __CreateAddressBar(wxBoxSizer *pMainSizer);
     void __CreateExplorer(wxBoxSizer *pSizerMain);
 
-    void __SetModel(std::shared_ptr<IModel> spModel
+    void __SetModel(std::shared_ptr<ModelBase> spModel
         , TString tstrFocusedName = wxEmptyString);
 
     void __OnParentFolderClick(wxCommandEvent &event);

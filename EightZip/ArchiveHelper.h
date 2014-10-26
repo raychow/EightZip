@@ -7,12 +7,12 @@
 
 #include "SevenZipCore/TString.h"
 
-#include "ArchiveModel.h"
+#include "VirtualModel.h"
 
 namespace Helper
 {
     bool Extract(TString tstrPath,
-        std::shared_ptr<ArchiveModel> spModel,
+        std::shared_ptr<VirtualModel> spModel,
         bool isLaunchFolder);
 }
 

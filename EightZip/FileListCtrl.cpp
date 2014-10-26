@@ -3,6 +3,8 @@
 
 using namespace std;
 
+#include "EntryBase.h"
+
 FileListCtrl::FileListCtrl(
     wxWindow *parent,
     wxWindowID id /*= wxID_ANY*/,
@@ -18,7 +20,7 @@ FileListCtrl::FileListCtrl(
     Bind(wxEVT_LIST_COL_CLICK, &FileListCtrl::__OnListColumnClick, this);
 }
 
-void FileListCtrl::SetModel(shared_ptr<IModel> spModel
+void FileListCtrl::SetModel(shared_ptr<ModelBase> spModel
     , TString tstrFocused/* = wxEmptyString*/)
 {
     typeid(m_spModel.get()).name();
@@ -31,18 +33,17 @@ void FileListCtrl::SetModel(shared_ptr<IModel> spModel
         AppendColumn(
             GetColumnCaption(t), GetColumnFormat(t), GetColumnWidth(t));
     }
-    const auto &children = m_spModel->GetEntries();
-    m_vnChildrenMap.resize(children.size());
+    m_vnChildrenMap.resize(m_spModel->GetEntryCount());
     int i = 0;
     int nSelectedIndex = -1;
     generate(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [&]() {
-        if (!tstrFocused.empty() && children[i]->GetName() == tstrFocused)
+        if (!tstrFocused.empty() && (*m_spModel)[i]->GetName() == tstrFocused)
         {
             nSelectedIndex = i;
         }
         return i++;
     });
-    SetItemCount(children.size());
+    SetItemCount(m_spModel->GetEntryCount());
     if (-1 != nSelectedIndex)
     {
         SetItemState(
@@ -95,14 +96,13 @@ void FileListCtrl::Sort(int nColumn, bool isAscending, bool isForce /*= false*/)
     }
     else
     {
-        const auto &children = m_spModel->GetEntries();
         sort(
             m_vnChildrenMap.begin(),
             m_vnChildrenMap.end(),
-            [this, &itemType, &children](int nLeft, int nRight)
+            [this, &itemType](int nLeft, int nRight)
         {
-            const auto &leftChild = children[nLeft];
-            const auto &rightChild = children[nRight];
+            const auto &leftChild = (*m_spModel)[nLeft];
+            const auto &rightChild = (*m_spModel)[nRight];
             bool isLeftChildDiectory = leftChild->IsDirectory();
             bool isRightChildDiectory = rightChild->IsDirectory();
             bool result = false;
@@ -152,7 +152,7 @@ wxString FileListCtrl::OnGetItemText(long item, long column) const
 {
     try
     {
-        const auto &spChild = m_spModel->GetEntries().at(m_vnChildrenMap[item]);
+        const auto &spChild = m_spModel->GetEntry(m_vnChildrenMap[item]);
         return spChild->GetItem(m_spModel->GetSupportedItems().at(column));
     }
     catch (const out_of_range &)
@@ -163,10 +163,9 @@ wxString FileListCtrl::OnGetItemText(long item, long column) const
 
 int FileListCtrl::OnGetItemImage(long item) const
 {
-    const auto &children = m_spModel->GetEntries();
     try
     {
-        const auto spChild = children.at(m_vnChildrenMap[item]);
+        const auto spChild = m_spModel->GetEntry(m_vnChildrenMap[item]);
         return spChild->GetIconIndex();
     }
     catch (const out_of_range &)
@@ -175,89 +174,89 @@ int FileListCtrl::OnGetItemImage(long item) const
     }
 }
 
-wxString FileListCtrl::GetColumnCaption(IEntry::ItemType itemType)
+wxString FileListCtrl::GetColumnCaption(EntryItemType itemType)
 {
     switch (itemType)
     {
-    case IEntry::ItemType::Name:
+    case EntryItemType::Name:
         return _("Name");
-    case IEntry::ItemType::Size:
+    case EntryItemType::Size:
         return _("Size");
-    case IEntry::ItemType::PackedSize:
+    case EntryItemType::PackedSize:
         return _("Packed Size");
-    case IEntry::ItemType::TotalSize:
+    case EntryItemType::TotalSize:
         return _("Total Size");
-    case IEntry::ItemType::FreeSpace:
+    case EntryItemType::FreeSpace:
         return _("Free Space");
-    case IEntry::ItemType::Type:
+    case EntryItemType::Type:
         return _("Type");
-    case IEntry::ItemType::Modified:
+    case EntryItemType::Modified:
         return _("Modified");
-    case IEntry::ItemType::Created:
+    case EntryItemType::Created:
         return _("Created");
-    case IEntry::ItemType::Accessed:
+    case EntryItemType::Accessed:
         return _("Accessed");
-    case IEntry::ItemType::Attributes:
+    case EntryItemType::Attributes:
         return _("Attributes");
-    case IEntry::ItemType::Comment:
+    case EntryItemType::Comment:
         return _("Comment");
-    case IEntry::ItemType::Encrypted:
+    case EntryItemType::Encrypted:
         return _("Encrypted");
-    case IEntry::ItemType::Method:
+    case EntryItemType::Method:
         return _("Method");
-    case IEntry::ItemType::Block:
+    case EntryItemType::Block:
         return _("Block");
-    case IEntry::ItemType::Folders:
+    case EntryItemType::Folders:
         return _("Folders");
-    case IEntry::ItemType::Files:
+    case EntryItemType::Files:
         return _("Files");
-    case IEntry::ItemType::CRC:
+    case EntryItemType::CRC:
         return _("CRC");
     default:
         return _("Unknown");
     }
 }
 
-wxListColumnFormat FileListCtrl::GetColumnFormat(IEntry::ItemType itemType)
+wxListColumnFormat FileListCtrl::GetColumnFormat(EntryItemType itemType)
 {
     switch (itemType)
     {
-    case IEntry::ItemType::Size:
-    case IEntry::ItemType::PackedSize:
-    case IEntry::ItemType::TotalSize:
-    case IEntry::ItemType::FreeSpace:
-    case IEntry::ItemType::Attributes:
-    case IEntry::ItemType::Encrypted:
-    case IEntry::ItemType::Block:
-    case IEntry::ItemType::Folders:
-    case IEntry::ItemType::Files:
-    case IEntry::ItemType::CRC:
+    case EntryItemType::Size:
+    case EntryItemType::PackedSize:
+    case EntryItemType::TotalSize:
+    case EntryItemType::FreeSpace:
+    case EntryItemType::Attributes:
+    case EntryItemType::Encrypted:
+    case EntryItemType::Block:
+    case EntryItemType::Folders:
+    case EntryItemType::Files:
+    case EntryItemType::CRC:
         return wxLIST_FORMAT_RIGHT;
     default:
         return wxLIST_FORMAT_LEFT;
     }
 }
 
-int FileListCtrl::GetColumnWidth(IEntry::ItemType itemType)
+int FileListCtrl::GetColumnWidth(EntryItemType itemType)
 {
     switch (itemType)
     {
-    case IEntry::ItemType::Name:
+    case EntryItemType::Name:
         return 300;
-    case IEntry::ItemType::Size:
-    case IEntry::ItemType::PackedSize:
-    case IEntry::ItemType::Attributes:
-    case IEntry::ItemType::Comment:
-    case IEntry::ItemType::Encrypted:
-    case IEntry::ItemType::Method:
-    case IEntry::ItemType::Block:
-    case IEntry::ItemType::Folders:
-    case IEntry::ItemType::Files:
-    case IEntry::ItemType::CRC:
+    case EntryItemType::Size:
+    case EntryItemType::PackedSize:
+    case EntryItemType::Attributes:
+    case EntryItemType::Comment:
+    case EntryItemType::Encrypted:
+    case EntryItemType::Method:
+    case EntryItemType::Block:
+    case EntryItemType::Folders:
+    case EntryItemType::Files:
+    case EntryItemType::CRC:
         return 100;
-    case IEntry::ItemType::Modified:
-    case IEntry::ItemType::Created:
-    case IEntry::ItemType::Accessed:
+    case EntryItemType::Modified:
+    case EntryItemType::Created:
+    case EntryItemType::Accessed:
         return 150;
     default:
         return 100;

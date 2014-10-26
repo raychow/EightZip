@@ -9,36 +9,18 @@
 
 #include "ModelBase.h"
 
-class DriveEntry
-    : public EntryBase
-{
-public:
-    DriveEntry(TString tstrName,
-        wxULongLong_t un64TotalSize,
-        wxULongLong_t un64FreeSpace,
-        TString tstrType);
-
-    virtual std::shared_ptr<IModel> GetModel();
-    virtual bool IsOpenExternal() { return false; }
-    virtual bool CanExtract() const { return false; }
-
-};
-
 class DriveModel
     : public ModelBase
 {
 public:
     DriveModel();
 
-    virtual std::shared_ptr<IModel> GetParent() const;
-    virtual const EntryVector &GetEntries() const { return m_vspEntry; }
-    virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
+    virtual std::shared_ptr<ModelBase> GetParent() const { return nullptr; }
+    virtual const std::vector<EntryItemType> &GetSupportedItems() const;
     virtual bool IsArchive() const { return false; }
 
-private:
-    static std::vector<TString> __GetDrives();
-
-    EntryVector m_vspEntry;
+protected:
+    virtual EntryVector _InitializeEntries() const;
 
 };
 

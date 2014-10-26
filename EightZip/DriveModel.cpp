@@ -1,74 +1,32 @@
 #include "stdwx.h"
 #include "DriveModel.h"
 
-#include "FileInfo.h"
-#include "FolderModel.h"
+#ifdef __WXMSW__
+
+#include "DriveEntry.h"
 
 using namespace std;
 
-DriveEntry::DriveEntry(
-    TString tstrName,
-    wxULongLong_t un64TotalSize,
-    wxULongLong_t un64FreeSpace,
-    TString tstrType)
-{
-    m_tstrName = move(tstrName);
-    m_un64TotalSize = un64TotalSize;
-    m_un64FreeSpace = un64FreeSpace;
-    m_tstrType = move(tstrType);
-    m_isDirectory = true;
-}
-
-std::shared_ptr<IModel> DriveEntry::GetModel()
-{
-    return make_shared<FolderModel>(GetPath());
-}
-
 DriveModel::DriveModel()
+    : ModelBase(TString(1, wxFILE_SEP_PATH), wxEmptyString)
 {
-    m_tstrPath = wxFILE_SEP_PATH;
-
-    for (auto tstrDrive : __GetDrives())
-    {
-        wxULongLong_t un64TotalNumberOfBytes;
-        wxULongLong_t un64TotalNumberOfFreeBytes;
-
-        if (FALSE == ::GetDiskFreeSpaceEx(
-            tstrDrive.c_str(),
-            nullptr,
-            reinterpret_cast<PULARGE_INTEGER>(&un64TotalNumberOfBytes),
-            reinterpret_cast<PULARGE_INTEGER>(&un64TotalNumberOfFreeBytes)))
-        {
-            un64TotalNumberOfBytes = 0;
-            un64TotalNumberOfFreeBytes = 0;
-        }
-        m_vspEntry.push_back(make_shared<DriveEntry>(
-            tstrDrive,
-            un64TotalNumberOfBytes,
-            un64TotalNumberOfFreeBytes,
-            FileInfo::GetType(tstrDrive, true, false)));
-    }
+    
 }
 
-std::shared_ptr<IModel> DriveModel::GetParent() const
+const vector<EntryItemType> &DriveModel::GetSupportedItems() const
 {
-    return nullptr;
-}
-
-const vector<IEntry::ItemType> &DriveModel::GetSupportedItems() const
-{
-    static vector<IEntry::ItemType> vType = {
-        IEntry::ItemType::Name,
-        IEntry::ItemType::Type,
-        IEntry::ItemType::TotalSize,
-        IEntry::ItemType::FreeSpace,
+    static vector<EntryItemType> vType = {
+        EntryItemType::Name,
+        EntryItemType::Type,
+        EntryItemType::TotalSize,
+        EntryItemType::FreeSpace,
     };
     return vType;
 }
 
-vector<TString> DriveModel::__GetDrives()
+DriveModel::EntryVector DriveModel::_InitializeEntries() const
 {
-    vector<TString> result;
+    EntryVector result;
     int nBufferLength = ::GetLogicalDriveStrings(0, nullptr);
     if (nBufferLength)
     {
@@ -79,10 +37,12 @@ vector<TString> DriveModel::__GetDrives()
             while (*ptchDrive)
             {
                 TString tstrDrive(ptchDrive);
-                result.push_back(tstrDrive);
+                result.push_back(make_shared<DriveEntry>(tstrDrive));
                 ptchDrive += tstrDrive.size() + 1;
             }
         }
     }
     return result;
 }
+
+#endif

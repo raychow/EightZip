@@ -76,23 +76,22 @@ std::vector<int> FileExplorer::GetSelectedEntryIndexes() const
     return result;
 }
 
-std::shared_ptr<IEntry> FileExplorer::GetSelectedEntry() const
+std::shared_ptr<EntryBase> FileExplorer::GetSelectedEntry() const
 {
     return GetEntry(GetSelectedEntryIndex());
 }
 
-std::shared_ptr<IEntry> FileExplorer::GetEntry(int nIndex) const
+std::shared_ptr<EntryBase> FileExplorer::GetEntry(int nIndex) const
 {
     if (0 > nIndex || !m_spModel)
     {
         return nullptr;
     }
-    auto entries = m_spModel->GetEntries();
-    if (nIndex > static_cast<int>(entries.size()))
+    if (nIndex > static_cast<int>(m_spModel->GetEntryCount()))
     {
         return nullptr;
     }
-    return entries.at(nIndex);
+    return (*m_spModel)[nIndex];
 }
 
 void FileExplorer::__Create()
@@ -148,7 +147,7 @@ void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
         wxEVT_LIST_ITEM_ACTIVATED, &FileExplorer::__OnListItemActivated, this);
 }
 
-void FileExplorer::__SetModel(std::shared_ptr<IModel> spModel,
+void FileExplorer::__SetModel(std::shared_ptr<ModelBase> spModel,
     TString tstrFocusedName/* = wxEmptyString*/)
 {
     m_pListCtrl->SetModel(spModel, tstrFocusedName);

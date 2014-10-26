@@ -17,7 +17,7 @@ public:
 
     void Create(TString tstrFileName = wxEmptyString);
     void Delete();
-    bool IsCreated() const { return !m_pathFolder.empty(); }
+    bool IsCreated() const { return !m_pathLocation.empty(); }
 
     const TString GetFileName() const
     {
@@ -31,14 +31,14 @@ public:
     {
         m_pathFile = value;
     }
-    const TString GetFolderPath() const
+    const TString GetLocation() const
     {
-        return ConvertWStringToTString(m_pathFolder.wstring());
+        return ConvertWStringToTString(m_pathLocation.wstring());
     }
 
 private:
     boost::filesystem::path m_pathFile;
-    boost::filesystem::path m_pathFolder;
+    boost::filesystem::path m_pathLocation;
 };
 
 #endif // TEMPFOLDER_H

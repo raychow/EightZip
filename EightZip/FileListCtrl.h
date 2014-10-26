@@ -5,7 +5,7 @@
 
 #include <map>
 
-#include "IModel.h"
+#include "ModelBase.h"
 #include "SystemImageList.h"
 
 class FileListCtrl
@@ -20,12 +20,12 @@ public:
         const wxValidator& validator = wxDefaultValidator,
         const wxString& name = wxListCtrlNameStr);
 
-    void SetModel(std::shared_ptr<IModel> spModel
+    void SetModel(std::shared_ptr<ModelBase> spModel
         , TString tstrFocused = wxEmptyString);
 
-    static wxString GetColumnCaption(IEntry::ItemType itemType);
-    static wxListColumnFormat GetColumnFormat(IEntry::ItemType itemType);
-    static int GetColumnWidth(IEntry::ItemType itemType);
+    static wxString GetColumnCaption(EntryItemType itemType);
+    static wxListColumnFormat GetColumnFormat(EntryItemType itemType);
+    static int GetColumnWidth(EntryItemType itemType);
 
     void Sort(int nColumn, bool isAscending, bool isForce = false);
 
@@ -42,7 +42,7 @@ private:
         bool IsAscending = true;
     };
 
-    std::shared_ptr<IModel> m_spModel;
+    std::shared_ptr<ModelBase> m_spModel;
     SystemImageList m_imageList;
     std::vector<int> m_vnChildrenMap;
 

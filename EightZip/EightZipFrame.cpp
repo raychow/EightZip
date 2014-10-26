@@ -133,9 +133,9 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
         return;
     }
 
-    auto spArchiveModel = dynamic_pointer_cast<ArchiveModel>(spModel);
-    if (!spArchiveModel || !Helper::Extract(
-        dialog.GetPath(), spArchiveModel, dialog.IsLaunchFolder()))
+    auto spVirtualModel = dynamic_pointer_cast<VirtualModel>(spModel);
+    if (!spVirtualModel || !Helper::Extract(
+        dialog.GetPath(), spVirtualModel, dialog.IsLaunchFolder()))
     {
         wxMessageBox(_("Extract failed."));
     }

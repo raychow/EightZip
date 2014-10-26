@@ -125,11 +125,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="VirtualEntry.h" />
     <ClInclude Include="ArchiveHelper.h" />
-    <ClInclude Include="ArchiveModel.h" />
+    <ClInclude Include="VirtualModel.h" />
     <ClInclude Include="CodecsLoader.h" />
+    <ClInclude Include="DriveEntry.h" />
     <ClInclude Include="DriveModel.h" />
     <ClInclude Include="EightZipConfig.h" />
+    <ClInclude Include="EntryBase.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="ExtractDialog.h" />
     <ClInclude Include="ExtractIndicator.h" />
@@ -139,6 +142,7 @@
     <ClInclude Include="FileExplorer.h" />
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="FileListCtrl.h" />
+    <ClInclude Include="FolderEntry.h" />
     <ClInclude Include="FolderModel.h" />
     <ClInclude Include="OverwriteDialog.h" />
     <ClInclude Include="ProgressDialog.h" />
@@ -147,7 +151,6 @@
     <ClInclude Include="TaskbarProgressHelper.h" />
     <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="IExtractable.h" />
-    <ClInclude Include="IModel.h" />
     <ClInclude Include="ModelBase.h" />
     <ClInclude Include="FileHelper.h" />
     <ClInclude Include="SevenZipCore\Adapter.h" />
@@ -185,10 +188,13 @@
     <ClInclude Include="WindowStateManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ArchiveModel.cpp" />
+    <ClCompile Include="VirtualEntry.cpp" />
+    <ClCompile Include="VirtualModel.cpp" />
     <ClCompile Include="CodecsLoader.cpp" />
+    <ClCompile Include="DriveEntry.cpp" />
     <ClCompile Include="DriveModel.cpp" />
     <ClCompile Include="EightZipConfig.cpp" />
+    <ClCompile Include="EntryBase.cpp" />
     <ClCompile Include="ExtractDialog.cpp" />
     <ClCompile Include="ExtractIndicator.cpp" />
     <ClCompile Include="FileFinder.cpp" />
@@ -198,6 +204,7 @@
     <ClCompile Include="FileHelper.cpp" />
     <ClCompile Include="FileInfo.cpp" />
     <ClCompile Include="FileListCtrl.cpp" />
+    <ClCompile Include="FolderEntry.cpp" />
     <ClCompile Include="FolderModel.cpp" />
     <ClCompile Include="OverwriteDialog.cpp" />
     <ClCompile Include="ProgressDialog.cpp" />

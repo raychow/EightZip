@@ -125,7 +125,7 @@ namespace Helper
         return true;
     }
 
-    TString GetParentPath(const TString &tstrPath)
+    TString GetLocation(const TString &tstrPath)
     {
         return tstrPath.substr(
             0, SevenZipCore::Helper::RemovePathSlash(tstrPath).find_last_of(

@@ -8,63 +8,85 @@
 
 #include <boost/thread.hpp>
 
-#include "IModel.h"
+#include "SevenZipCore/CommonHelper.h"
+#include "SevenZipCore/TString.h"
 
-#define COMPARE(left, right, isAscending) \
-    isAscending ? (left < right) : (left > right)
-
-class EntryBase
-    : public IEntry
-{
-public:
-    virtual const TString &GetName() const { return m_tstrName; }
-    virtual const TString &GetFolder() const { return m_tstrFolder; }
-    virtual TString GetPath() const { return GetFolder() + GetName(); }
-    virtual int GetIconIndex() const;
-    TString GetItem(ItemType itemType) const;
-    virtual bool IsDirectory() const { return m_isDirectory; }
-    virtual bool IsOpenExternal() const;
-    virtual void OpenExternal();
-
-    virtual bool Compare(
-        const IEntry &otherEntry, ItemType itemType, bool isAscending) const;
-
-protected:
-    TString m_tstrName;
-    TString m_tstrFolder;
-    mutable int m_nIconIndex = -1;
-    wxULongLong_t m_un64Size = 0;
-    wxULongLong_t m_un64PackedSize = 0;
-    wxULongLong_t m_un64TotalSize = 0;
-    wxULongLong_t m_un64FreeSpace = 0;
-    TString m_tstrType;
-    wxDateTime m_dtModified;
-    wxDateTime m_dtCreated;
-    wxDateTime m_dtAccessed;
-    boost::optional<UINT32> m_oun32CRC;
-    bool m_isDirectory = false;
-
-    static bool _LocaleCompare(
-        const TString &tstrLeft, const TString & tstrRight, bool isAscending);
-
-};
+enum class EntryItemType;
+class EntryBase;
 
 class ModelBase
-    : public IModel
 {
 public:
-    virtual TString GetName() const;
-    virtual const TString &GetPath() const { return m_tstrPath; }
-    virtual bool HasParent() const;
+    typedef std::vector<std::shared_ptr<EntryBase>> EntryVector;
+    typedef EntryVector::iterator iterator;
+    typedef EntryVector::const_iterator const_iterator;
+    typedef EntryVector::reverse_iterator reverse_iterator;
+    typedef EntryVector::const_reverse_iterator const_reverse_iterator;
+
+    inline const TString &GetLocation() const { return m_tstrLocation; }
+    inline void SetLocation(TString tstrLocation)
+    {
+        m_tstrLocation = SevenZipCore::Helper::MakePathSlash(move(tstrLocation));
+    }
+    
+    inline const TString &GetName() const { return m_tstrName; }
+    inline void SetName(TString tstrName) { m_tstrName = move(tstrName); }
+
+    inline const TString GetPath() const
+    {
+        return m_tstrLocation + m_tstrName;
+    }
+
+    inline bool HasParent() const { return !m_tstrName.empty(); }
+
+    inline std::shared_ptr<EntryBase> GetEntry(int index) const
+    {
+        __Initialize();
+        return m_vspEntry.at(index);
+    }
+
+    virtual std::shared_ptr<ModelBase> GetParent() const = 0;
+
+    virtual const std::vector<EntryItemType> &GetSupportedItems() const = 0;
+
+    virtual bool IsArchive() const = 0;
+
+    inline std::shared_ptr<EntryBase> operator[](int index) const
+    {
+        __Initialize();
+        return m_vspEntry[index];
+    }
+
+    inline iterator begin()  { return m_vspEntry.begin(); }
+    inline iterator end() const { return m_vspEntry.end(); }
+    inline reverse_iterator rbegin()  { return m_vspEntry.rbegin(); }
+    inline reverse_iterator rend() const { return m_vspEntry.rend(); }
+    inline const_iterator cbegin() const { return m_vspEntry.cbegin(); }
+    inline const_iterator cend() const { return m_vspEntry.cend(); }
+    inline const_reverse_iterator crbegin() const { return m_vspEntry.crbegin(); }
+    inline const_reverse_iterator crend() const { return m_vspEntry.crend(); }
+    inline EntryVector::size_type GetEntryCount() const { return m_vspEntry.size(); }
 
 protected:
-    TString m_tstrPath;
+    ModelBase(TString tstrLocation, TString tstrName);
+    virtual ~ModelBase() = 0 { }
+
+    virtual EntryVector _InitializeEntries() const = 0;
+
+private:
+    TString m_tstrLocation;
+    TString m_tstrName;
+
+    mutable bool m_isInitialized = false;
+    mutable EntryVector m_vspEntry;
+
+    void __Initialize() const;
     
 };
 
-std::shared_ptr<IModel> GetModelFromPath(
+std::shared_ptr<ModelBase> GetModelFromPath(
     TString tstrPath, bool isTryOpenArchive = true);
-std::shared_ptr<IModel> GetModelFromPath(
-    std::shared_ptr<IModel> spModel, TString tstrPath);
+std::shared_ptr<ModelBase> GetModelFromPath(
+    std::shared_ptr<ModelBase> spModel, TString tstrPath);
 
 #endif // MODELBASE_H

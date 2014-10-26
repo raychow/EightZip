@@ -7,38 +7,19 @@
 
 #include "ModelBase.h"
 
-class FolderEntry
-    : public EntryBase
-{
-public:
-    FolderEntry(TString tstrPath,
-        TString tstrName,
-        bool isDirectory,
-        wxULongLong_t un64Size,
-        wxDateTime dtAccessed,
-        wxDateTime dtModified,
-        wxDateTime dtCreated);
-
-    virtual bool IsOpenDirectly() const;
-    virtual std::shared_ptr<IModel> GetModel();
-    virtual bool CanExtract() const;
-
-};
-
 class FolderModel
     : public ModelBase
 {
 public:
     FolderModel(TString tstrPath);
+    FolderModel(TString tstrLocation, TString tstrName);
 
-    virtual std::shared_ptr<IModel> GetParent() const;
-    virtual const EntryVector &GetEntries() const;
-    virtual const std::vector<IEntry::ItemType> &GetSupportedItems() const;
+    virtual std::shared_ptr<ModelBase> GetParent() const;
+    virtual const std::vector<EntryItemType> &GetSupportedItems() const;
     virtual bool IsArchive() const { return false; }
 
 private:
-    mutable bool m_isInitialized = false;
-    mutable EntryVector m_vspEntry;
+    virtual EntryVector _InitializeEntries() const;
 
 };
 

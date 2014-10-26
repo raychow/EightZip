@@ -49,7 +49,7 @@ namespace Helper
     };
 
     static void ExtractThread(TString tstrExtractPath,
-        shared_ptr<ArchiveModel> spModel,
+        shared_ptr<VirtualModel> spModel,
         ProgressDialog *pProgressDialog,
         bool isLaunchFolder)
     {
@@ -82,7 +82,7 @@ namespace Helper
     }
 
     bool Extract(TString tstrPath,
-        shared_ptr<ArchiveModel> spModel,
+        shared_ptr<VirtualModel> spModel,
         bool isLaunchFolder)
     {
         try
@@ -91,7 +91,7 @@ namespace Helper
             {
                 return false;
             }
-            shared_ptr<IModel> spFolderModel = spModel;
+            shared_ptr<ModelBase> spFolderModel = spModel;
             while (spFolderModel->IsArchive())
             {
                 spFolderModel = spFolderModel->GetParent();
