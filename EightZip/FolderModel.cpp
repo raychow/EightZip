@@ -15,7 +15,7 @@ using namespace std;
 FolderModel::FolderModel(TString tstrPath)
     : ModelBase(wxEmptyString, wxEmptyString)
 {
-    FileInfo fileInfo(tstrPath);
+    FileInfo fileInfo(move(tstrPath));
     if (fileInfo.IsOK())
     {
         auto tstrCanonicalPath = SevenZipCore::Helper::RemovePathSlash(
@@ -89,12 +89,12 @@ const vector<EntryItemType> &FolderModel::GetSupportedItems() const
 FolderModel::EntryVector FolderModel::_InitializeEntries() const
 {
     EntryVector result;
-    FileFinder finder(GetPath());
-    auto tstrLocation = GetLocation();
+    auto tstrPath = GetPath();
+    FileFinder finder(tstrPath);
     while (finder.FindNext())
     {
         result.push_back(make_shared<FolderEntry>(
-            tstrLocation,
+            tstrPath,
             finder.GetFileName(),
             finder.IsDirectory(),
             finder.GetSize(),

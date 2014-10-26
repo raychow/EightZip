@@ -34,7 +34,7 @@ shared_ptr<ModelBase> FolderEntry::GetModel() const
     auto tstrPath = GetPath();
     if (IsDirectory())
     {
-        return make_shared<FolderModel>(tstrPath, GetName());
+        return make_shared<FolderModel>(tstrPath);
     }
     else
     {

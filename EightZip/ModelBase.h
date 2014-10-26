@@ -57,15 +57,51 @@ public:
         return m_vspEntry[index];
     }
 
-    inline iterator begin()  { return m_vspEntry.begin(); }
-    inline iterator end() const { return m_vspEntry.end(); }
-    inline reverse_iterator rbegin()  { return m_vspEntry.rbegin(); }
-    inline reverse_iterator rend() const { return m_vspEntry.rend(); }
-    inline const_iterator cbegin() const { return m_vspEntry.cbegin(); }
-    inline const_iterator cend() const { return m_vspEntry.cend(); }
-    inline const_reverse_iterator crbegin() const { return m_vspEntry.crbegin(); }
-    inline const_reverse_iterator crend() const { return m_vspEntry.crend(); }
-    inline EntryVector::size_type GetEntryCount() const { return m_vspEntry.size(); }
+    inline iterator begin()
+    {
+        __Initialize();
+        return m_vspEntry.begin();
+    }
+    inline iterator end() const
+    {
+        __Initialize();
+        return m_vspEntry.end();
+    }
+    inline reverse_iterator rbegin()
+    {
+        __Initialize();
+        return m_vspEntry.rbegin();
+    }
+    inline reverse_iterator rend() const
+    {
+        __Initialize();
+        return m_vspEntry.rend();
+    }
+    inline const_iterator cbegin() const
+    {
+        __Initialize();
+        return m_vspEntry.cbegin();
+    }
+    inline const_iterator cend() const
+    {
+        __Initialize();
+        return m_vspEntry.cend();
+    }
+    inline const_reverse_iterator crbegin() const
+    {
+        __Initialize();
+        return m_vspEntry.crbegin();
+    }
+    inline const_reverse_iterator crend() const
+    {
+        __Initialize();
+        return m_vspEntry.crend();
+    }
+    inline EntryVector::size_type GetEntryCount() const
+    {
+        __Initialize();
+        return m_vspEntry.size();
+    }
 
 protected:
     ModelBase(TString tstrLocation, TString tstrName);
@@ -80,7 +116,14 @@ private:
     mutable bool m_isInitialized = false;
     mutable EntryVector m_vspEntry;
 
-    void __Initialize() const;
+    inline void __Initialize() const
+    {
+        if (!m_isInitialized)
+        {
+            m_vspEntry = _InitializeEntries();
+            m_isInitialized = true;
+        }
+    }
     
 };
 

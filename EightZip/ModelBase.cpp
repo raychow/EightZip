@@ -22,15 +22,6 @@ ModelBase::ModelBase(TString tstrLocation, TString tstrName)
 
 }
 
-void ModelBase::__Initialize() const
-{
-    if (!m_isInitialized)
-    {
-        m_vspEntry = _InitializeEntries();
-        m_isInitialized = true;
-    }
-}
-
 shared_ptr<ModelBase> GetModelFromPath(
     TString tstrPath, bool isTryOpenArchive/* = true*/)
 {
