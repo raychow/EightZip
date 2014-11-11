@@ -88,14 +88,14 @@ void EightZipFrame::__OnFileExitClick(wxCommandEvent &WXUNUSED(event))
 
 void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
 {
-    auto entry = m_pFileExplorer->GetSelectedEntry();
+    auto spEntry = m_pFileExplorer->GetSelectedEntry();
     auto spModel = m_pFileExplorer->GetModel();
     auto spFolderModel = spModel;
     if (spModel->IsArchive())
     {
-        if (entry && entry->IsDirectory())
+        if (spEntry && spEntry->IsDirectory())
         {
-            spModel = entry->GetModel();
+            spModel = spEntry->GetModel();
         }
         while (spFolderModel->IsArchive())
         {
@@ -105,11 +105,11 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
     else
     {
         bool isSuccess = false;
-        if (entry && !entry->IsDirectory())
+        if (spEntry && !spEntry->IsDirectory())
         {
             try
             {
-                spModel = entry->GetModel();
+                spModel = spEntry->GetModel();
                 isSuccess = true;
             }
             catch (const SevenZipCore::ArchiveException &)
@@ -119,8 +119,8 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
         if (!isSuccess)
         {
             wxMessageBox(
-                wxString::Format(_("Cannot extract \"%s\"."), entry
-                ? entry->GetPath() : spModel->GetPath()),
+                wxString::Format(_("Cannot extract \"%s\"."), spEntry
+                ? spEntry->GetPath() : spModel->GetPath()),
                 EIGHTZIP_NAME);
             return;
         }
@@ -133,6 +133,9 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
         return;
     }
 
+    auto tstrPath = dialog.GetPath();
+    auto extractPath = boost::filesystem::absolute(
+        tstrPath, spFolderModel->GetPath());
     auto spVirtualModel = dynamic_pointer_cast<VirtualModel>(spModel);
     if (!spVirtualModel || !Helper::Extract(
         dialog.GetPath(), spVirtualModel, dialog.IsLaunchFolder()))

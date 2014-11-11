@@ -7,7 +7,6 @@
 
 #include "SevenZipCore/Archive.h"
 
-#include "IExtractable.h"
 #include "ModelBase.h"
 #include "TempFolder.h"
 
@@ -23,7 +22,6 @@ namespace SevenZipCore
 
 class VirtualModel
     : public ModelBase
-    , public IExtractable
     , public std::enable_shared_from_this<VirtualModel>
 {
 public:
@@ -54,17 +52,21 @@ public:
     virtual const std::vector<EntryItemType> &GetSupportedItems() const;
     virtual bool IsArchive() const { return true; }
 
-    void Extract(TString tstrPath,
-        SevenZipCore::IExtractIndicator *pExtractIndicator) const;
-    TString Extract(UINT32 un32ArchiveIndex, TString tstrPath,
-        SevenZipCore::IExtractIndicator *pExtractIndicator) const;
-    void Extract(std::vector<UINT32> vun32ArchiveIndex,
-        TString tstrPath,
-        SevenZipCore::IExtractIndicator *pExtractIndicator) const;
+    virtual const TString &GetInternalLocation() const
+    {
+        return m_tstrInternalLocation;
+    }
 
-    std::shared_ptr<SevenZipCore::Archive> GetArchive() const;
+    inline std::shared_ptr<SevenZipCore::ArchiveFolder> GetArchiveFolder() const
+    {
+        return m_spArchiveFolder;
+    }
+    inline std::shared_ptr<SevenZipCore::Archive> GetArchive() const
+    {
+        return m_spArchive;
+    }
 
-    virtual const TString &GetInternalPath() const;
+    inline bool IsRoot() const { return !m_spParent; }
 
 protected:
     virtual EntryVector _InitializeEntries() const;
@@ -74,7 +76,7 @@ private:
     mutable std::shared_ptr<SevenZipCore::ArchiveFolder> m_spArchiveFolder;
     std::shared_ptr<SevenZipCore::Archive> m_spArchive;
 
-    TString m_tstrInternalPath;
+    TString m_tstrInternalLocation;
 
     std::shared_ptr<SevenZipCore::ArchiveExtractCallback>  __CreateCallback(
         TString tstrPath,

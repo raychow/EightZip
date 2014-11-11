@@ -63,7 +63,7 @@ VirtualModel::VirtualModel(
     , m_spParent(move(spParent))
     , m_spArchiveFolder(move(spArchiveFolder))
     , m_spArchive(m_spArchiveFolder->GetArchiveEntry()->GetArchive())
-    , m_tstrInternalPath(
+    , m_tstrInternalLocation(
     SevenZipCore::Helper::MakePathSlash(move(tstrInternalLocation)))
 {
     
@@ -115,82 +115,6 @@ const vector<EntryItemType> &VirtualModel::GetSupportedItems() const
     return vType;
 }
 
-void VirtualModel::Extract(TString tstrPath
-    , SevenZipCore::IExtractIndicator *pExtractIndicator) const
-{
-    if (m_spParent)
-    {
-        vector<UINT32> vun32ArchiveIndex;
-        queue<const SevenZipCore::ArchiveFolder *> qpFolder;
-        qpFolder.push(m_spArchiveFolder.get());
-
-        while (!qpFolder.empty())
-        {
-            const auto &folder = *qpFolder.front();
-            qpFolder.pop();
-            for (const auto &spFile : folder.GetFiles())
-            {
-                vun32ArchiveIndex.push_back(spFile->GetIndex());
-            }
-            for (const auto &spFolder : folder.GetFolders())
-            {
-                auto un32ArchiveIndex = spFolder->GetIndex();
-                if (UINT32_MAX != un32ArchiveIndex)
-                {
-                    vun32ArchiveIndex.push_back(un32ArchiveIndex);
-                }
-                qpFolder.push(spFolder.get());
-            }
-        }
-
-        Extract(move(vun32ArchiveIndex), move(tstrPath), pExtractIndicator);
-    }
-    else
-    {
-        auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
-            __GetArchiveFolder()->GetArchiveEntry()->GetInArchive());
-        inArchiveAdapter.ExtractAll(
-            false,
-            __CreateCallback(tstrPath, pExtractIndicator).get());
-    }
-}
-
-TString VirtualModel::Extract(UINT32 un32ArchiveIndex, TString tstrPath
-    , SevenZipCore::IExtractIndicator *pExtractIndicator) const
-{
-    auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
-        __GetArchiveFolder()->GetArchiveEntry()->GetInArchive());
-    auto cpArchiveExtractCallback
-        = __CreateCallback(tstrPath, pExtractIndicator);
-    inArchiveAdapter.Extract(
-        vector<UINT32>(1, un32ArchiveIndex),
-        false,
-        cpArchiveExtractCallback.get());
-    return cpArchiveExtractCallback->GetExtractPath();
-}
-
-void VirtualModel::Extract(vector<UINT32> vun32ArchiveIndex,
-    TString tstrPath, SevenZipCore::IExtractIndicator *pExtractIndicator) const
-{
-    auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
-        __GetArchiveFolder()->GetArchiveEntry()->GetInArchive());
-    sort(vun32ArchiveIndex.begin(), vun32ArchiveIndex.end());
-    inArchiveAdapter.Extract(
-        vun32ArchiveIndex,
-        false,
-        __CreateCallback(tstrPath, pExtractIndicator).get());
-}
-
-std::shared_ptr<SevenZipCore::Archive> VirtualModel::GetArchive() const
-{
-    return m_spArchive;
-}
-
-const TString &VirtualModel::GetInternalPath() const
-{
-    return m_tstrInternalPath;
-}
-
 shared_ptr<SevenZipCore::ArchiveExtractCallback> VirtualModel::__CreateCallback(
     TString tstrPath, SevenZipCore::IExtractIndicator *pExtractIndicator) const
 {
@@ -201,7 +125,7 @@ shared_ptr<SevenZipCore::ArchiveExtractCallback> VirtualModel::__CreateCallback(
         false,
         false,
         move(tstrPath),
-        GetInternalPath(),
+        GetInternalLocation(),
         SevenZipCore::ExtractPathMode::CurrentPathNames,
         SevenZipCore::ExtractOverwriteMode::AskBefore,
         pExtractIndicator));

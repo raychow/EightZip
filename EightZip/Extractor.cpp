@@ -36,32 +36,21 @@ Extractor::Extractor(
 
 }
 
-void Extractor::AddPlan(shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry)
-{
-    m_plans[spArchiveEntry].clear();
-}
-
-void Extractor::AddPlan(
-    shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry,
-    UINT32 un32ArchiveIndex)
-{
-    m_plans[spArchiveEntry].push_back(un32ArchiveIndex);
-}
-
-void Extractor::AddPlan(
+Extractor &Extractor::AddPlan(
     shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry,
     vector<UINT32> vun32ArchiveIndex)
 {
     if (vun32ArchiveIndex.empty())
     {
-        return;
+        return *this;
     }
     auto &indexes = m_plans[spArchiveEntry];
     indexes.insert(indexes.end(),
         vun32ArchiveIndex.cbegin(), vun32ArchiveIndex.cend());
+    return *this;
 }
 
-void Extractor::Execute() const
+Extractor &Extractor::Execute()
 {
     for (const auto &plan : m_plans)
     {
@@ -70,24 +59,22 @@ void Extractor::Execute() const
         {
             auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
                 plan.first->GetInArchive());
+            auto cpCallback = CreateCallback(
+                spArchive,
+                m_tstrPath,
+                m_tstrInternalLocation,
+                m_pExtractIndicator);
             if (plan.second.empty())
             {
                 inArchiveAdapter.ExtractAll(
                     false,
-                    CreateCallback(spArchive,
-                    m_tstrPath,
-                    m_tstrInternalPath,
-                    m_pExtractIndicator).get());
+                    cpCallback.get());
             }
             else
             {
-
-                inArchiveAdapter.Extract(plan.second, false, CreateCallback(
-                    spArchive,
-                    m_tstrPath,
-                    m_tstrInternalPath,
-                    m_pExtractIndicator).get());
+                inArchiveAdapter.Extract(plan.second, false, cpCallback.get());
             }
+            m_tstrLastExtractPath = cpCallback->GetLastExtractPath();
         }
         catch (const SevenZipCore::ArchiveException &)
         {
@@ -99,4 +86,5 @@ void Extractor::Execute() const
             }
         }
     }
+    return *this;
 }

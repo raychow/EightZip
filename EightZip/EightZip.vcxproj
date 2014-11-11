@@ -125,6 +125,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Extractor.h" />
     <ClInclude Include="VirtualEntry.h" />
     <ClInclude Include="ArchiveHelper.h" />
     <ClInclude Include="VirtualModel.h" />
@@ -150,7 +151,6 @@
     <ClInclude Include="SevenZipCore\IExtractIndicator.h" />
     <ClInclude Include="TaskbarProgressHelper.h" />
     <ClInclude Include="WindowHelper.h" />
-    <ClInclude Include="IExtractable.h" />
     <ClInclude Include="ModelBase.h" />
     <ClInclude Include="FileHelper.h" />
     <ClInclude Include="SevenZipCore\Adapter.h" />
@@ -188,6 +188,7 @@
     <ClInclude Include="WindowStateManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Extractor.cpp" />
     <ClCompile Include="VirtualEntry.cpp" />
     <ClCompile Include="VirtualModel.cpp" />
     <ClCompile Include="CodecsLoader.cpp" />

@@ -43,7 +43,7 @@ namespace SevenZipCore
         STDMETHOD(SetOperationResult)(INT32 operationResult);
 
         const TString &GetExtractFolder() const { return m_tstrExtractFolder; }
-        const TString &GetExtractPath() const{ return m_tstrExtractPath; }
+        const TString &GetLastExtractPath() const { return m_tstrExtractPath; }
 
         IUNKNOWN_IMP1(IArchiveExtractCallback)
 

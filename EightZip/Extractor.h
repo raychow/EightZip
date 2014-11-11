@@ -22,22 +22,39 @@ public:
     Extractor(
         TString tstrPath, SevenZipCore::IExtractIndicator *pExtractIndicator);
 
-    void AddPlan(std::shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry);
-    void AddPlan(std::shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry,
-        UINT32 un32ArchiveIndex);
-    void AddPlan(std::shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry,
+    inline Extractor &AddPlan(
+        std::shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry)
+    {
+        m_plans[spArchiveEntry].clear();
+        return *this;
+    }
+    inline Extractor &AddPlan(
+        std::shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry,
+        UINT32 un32ArchiveIndex)
+    {
+        m_plans[spArchiveEntry].push_back(un32ArchiveIndex);
+        return *this;
+    }
+    Extractor &AddPlan(std::shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry,
         std::vector<UINT32> vun32ArchiveIndex);
 
-    inline void SetInternalPath(TString tstrInternalPath)
+    inline Extractor &SetInternalLocation(TString tstrInternalLocation)
     {
-        m_tstrInternalPath = tstrInternalPath;
+        m_tstrInternalLocation = tstrInternalLocation;
+        return *this;
     }
 
-    void Execute() const;
+    inline const TString &GetLastExtractPath() const
+    {
+        return m_tstrLastExtractPath;
+    }
+
+    Extractor &Execute();
 
 private:
     TString m_tstrPath;
-    TString m_tstrInternalPath;
+    TString m_tstrInternalLocation;
+    mutable TString m_tstrLastExtractPath;
     SevenZipCore::IExtractIndicator *m_pExtractIndicator = nullptr;
     std::map<std::shared_ptr<SevenZipCore::ArchiveEntry>,
         std::vector<UINT32>> m_plans;

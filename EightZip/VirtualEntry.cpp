@@ -9,6 +9,7 @@ using namespace std;
 #include "SevenZipCore/IArchiveAdapter.h"
 #include "SevenZipCore/OpenCallback.h"
 
+#include "Extractor.h"
 #include "FileHelper.h"
 #include "VirtualModel.h"
 
@@ -31,7 +32,7 @@ TString VirtualEntry::GetInternalLocation() const
 {
     if (auto spParent = m_wpParent.lock())
     {
-        return spParent->GetInternalPath() + wxFILE_SEP_PATH + GetName();
+        return spParent->GetInternalLocation() + GetName() + wxFILE_SEP_PATH;
     }
     return GetName();
 }
@@ -157,7 +158,9 @@ bool VirtualEntry::Compare(const EntryBase &otherEntry,
 void VirtualEntry::__ExtractToTempFolder() const
 {
     m_upTempFolder.reset(new TempFolder());
-    m_upTempFolder->SetFilePath(dynamic_pointer_cast<VirtualModel>(
-        m_wpParent.lock())->Extract(m_spArchiveFile->GetIndex(),
-        m_upTempFolder->GetLocation(), nullptr));
+    m_upTempFolder->SetFilePath(
+        Extractor(m_upTempFolder->GetLocation(), nullptr)
+        .AddPlan(m_spArchiveFile->GetArchiveEntry(), m_spArchiveFile->GetIndex())
+        .SetInternalLocation(m_wpParent.lock()->GetInternalLocation())
+        .Execute().GetLastExtractPath());
 }

@@ -1,14 +1,18 @@
 #include "stdwx.h"
 #include "ArchiveHelper.h"
 
+#include <queue>
 #include <thread>
 
 #include "SevenZipCore/CommonHelper.h"
 #include "SevenZipCore/Exception.h"
 
 #include "ExtractIndicator.h"
+#include "Extractor.h"
 #include "FileHelper.h"
 #include "ProgressDialog.h"
+#include "VirtualEntry.h"
+#include "VirtualModel.h"
 
 using namespace std;
 
@@ -29,6 +33,7 @@ namespace Helper
         ~ProgressDialogManager()
         {
             wxTheApp->CallAfter(bind(
+                // Probably be called after destruct.
                 [](ProgressDialog *pDialog, bool isSuccess) {
                 pDialog->Done(isSuccess);
             }, m_pDialog, m_isSuccess));
@@ -55,9 +60,42 @@ namespace Helper
     {
         ProgressDialogManager dialogManager(pProgressDialog);
         ExtractIndicator extractIndicator(pProgressDialog);
+
+        auto spArchiveEntry = spModel->GetArchive()->GetArchiveEntry();
+        Extractor extractor(tstrExtractPath, &extractIndicator);
+        if (spModel->IsRoot())
+        {
+            extractor.AddPlan(spArchiveEntry);
+        }
+        else
+        {
+            vector<UINT32> vun32ArchiveIndex;
+            queue<const SevenZipCore::ArchiveFolder *> qpFolder;
+            qpFolder.push(spModel->GetArchiveFolder().get());
+
+            while (!qpFolder.empty())
+            {
+                const auto &folder = *qpFolder.front();
+                qpFolder.pop();
+                for (const auto &spFile : folder.GetFiles())
+                {
+                    vun32ArchiveIndex.push_back(spFile->GetIndex());
+                }
+                for (const auto &spFolder : folder.GetFolders())
+                {
+                    auto un32ArchiveIndex = spFolder->GetIndex();
+                    if (UINT32_MAX != un32ArchiveIndex)
+                    {
+                        vun32ArchiveIndex.push_back(un32ArchiveIndex);
+                    }
+                    qpFolder.push(spFolder.get());
+                }
+            }
+            extractor.AddPlan(spArchiveEntry, vun32ArchiveIndex);
+        }
         try
         {
-            spModel->Extract(tstrExtractPath, &extractIndicator);
+            extractor.Execute();
         }
         catch (const SevenZipCore::ArchiveException &)
         {
@@ -81,6 +119,39 @@ namespace Helper
         }
     }
 
+    //static void ExtractThread(TString tstrExtractPath,
+    //    vector<shared_ptr<VirtualEntry>> vspEntry,
+    //    ProgressDialog *pProgressDialog,
+    //    bool isLaunchFolder)
+    //{
+    //    ProgressDialogManager dialogManager(pProgressDialog);
+    //    ExtractIndicator extractIndicator(pProgressDialog);
+    //    try
+    //    {
+    //        spModel->Extract(tstrExtractPath, &extractIndicator);
+    //    }
+    //    catch (const SevenZipCore::ArchiveException &)
+    //    {
+    //        return;
+    //    }
+    //    dialogManager.SetSuccess(true);
+    //    if (isLaunchFolder)
+    //    {
+    //        try
+    //        {
+    //            OpenFileExternal(tstrExtractPath);
+    //        }
+    //        catch (const SystemException &)
+    //        {
+    //            wxMessageBox(
+    //                wxString::Format(_("Cannot open \"%s\"."),
+    //                tstrExtractPath),
+    //                EIGHTZIP_NAME,
+    //                wxOK | wxICON_ERROR);
+    //        }
+    //    }
+    //}
+
     bool Extract(TString tstrPath,
         shared_ptr<VirtualModel> spModel,
         bool isLaunchFolder)
@@ -91,27 +162,13 @@ namespace Helper
             {
                 return false;
             }
-            shared_ptr<ModelBase> spFolderModel = spModel;
-            while (spFolderModel->IsArchive())
-            {
-                spFolderModel = spFolderModel->GetParent();
-            }
-            assert(spFolderModel);
-            auto tstrAbsPath = spFolderModel->GetPath();
-            auto extractPath = boost::filesystem::absolute(
-                tstrPath, tstrAbsPath);
-            boost::filesystem::create_directories(extractPath);
+            boost::filesystem::create_directories(tstrPath);
 
-            auto tstrArchivePath = spModel->GetArchive()->GetPath();
             auto *pProgressDialog = new ProgressDialog(
-                wxTheApp->GetTopWindow(), wxID_ANY,
-                wxString::Format(_("Extracting from %s"),
-                SevenZipCore::Helper::GetFileName(
-                tstrArchivePath)));
-            pProgressDialog->SetArchivePath(tstrArchivePath);
+                wxTheApp->GetTopWindow(), wxID_ANY, _("Extracting"));
 
             thread extractThread(ExtractThread,
-                Helper::GetCanonicalPath(extractPath.wstring()), spModel,
+                Helper::GetCanonicalPath(tstrPath), spModel,
                 pProgressDialog, isLaunchFolder);
             extractThread.detach();
         }
@@ -121,4 +178,31 @@ namespace Helper
         }
         return true;
     }
+
+    //bool Extract(TString tstrPath,
+    //    vector<shared_ptr<VirtualEntry>> vspEntry,
+    //    bool isLaunchFolder)
+    //{
+    //    try
+    //    {
+    //        if (vspEntry.empty())
+    //        {
+    //            return false;
+    //        }
+    //        boost::filesystem::create_directories(tstrPath);
+
+    //        auto *pProgressDialog = new ProgressDialog(
+    //            wxTheApp->GetTopWindow(), wxID_ANY, _("Extracting"));
+
+    //        thread extractThread(ExtractThread,
+    //            Helper::GetCanonicalPath(tstrPath), vspEntry,
+    //            pProgressDialog, isLaunchFolder);
+    //        extractThread.detach();
+    //    }
+    //    catch (const boost::system::system_error &)
+    //    {
+    //        return false;
+    //    }
+    //    return true;
+    //}
 }

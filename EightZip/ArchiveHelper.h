@@ -7,7 +7,7 @@
 
 #include "SevenZipCore/TString.h"
 
-#include "VirtualModel.h"
+class VirtualModel;
 
 namespace Helper
 {

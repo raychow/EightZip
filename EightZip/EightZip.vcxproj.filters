@@ -159,9 +159,6 @@
     <ClInclude Include="WindowStateManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="IExtractable.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="SevenZipCore\BaseType.h">
       <Filter>头文件\SevenZipCore</Filter>
     </ClInclude>
@@ -215,6 +212,9 @@
     </ClInclude>
     <ClInclude Include="VirtualEntry.h">
       <Filter>头文件\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Extractor.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -343,6 +343,9 @@
     </ClCompile>
     <ClCompile Include="VirtualEntry.cpp">
       <Filter>源文件\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Extractor.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

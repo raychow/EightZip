@@ -344,7 +344,7 @@ namespace SevenZipCore
                         }
                         return S_OK;
                     }
-                    OutFileStreamAdapter streamAdapter(m_cpOutStream);
+                    OutFileStreamAdapter<> streamAdapter(m_cpOutStream);
                     if (m_oun64Position)
                     {
                         streamAdapter.Seek(*m_oun64Position, STREAM_SEEK_SET);
@@ -354,7 +354,7 @@ namespace SevenZipCore
                     m_cpOutStream->AddRef();
                     *outStream = m_cpOutStream.get();
                 }
-                m_tstrExtractPath = tstrFullPath;
+                m_tstrExtractPath = move(tstrFullPath);
             }
             else
             {
@@ -422,7 +422,7 @@ namespace SevenZipCore
             // if m_cpCRCStream
             if (m_cpOutStream)
             {
-                OutFileStreamAdapter streamAdapter(m_cpOutStream);
+                OutFileStreamAdapter<> streamAdapter(m_cpOutStream);
                 streamAdapter.SetTime(
                     m_oftCreated ? &*m_oftCreated : nullptr,
                     m_oftAccessed ? &*m_oftAccessed : nullptr,
