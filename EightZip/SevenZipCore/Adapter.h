@@ -11,8 +11,8 @@ namespace SevenZipCore
     class Adapter
     {
     public:
-        explicit Adapter(std::shared_ptr<T> spTarget)
-            : m_spTarget(spTarget)
+        explicit Adapter(T target)
+            : m_target(target)
         {
 
         }
@@ -21,7 +21,7 @@ namespace SevenZipCore
         std::shared_ptr<I> QueryInterface(REFGUID iid)
         {
             I *pResult = nullptr;
-            if (SUCCEEDED(m_spTarget->QueryInterface(
+            if (SUCCEEDED(m_target->QueryInterface(
                 iid, reinterpret_cast<void **>(&pResult))))
             {
                 return MakeComPtr(pResult, false);
@@ -29,15 +29,15 @@ namespace SevenZipCore
             return nullptr;
         }
 
-        inline std::shared_ptr<T> GetTarget() const
+        inline T GetTarget() const
         {
-            return m_spTarget;
+            return m_target;
         }
 
         virtual ~Adapter() { };
 
     private:
-        std::shared_ptr<T> m_spTarget;
+        T m_target;
 
     };
 

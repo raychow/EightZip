@@ -83,28 +83,30 @@ namespace SevenZipCore
 
     };
 
+    template<typename T = std::shared_ptr<InFileStream>>
     class InFileStreamAdapter
-        : public IInStreamAdapter < InFileStream >
-        , public IStreamGetSizeAdapter < InFileStream >
+        : public IInStreamAdapter<T>
+        , public IStreamGetSizeAdapter<T>
     {
         explicit InFileStreamAdapter(
-            std::shared_ptr<InFileStream> spTarget)
-            : Adapter(spTarget)
-            , IInStreamAdapter(spTarget)
-            , IStreamGetSizeAdapter(spTarget)
+            T target)
+            : Adapter(target)
+            , IInStreamAdapter(target)
+            , IStreamGetSizeAdapter(target)
         {
 
         }
 
     };
 
+    template<typename T = std::shared_ptr<OutFileStream>>
     class OutFileStreamAdapter
-        : public IOutStreamAdapter < OutFileStream >
+        : public IOutStreamAdapter<T>
     {
     public:
-        explicit OutFileStreamAdapter(std::shared_ptr<OutFileStream> spTarget)
-            : Adapter(spTarget)
-            , IOutStreamAdapter(spTarget)
+        explicit OutFileStreamAdapter(T target)
+            : Adapter(target)
+            , IOutStreamAdapter(target)
         {
 
         }

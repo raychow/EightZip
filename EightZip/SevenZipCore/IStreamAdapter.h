@@ -11,13 +11,13 @@
 
 namespace SevenZipCore
 {
-    template<typename T = IInStream>
+    template<typename T = std::shared_ptr<IInStream>>
     class IInStreamAdapter
         : protected virtual Adapter < T >
     {
     public:
-        explicit IInStreamAdapter(std::shared_ptr<T> spTarget)
-            : Adapter(spTarget)
+        explicit IInStreamAdapter(T target)
+            : Adapter(target)
         {
         }
 
@@ -29,13 +29,13 @@ namespace SevenZipCore
 
     };
 
-    template<typename T = IOutStream>
+    template<typename T = std::shared_ptr<IOutStream>>
     class IOutStreamAdapter
         : protected virtual Adapter < T >
     {
     public:
-        explicit IOutStreamAdapter(std::shared_ptr<T> spTarget)
-            : Adapter(spTarget)
+        explicit IOutStreamAdapter(T target)
+            : Adapter(target)
         {
         }
 
@@ -48,13 +48,13 @@ namespace SevenZipCore
 
     };
 
-    template<typename T = IStreamGetSize>
+    template<typename T = std::shared_ptr<IStreamGetSize>>
     class IStreamGetSizeAdapter
         : protected virtual Adapter < T >
     {
     public:
-        explicit IStreamGetSizeAdapter(std::shared_ptr<T> spTarget)
-            : Adapter(spTarget)
+        explicit IStreamGetSizeAdapter(T target)
+            : Adapter(target)
         {
         }
 

@@ -13,13 +13,13 @@
 
 namespace SevenZipCore
 {
-    template<typename T = IInArchive>
+    template<typename T = std::shared_ptr<IInArchive>>
     class IInArchiveAdapter
-        : protected virtual Adapter < T >
+        : protected virtual Adapter<T>
     {
     public:
-        explicit IInArchiveAdapter(std::shared_ptr<T> spTarget)
-            : Adapter(spTarget)
+        explicit IInArchiveAdapter(T target)
+            : Adapter(target)
         {
         }
 
@@ -152,13 +152,13 @@ namespace SevenZipCore
 
     };
 
-    template<typename T = IInArchiveGetStream>
+    template<typename T = std::shared_ptr<IInArchiveGetStream>>
     class IInArchiveGetStreamAdapter
-        : protected virtual Adapter < T >
+        : protected virtual Adapter<T>
     {
     public:
-        explicit IInArchiveGetStreamAdapter(std::shared_ptr<T> spTarget)
-            : Adapter(spTarget)
+        explicit IInArchiveGetStreamAdapter(T target)
+            : Adapter(target)
         {
         }
 
