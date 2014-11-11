@@ -33,9 +33,8 @@ public:
     
     int GetSelectedIndex() const;
     std::vector<int> GetSelectedIndexes() const;
-    int GetSelectedEntryIndex() const;
-    std::vector<int> GetSelectedEntryIndexes() const;
     std::shared_ptr<EntryBase> GetSelectedEntry() const;
+    std::vector<std::shared_ptr<EntryBase>> GetSelectedEntries() const;
     std::shared_ptr<EntryBase> GetEntry(int nIndex) const;
 
     void Extract(TString tstrPath);

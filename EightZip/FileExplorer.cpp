@@ -42,7 +42,7 @@ int FileExplorer::GetSelectedIndex() const
         wxLIST_STATE_SELECTED);
 }
 
-std::vector<int> FileExplorer::GetSelectedIndexes() const
+vector<int> FileExplorer::GetSelectedIndexes() const
 {
     int index = -1;
     vector<int> result;
@@ -61,27 +61,23 @@ std::vector<int> FileExplorer::GetSelectedIndexes() const
     }
 }
 
-int FileExplorer::GetSelectedEntryIndex() const
+shared_ptr<EntryBase> FileExplorer::GetSelectedEntry() const
 {
-    return m_pListCtrl->GetEntryIndex(GetSelectedIndex());
+    return GetEntry(m_pListCtrl->GetEntryIndex(GetSelectedIndex()));
 }
 
-std::vector<int> FileExplorer::GetSelectedEntryIndexes() const
+vector<shared_ptr<EntryBase>> FileExplorer::GetSelectedEntries() const
 {
-    auto result = GetSelectedIndexes();
-    for (auto &index : result)
+    vector<shared_ptr<EntryBase>> result;
+    vector<int> indexes = GetSelectedIndexes();
+    for (auto index : indexes)
     {
-        index = m_pListCtrl->GetEntryIndex(index);
+        result.push_back(GetEntry(m_pListCtrl->GetEntryIndex(index)));
     }
     return result;
 }
 
-std::shared_ptr<EntryBase> FileExplorer::GetSelectedEntry() const
-{
-    return GetEntry(GetSelectedEntryIndex());
-}
-
-std::shared_ptr<EntryBase> FileExplorer::GetEntry(int nIndex) const
+shared_ptr<EntryBase> FileExplorer::GetEntry(int nIndex) const
 {
     if (0 > nIndex || !m_spModel)
     {
@@ -147,7 +143,7 @@ void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
         wxEVT_LIST_ITEM_ACTIVATED, &FileExplorer::__OnListItemActivated, this);
 }
 
-void FileExplorer::__SetModel(std::shared_ptr<ModelBase> spModel,
+void FileExplorer::__SetModel(shared_ptr<ModelBase> spModel,
     TString tstrFocusedName/* = wxEmptyString*/)
 {
     m_pListCtrl->SetModel(spModel, tstrFocusedName);
@@ -194,7 +190,7 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
                 wxOK | wxICON_ERROR);
             return;
         }
-        catch (const std::exception &)
+        catch (const exception &)
         {
             // Open external.
         }
