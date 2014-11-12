@@ -110,13 +110,19 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
         if (vspEntry.empty())
         {
             wxMessageBox(
-                wxString::Format(_("No files selected."), EIGHTZIP_NAME));
+                wxString::Format(_("No file selected."), EIGHTZIP_NAME));
             return;
         }
         if (vspEntry.size() == 1)
         {
             bool isSuccess = false;
             auto &spEntry = vspEntry.front();
+            if (spEntry->IsDirectory())
+            {
+                wxMessageBox(
+                    wxString::Format(_("No file selected."), EIGHTZIP_NAME));
+                return;
+            }
             try
             {
                 spModel = spEntry->GetModel();
