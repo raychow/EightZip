@@ -233,11 +233,11 @@ void ProgressDialog::__OnPauseClick(wxCommandEvent &WXUNUSED(event))
     if (m_ulPause.owns_lock())
     {
         m_pButtonPause->SetLabel(_("&Pause"));
-        __StartTimer();
+        m_ulPause.unlock();
 #ifdef __WXMSW__
         m_taskerProgress.SetState(TBPF_NORMAL);
 #endif
-        m_ulPause.unlock();
+        __StartTimer();
     }
     else
     {
