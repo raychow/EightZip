@@ -52,12 +52,11 @@ vector<int> FileExplorer::GetSelectedIndexes() const
         index = m_pListCtrl->GetNextItem(index,
             wxLIST_NEXT_ALL,
             wxLIST_STATE_SELECTED);
-        result.push_back(index);
-
         if (index == -1)
         {
             return result;
         }
+        result.push_back(index);
     }
 }
 
