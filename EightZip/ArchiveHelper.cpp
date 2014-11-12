@@ -25,10 +25,12 @@ namespace Helper
         ProgressDialogManager(ProgressDialog *pProgressDialog)
             : m_pDialog(pProgressDialog)
         {
-            wxTheApp->CallAfter([&](){
-                m_pDialog->CenterOnParent();
-                m_pDialog->ShowModal();
-            });
+            wxTheApp->CallAfter(bind(
+                // Probably be called after destruct.
+                [](ProgressDialog *pDialog){
+                pDialog->CenterOnParent();
+                pDialog->ShowModal();
+            }, m_pDialog));
         }
 
         ~ProgressDialogManager()
@@ -55,6 +57,7 @@ namespace Helper
     };
 
     static void ExtractModelThread(TString tstrExtractPath,
+        TString tstrInternalPath,
         shared_ptr<VirtualModel> spModel,
         ProgressDialog *pProgressDialog,
         bool isLaunchFolder)
@@ -63,6 +66,7 @@ namespace Helper
         ExtractIndicator extractIndicator(pProgressDialog);
 
         Extractor extractor(tstrExtractPath, &extractIndicator);
+        extractor.SetInternalLocation(tstrInternalPath);
         extractor.AddPlan(move(spModel));
         try
         {
@@ -91,6 +95,7 @@ namespace Helper
     }
 
     static void ExtractEntriesThread(TString tstrExtractPath,
+        TString tstrInternalPath,
         vector<shared_ptr<EntryBase>> vspEntry,
         ProgressDialog *pProgressDialog,
         bool isLaunchFolder)
@@ -99,6 +104,7 @@ namespace Helper
         ExtractIndicator extractIndicator(pProgressDialog);
 
         Extractor extractor(tstrExtractPath, &extractIndicator);
+        extractor.SetInternalLocation(tstrInternalPath);
         for (auto &spEntry : vspEntry)
         {
             extractor.AddPlan(move(spEntry));
@@ -130,6 +136,7 @@ namespace Helper
     }
 
     bool Extract(TString tstrPath,
+        TString tstrInternalPath,
         shared_ptr<VirtualModel> spModel,
         bool isLaunchFolder)
     {
@@ -145,7 +152,7 @@ namespace Helper
                 wxTheApp->GetTopWindow(), wxID_ANY, _("Extracting"));
 
             thread extractThread(ExtractModelThread,
-                Helper::GetCanonicalPath(tstrPath), spModel,
+                Helper::GetCanonicalPath(tstrPath), tstrInternalPath, spModel,
                 pProgressDialog, isLaunchFolder);
             extractThread.detach();
         }
@@ -157,6 +164,7 @@ namespace Helper
     }
 
     bool Extract(TString tstrPath,
+        TString tstrInternalPath,
         vector<shared_ptr<EntryBase>> vspEntry,
         bool isLaunchFolder)
     {
@@ -172,7 +180,7 @@ namespace Helper
                 wxTheApp->GetTopWindow(), wxID_ANY, _("Extracting"));
 
             thread extractThread(ExtractEntriesThread,
-                Helper::GetCanonicalPath(tstrPath), vspEntry,
+                Helper::GetCanonicalPath(tstrPath), tstrInternalPath, vspEntry,
                 pProgressDialog, isLaunchFolder);
             extractThread.detach();
         }

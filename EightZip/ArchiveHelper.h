@@ -14,9 +14,11 @@ class VirtualModel;
 namespace Helper
 {
     bool Extract(TString tstrPath,
+        TString tstrInternalPath,
         std::shared_ptr<VirtualModel> spModel,
         bool isLaunchFolder);
     bool Extract(TString tstrPath,
+        TString tstrInternalPath,
         std::vector<std::shared_ptr<EntryBase>> vspEntry,
         bool isLaunchFolder);
 }

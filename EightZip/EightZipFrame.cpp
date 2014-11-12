@@ -146,21 +146,28 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
         return;
     }
 
-    auto tstrPath = dialog.GetPath();
     auto extractPath = boost::filesystem::absolute(
-        tstrPath, spFolderModel->GetPath());
+        dialog.GetPath(), spFolderModel->GetPath()).wstring();
     if (vspEntry.empty())
     {
         auto spVirtualModel = dynamic_pointer_cast<VirtualModel>(spModel);
-        if (!spVirtualModel || !Helper::Extract(
-            dialog.GetPath(), spVirtualModel, dialog.IsLaunchFolder()))
+        if (!Helper::Extract(extractPath,
+            spVirtualModel->GetInternalLocation(),
+            spVirtualModel,
+            dialog.IsLaunchFolder()))
         {
             wxMessageBox(_("Extract failed."));
         }
     }
     else
     {
-        if (!Helper::Extract(dialog.GetPath(), vspEntry, dialog.IsLaunchFolder()))
+        if (!Helper::Extract(
+            extractPath,
+            spModel->IsArchive()
+            ? dynamic_pointer_cast<VirtualModel>(spModel)->GetInternalLocation()
+            : wxEmptyString,
+            vspEntry,
+            dialog.IsLaunchFolder()))
         {
             wxMessageBox(_("Extract failed."));
         }
