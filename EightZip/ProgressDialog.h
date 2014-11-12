@@ -53,7 +53,8 @@ public:
 
     void Done(bool isSuccess);
 
-    void CheckCancelled();
+    inline bool IsCancelled() const { return m_isCancelled; }
+    void CheckCancelled() const;
 
 private:
 #ifdef __WXMSW__
@@ -88,9 +89,10 @@ private:
     void __StartTimer();
     void __StopTimer();
 
-    void __DoUpdate();
+    void __Update();
+    void __Cancel();
 
-    void __Update(wxTimerEvent &WXUNUSED(event));
+    void __OnUpdate(wxTimerEvent &WXUNUSED(event));
     void __OnPauseClick(wxCommandEvent &WXUNUSED(event));
     void __OnCancelClick(wxCommandEvent &event);
 

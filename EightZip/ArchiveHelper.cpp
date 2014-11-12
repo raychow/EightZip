@@ -62,7 +62,6 @@ namespace Helper
         ProgressDialogManager dialogManager(pProgressDialog);
         ExtractIndicator extractIndicator(pProgressDialog);
 
-        auto spArchiveEntry = spModel->GetArchive()->GetArchiveEntry();
         Extractor extractor(tstrExtractPath, &extractIndicator);
         extractor.AddPlan(move(spModel));
         try
@@ -96,7 +95,38 @@ namespace Helper
         ProgressDialog *pProgressDialog,
         bool isLaunchFolder)
     {
+        ProgressDialogManager dialogManager(pProgressDialog);
+        ExtractIndicator extractIndicator(pProgressDialog);
 
+        Extractor extractor(tstrExtractPath, &extractIndicator);
+        for (auto &spEntry : vspEntry)
+        {
+            extractor.AddPlan(move(spEntry));
+        }
+        try
+        {
+            extractor.Execute();
+        }
+        catch (const SevenZipCore::ArchiveException &)
+        {
+            return;
+        }
+        dialogManager.SetSuccess(true);
+        if (isLaunchFolder)
+        {
+            try
+            {
+                OpenFileExternal(tstrExtractPath);
+            }
+            catch (const SystemException &)
+            {
+                wxMessageBox(
+                    wxString::Format(_("Cannot open \"%s\"."),
+                    tstrExtractPath),
+                    EIGHTZIP_NAME,
+                    wxOK | wxICON_ERROR);
+            }
+        }
     }
 
     bool Extract(TString tstrPath,

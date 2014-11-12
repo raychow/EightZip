@@ -151,16 +151,16 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
         tstrPath, spFolderModel->GetPath());
     if (vspEntry.empty())
     {
-        if (!Helper::Extract(dialog.GetPath(), vspEntry, dialog.IsLaunchFolder()))
+        auto spVirtualModel = dynamic_pointer_cast<VirtualModel>(spModel);
+        if (!spVirtualModel || !Helper::Extract(
+            dialog.GetPath(), spVirtualModel, dialog.IsLaunchFolder()))
         {
             wxMessageBox(_("Extract failed."));
         }
     }
     else
     {
-        auto spVirtualModel = dynamic_pointer_cast<VirtualModel>(spModel);
-        if (!spVirtualModel || !Helper::Extract(
-            dialog.GetPath(), spVirtualModel, dialog.IsLaunchFolder()))
+        if (!Helper::Extract(dialog.GetPath(), vspEntry, dialog.IsLaunchFolder()))
         {
             wxMessageBox(_("Extract failed."));
         }

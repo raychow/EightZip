@@ -33,6 +33,11 @@ public:
     virtual void SetOperationResult(
         SevenZipCore::ExtractResult extractResult);
 
+    inline ProgressDialog *GetProgressDialog() const
+    {
+        return m_pProcessDialog;
+    }
+
 private:
     ProgressDialog *m_pProcessDialog;
 

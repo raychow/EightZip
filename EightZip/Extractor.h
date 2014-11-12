@@ -13,17 +13,18 @@
 namespace SevenZipCore
 {
     class ArchiveEntry;
-    class IExtractIndicator;
 }
 
 class EntryBase;
+class ExtractIndicator;
+class ProgressDialog;
 class VirtualModel;
 
 class Extractor
 {
 public:
     Extractor(
-        TString tstrPath, SevenZipCore::IExtractIndicator *pExtractIndicator);
+        TString tstrPath, ExtractIndicator *pExtractIndicator);
 
     inline Extractor &AddPlan(
         std::shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry)
@@ -60,13 +61,16 @@ private:
     TString m_tstrPath;
     TString m_tstrInternalLocation;
     mutable TString m_tstrLastExtractPath;
-    SevenZipCore::IExtractIndicator *m_pExtractIndicator = nullptr;
-    std::map<std::shared_ptr<SevenZipCore::ArchiveEntry>,
+    ExtractIndicator *m_pExtractIndicator = nullptr;
+    ProgressDialog *m_pProgressDialog = nullptr;
+    std::map < std::shared_ptr<SevenZipCore::ArchiveEntry>,
         std::vector<UINT32>> m_plans;
     std::vector<std::shared_ptr<EntryBase>> m_entries;
-
     Extractor(const Extractor&) = delete;
     Extractor &operator=(const Extractor &) = delete;
+
+    void __Execute(std::shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry,
+        std::vector<UINT32> &vun32ArchiveIndex);
 
 };
 

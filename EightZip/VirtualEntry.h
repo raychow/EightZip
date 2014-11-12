@@ -31,6 +31,11 @@ public:
         EntryItemType itemType,
         bool isAscending) const;
 
+    inline std::shared_ptr<SevenZipCore::ArchiveFile> GetArchiveFile() const
+    {
+        return m_spArchiveFile;
+    }
+
 private:
     wxULongLong_t m_un64Size;
     wxULongLong_t m_un64PackedSize;

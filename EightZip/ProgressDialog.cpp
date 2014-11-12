@@ -79,7 +79,14 @@ SevenZipCore::OverwriteAnswer ProgressDialog::AskOverwrite(
     {
         *ptstrNewPath = dialog.GetPath();
     }
-    __StartTimer();
+    if (SevenZipCore::OverwriteAnswer::Cancel == result)
+    {
+        __Cancel();
+    }
+    else
+    {
+        __StartTimer();
+    }
     return result;
 }
 
@@ -95,7 +102,7 @@ void ProgressDialog::Done(bool isSuccess)
     Destroy();
 }
 
-void ProgressDialog::CheckCancelled()
+void ProgressDialog::CheckCancelled() const
 {
     if (m_isCancelled)
     {
@@ -171,14 +178,14 @@ void ProgressDialog::__Create()
     m_pButtonPause->Bind(wxEVT_BUTTON, &ProgressDialog::__OnPauseClick, this);
     pButtonCancel->Bind(wxEVT_BUTTON, &ProgressDialog::__OnCancelClick, this);
 
-    m_timer.Bind(wxEVT_TIMER, &ProgressDialog::__Update, this);
+    m_timer.Bind(wxEVT_TIMER, &ProgressDialog::__OnUpdate, this);
 
 }
 
 void ProgressDialog::__StartTimer()
 {
     m_tpStart = chrono::system_clock::now();
-    __DoUpdate();
+    __Update();
     m_timer.Start(UPDATE_INTERVAL);
 }
 
@@ -189,7 +196,17 @@ void ProgressDialog::__StopTimer()
     m_timer.Stop();
 }
 
-void ProgressDialog::__DoUpdate()
+void ProgressDialog::__Cancel()
+{
+    m_isCancelled = true;
+    __StopTimer();
+    if (m_ulPause.owns_lock())
+    {
+        m_ulPause.unlock();
+    }
+}
+
+void ProgressDialog::__Update()
 {
     lock_guard<mutex> lg(m_mutex);
     int nElasped = (m_msElasped + chrono::duration_cast<chrono::milliseconds>(
@@ -223,9 +240,9 @@ void ProgressDialog::__DoUpdate()
     m_pGaugeProcessed->SetValue(nPercent);
 }
 
-void ProgressDialog::__Update(wxTimerEvent &WXUNUSED(event))
+void ProgressDialog::__OnUpdate(wxTimerEvent &WXUNUSED(event))
 {
-    __DoUpdate();
+    __Update();
 }
 
 void ProgressDialog::__OnPauseClick(wxCommandEvent &WXUNUSED(event))
@@ -252,10 +269,5 @@ void ProgressDialog::__OnPauseClick(wxCommandEvent &WXUNUSED(event))
 
 void ProgressDialog::__OnCancelClick(wxCommandEvent &event)
 {
-    m_isCancelled = true;
-    __StopTimer();
-    if (m_ulPause.owns_lock())
-    {
-        m_ulPause.unlock();
-    }
+    __Cancel();
 }
