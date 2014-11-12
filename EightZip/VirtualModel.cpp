@@ -85,14 +85,14 @@ VirtualModel::EntryVector VirtualModel::_InitializeEntries() const
 {
     EntryVector result;
     auto tstrPath = GetPath();
-    for (const auto &folder : __GetArchiveFolder()->GetFolders())
+    for (const auto &folder : GetArchiveFolder()->GetFolders())
     {
         result.push_back(make_shared<VirtualEntry>(
             tstrPath, folder->GetName(), true,
             const_pointer_cast<VirtualModel>(shared_from_this()),
             folder));
     }
-    for (const auto &file : __GetArchiveFolder()->GetFiles())
+    for (const auto &file : GetArchiveFolder()->GetFiles())
     {
         result.push_back(make_shared<VirtualEntry>(
             tstrPath, file->GetName(), false,
@@ -120,7 +120,7 @@ shared_ptr<SevenZipCore::ArchiveExtractCallback> VirtualModel::__CreateCallback(
 {
     return SevenZipCore::MakeComPtr(
         new SevenZipCore::ArchiveExtractCallback(
-        __GetArchiveFolder()->GetArchiveEntry()->GetArchive(),
+        GetArchiveFolder()->GetArchiveEntry()->GetArchive(),
         false,
         false,
         false,
@@ -129,13 +129,4 @@ shared_ptr<SevenZipCore::ArchiveExtractCallback> VirtualModel::__CreateCallback(
         SevenZipCore::ExtractPathMode::CurrentPathNames,
         SevenZipCore::ExtractOverwriteMode::AskBefore,
         pExtractIndicator));
-}
-
-std::shared_ptr<SevenZipCore::ArchiveFolder> VirtualModel::__GetArchiveFolder() const
-{
-    if (!m_spArchiveFolder)
-    {
-        m_spArchiveFolder = m_spArchive->GetRootFolder();
-    }
-    return m_spArchiveFolder;
 }

@@ -1,11 +1,17 @@
 #include "stdwx.h"
 #include "Extractor.h"
 
+#include <queue>
+
 #include "SevenZipCore/ArchiveEntry.h"
 #include "SevenZipCore/ArchiveExtractCallback.h"
+#include "SevenZipCore/ArchiveFile.h"
 #include "SevenZipCore/ComPtr.h"
 #include "SevenZipCore/Exception.h"
 #include "SevenZipCore/IExtractIndicator.h"
+
+#include "EntryBase.h"
+#include "VirtualModel.h"
 
 using namespace std;
 
@@ -48,6 +54,54 @@ Extractor &Extractor::AddPlan(
     indexes.insert(indexes.end(),
         vun32ArchiveIndex.cbegin(), vun32ArchiveIndex.cend());
     return *this;
+}
+
+Extractor &Extractor::AddPlan(shared_ptr<EntryBase> spEntry)
+{
+    if (spEntry->IsVirtual())
+    {
+        return AddPlan(dynamic_pointer_cast<VirtualModel>(spEntry->GetModel()));
+    }
+    else
+    {
+        m_entries.push_back(spEntry);
+    }
+    return *this;
+}
+
+Extractor &Extractor::AddPlan(shared_ptr<VirtualModel> spModel)
+{
+    auto spArchiveEntry = spModel->GetArchiveFolder()->GetArchiveEntry();
+    if (spModel->IsRoot())
+    {
+        return AddPlan(move(spArchiveEntry));
+    }
+    else
+    {
+        vector<UINT32> vun32ArchiveIndex;
+        queue<const SevenZipCore::ArchiveFolder *> qpFolder;
+        qpFolder.push(spModel->GetArchiveFolder().get());
+
+        while (!qpFolder.empty())
+        {
+            const auto &folder = *qpFolder.front();
+            qpFolder.pop();
+            for (const auto &spFile : folder.GetFiles())
+            {
+                vun32ArchiveIndex.push_back(spFile->GetIndex());
+            }
+            for (const auto &spFolder : folder.GetFolders())
+            {
+                auto un32ArchiveIndex = spFolder->GetIndex();
+                if (UINT32_MAX != un32ArchiveIndex)
+                {
+                    vun32ArchiveIndex.push_back(un32ArchiveIndex);
+                }
+                qpFolder.push(spFolder.get());
+            }
+        }
+        return AddPlan(move(spArchiveEntry), move(vun32ArchiveIndex));
+    }
 }
 
 Extractor &Extractor::Execute()

@@ -59,6 +59,10 @@ public:
 
     inline std::shared_ptr<SevenZipCore::ArchiveFolder> GetArchiveFolder() const
     {
+        if (!m_spArchiveFolder)
+        {
+            m_spArchiveFolder = m_spArchive->GetRootFolder();
+        }
         return m_spArchiveFolder;
     }
     inline std::shared_ptr<SevenZipCore::Archive> GetArchive() const
@@ -81,8 +85,6 @@ private:
     std::shared_ptr<SevenZipCore::ArchiveExtractCallback>  __CreateCallback(
         TString tstrPath,
         SevenZipCore::IExtractIndicator *pExtractIndicator) const;
-
-    std::shared_ptr<SevenZipCore::ArchiveFolder> __GetArchiveFolder() const;
 
 };
 

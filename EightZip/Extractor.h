@@ -16,6 +16,9 @@ namespace SevenZipCore
     class IExtractIndicator;
 }
 
+class EntryBase;
+class VirtualModel;
+
 class Extractor
 {
 public:
@@ -37,6 +40,8 @@ public:
     }
     Extractor &AddPlan(std::shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry,
         std::vector<UINT32> vun32ArchiveIndex);
+    Extractor &AddPlan(std::shared_ptr<EntryBase> spEntry);
+    Extractor &AddPlan(std::shared_ptr<VirtualModel> spModel);
 
     inline Extractor &SetInternalLocation(TString tstrInternalLocation)
     {
@@ -58,6 +63,7 @@ private:
     SevenZipCore::IExtractIndicator *m_pExtractIndicator = nullptr;
     std::map<std::shared_ptr<SevenZipCore::ArchiveEntry>,
         std::vector<UINT32>> m_plans;
+    std::vector<std::shared_ptr<EntryBase>> m_entries;
 
     Extractor(const Extractor&) = delete;
     Extractor &operator=(const Extractor &) = delete;

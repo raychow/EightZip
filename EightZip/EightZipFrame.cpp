@@ -94,15 +94,16 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
     TString tstrExtractFolder;
     if (spModel->IsArchive())
     {
-        auto spVirtualModel = dynamic_pointer_cast<VirtualModel>(spFolderModel);
-        while (!spVirtualModel->IsRoot())
+        auto spVirtualFolderModel = dynamic_pointer_cast<
+            VirtualModel>(spFolderModel);
+        while (!spVirtualFolderModel->IsRoot())
         {
-            spVirtualModel = dynamic_pointer_cast<VirtualModel>(
-                spVirtualModel->GetParent());
+            spVirtualFolderModel = dynamic_pointer_cast<VirtualModel>(
+                spVirtualFolderModel->GetParent());
         }
         tstrExtractFolder = SevenZipCore::Helper::GetFileNameStem(
-            spVirtualModel->GetName());
-        spFolderModel = spVirtualModel->GetParent();
+            spVirtualFolderModel->GetName());
+        spFolderModel = spVirtualFolderModel->GetParent();
     }
     else
     {
@@ -148,10 +149,20 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
     auto tstrPath = dialog.GetPath();
     auto extractPath = boost::filesystem::absolute(
         tstrPath, spFolderModel->GetPath());
-    auto spVirtualModel = dynamic_pointer_cast<VirtualModel>(spModel);
-    if (!spVirtualModel || !Helper::Extract(
-        dialog.GetPath(), spVirtualModel, dialog.IsLaunchFolder()))
+    if (vspEntry.empty())
     {
-        wxMessageBox(_("Extract failed."));
+        if (!Helper::Extract(dialog.GetPath(), vspEntry, dialog.IsLaunchFolder()))
+        {
+            wxMessageBox(_("Extract failed."));
+        }
+    }
+    else
+    {
+        auto spVirtualModel = dynamic_pointer_cast<VirtualModel>(spModel);
+        if (!spVirtualModel || !Helper::Extract(
+            dialog.GetPath(), spVirtualModel, dialog.IsLaunchFolder()))
+        {
+            wxMessageBox(_("Extract failed."));
+        }
     }
 }
