@@ -67,7 +67,7 @@ namespace Helper
 
         Extractor extractor(tstrExtractPath, &extractIndicator);
         extractor.SetInternalLocation(tstrInternalPath);
-        extractor.AddPlan(move(spModel));
+        extractor.AddPlan(*spModel);
         try
         {
             extractor.Execute();
@@ -107,7 +107,7 @@ namespace Helper
         extractor.SetInternalLocation(tstrInternalPath);
         for (auto &spEntry : vspEntry)
         {
-            extractor.AddPlan(move(spEntry));
+            extractor.AddPlan(*spEntry);
         }
         try
         {

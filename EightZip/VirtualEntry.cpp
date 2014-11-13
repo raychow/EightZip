@@ -160,7 +160,7 @@ void VirtualEntry::__ExtractToTempFolder() const
     m_upTempFolder.reset(new TempFolder());
     m_upTempFolder->SetFilePath(
         Extractor(m_upTempFolder->GetLocation(), nullptr)
-        .AddPlan(shared_from_this())
+        .AddPlan(*this)
         .SetInternalLocation(m_wpParent.lock()->GetInternalLocation())
         .Execute().GetLastExtractPath());
 }

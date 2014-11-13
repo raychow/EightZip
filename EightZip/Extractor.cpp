@@ -46,65 +46,72 @@ Extractor::Extractor(
 
 }
 
-Extractor &Extractor::AddPlan(shared_ptr<const EntryBase> spEntry)
+Extractor &Extractor::AddPlan(const EntryBase &entry)
 {
-    m_entries.push_back(move(spEntry));
+    if (entry.IsVirtual())
+    {
+        auto archiveFile = *dynamic_cast<const VirtualEntry &>(
+            entry).GetArchiveFile();
+        auto &plan = m_plans[*archiveFile.GetArchiveEntry()];
+        plan.push_back(
+            archiveFile.GetIndex());
+        if (entry.IsDirectory())
+        {
+            auto model = dynamic_cast<const VirtualModel &>(*entry.GetModel());
+            queue<const SevenZipCore::ArchiveFolder *> qpFolder;
+            qpFolder.push(model.GetArchiveFolder().get());
+
+            while (!qpFolder.empty())
+            {
+                const auto &folder = *qpFolder.front();
+                qpFolder.pop();
+                for (const auto &spFile : folder.GetFiles())
+                {
+                    plan.push_back(spFile->GetIndex());
+                }
+                for (const auto &spFolder : folder.GetFolders())
+                {
+                    auto un32ArchiveIndex = spFolder->GetIndex();
+                    if (UINT32_MAX != un32ArchiveIndex)
+                    {
+                        plan.push_back(un32ArchiveIndex);
+                    }
+                    qpFolder.push(spFolder.get());
+                }
+            }
+
+        }
+    }
+    else
+    {
+        m_entries.push_back(entry);
+    }
     return *this;
 }
 
-Extractor &Extractor::AddPlan(shared_ptr<const VirtualModel> spModel)
+Extractor &Extractor::AddPlan(const VirtualModel &model)
 {
-    m_models.push_back(move(spModel));
+    auto &archiveEntry = *model.GetArchive()->GetArchiveEntry();
+    if (model.IsRoot())
+    {
+        m_plans[archiveEntry].clear();
+    }
+    else
+    {
+        bool isExist = m_plans.count(archiveEntry) > 0;
+        auto &plan = m_plans[archiveEntry];
+        if (!isExist || !plan.empty())
+        {
+            auto vun32Index = model.GetArchiveFolder()->GetAllIndexes();
+            plan.insert(plan.end(), vun32Index.cbegin(), vun32Index.cend());
+        }
+    }
     return *this;
 }
 
 Extractor &Extractor::Execute()
 {
-    map<shared_ptr<const SevenZipCore::ArchiveEntry>, vector<UINT32>> plans;
-    for (const auto &spEntry : m_entries)
-    {
-        if (spEntry->IsVirtual())
-        {
-            auto spArchiveFile = dynamic_pointer_cast<const VirtualEntry>(
-                spEntry)->GetArchiveFile();
-            plans[spArchiveFile->GetArchiveEntry()].push_back(
-                spArchiveFile->GetIndex());
-            if (spEntry->IsDirectory())
-            {
-                m_models.push_back(
-                    dynamic_pointer_cast<VirtualModel>(spEntry->GetModel()));
-            }
-        }
-        else
-        {
-            if (m_pProgressDialog && m_pProgressDialog->IsCancelled())
-            {
-                return *this;
-            }
-            __ExtractFile(spEntry);
-        }
-    }
-    for (const auto &spModel : m_models)
-    {
-        auto spArchiveEntry = spModel->GetArchive()->GetArchiveEntry();
-        if (spModel->IsRoot())
-        {
-            plans[spArchiveEntry].clear();
-        }
-        else
-        {
-            bool isExist = plans.count(spArchiveEntry) > 0;
-            auto &plan = plans[spArchiveEntry];
-            if (isExist && plan.empty())
-            {
-                continue;
-            }
-            auto vun32Index = spModel->GetArchiveFolder()->GetAllIndexes();
-            plan.insert(plan.end(), vun32Index.cbegin(), vun32Index.cend());
-        }
-    }
-
-    for (auto &plan : plans)
+    for (auto &plan : m_plans)
     {
         if (m_pProgressDialog && m_pProgressDialog->IsCancelled())
         {
@@ -115,23 +122,30 @@ Extractor &Extractor::Execute()
             plan.second.end());
         __Execute(plan.first, plan.second);
     }
+    for (const auto &spEntry : m_entries)
+    {
+        if (m_pProgressDialog && m_pProgressDialog->IsCancelled())
+        {
+            return *this;
+        }
+        __ExtractFile(spEntry);
+    }
 
     return *this;
 }
 
-void Extractor::__ExtractFile(shared_ptr<const EntryBase> spEntry)
+void Extractor::__ExtractFile(const EntryBase &entry)
 {
     bool isSuccess = false;
     try
     {
-        auto spModel = dynamic_pointer_cast<VirtualModel>(
-            spEntry->GetModel());
-        if (spModel)
-        {
-            __Execute(spModel->GetArchive()->GetArchiveEntry(),
-                vector < UINT32 > {});
-            isSuccess = true;
-        }
+        auto model = dynamic_cast<const VirtualModel &>(
+            *entry.GetModel());
+        __Execute(*model.GetArchive()->GetArchiveEntry(), vector < UINT32 > {});
+        isSuccess = true;
+    }
+    catch (const bad_cast &)
+    {
     }
     catch (const SevenZipCore::ArchiveException &)
     {
@@ -142,19 +156,23 @@ void Extractor::__ExtractFile(shared_ptr<const EntryBase> spEntry)
         {
             m_pExtractIndicator->AddError(wxString::Format(
                 _("%s: The archive is either in unknown format or damaged."),
-                spEntry->GetPath()).ToStdWstring());
+                entry.GetPath()).ToStdWstring());
         }
     }
 }
 
-void Extractor::__Execute(shared_ptr<const SevenZipCore::ArchiveEntry> spArchiveEntry,
-    vector<UINT32> &vun32ArchiveIndex)
+void Extractor::__Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
+    std::vector<UINT32> &vun32ArchiveIndex)
 {
-    auto spArchive = spArchiveEntry->GetArchive();
+    auto spArchive = archiveEntry.GetArchive();
+    if (m_pProgressDialog)
+    {
+        m_pProgressDialog->SetArchivePath(spArchive->GetPath());
+    }
     try
     {
         auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
-            spArchiveEntry->GetInArchive());
+            archiveEntry.GetInArchive());
         auto cpCallback = CreateCallback(
             spArchive,
             m_tstrPath,

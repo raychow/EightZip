@@ -70,6 +70,7 @@ SevenZipCore::OverwriteAnswer ProgressDialog::AskOverwrite(
     boost::optional<UINT64> oun64NewSize,
     TString *ptstrNewPath)
 {
+    __Update();
     __StopTimer();
     OverwriteDialog dialog(this, wxID_ANY, _("Confirm file replace"), tstrPath,
         oftExistModified, oun64ExistSize, oftNewModified, oun64NewSize);
