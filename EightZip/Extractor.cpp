@@ -46,108 +46,108 @@ Extractor::Extractor(
 
 }
 
-Extractor &Extractor::AddPlan(
-    shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry,
-    vector<UINT32> vun32ArchiveIndex)
+Extractor &Extractor::AddPlan(shared_ptr<const EntryBase> spEntry)
 {
-    if (vun32ArchiveIndex.empty())
-    {
-        return *this;
-    }
-    auto &indexes = m_plans[spArchiveEntry];
-    indexes.insert(indexes.end(),
-        vun32ArchiveIndex.cbegin(), vun32ArchiveIndex.cend());
+    m_entries.push_back(move(spEntry));
     return *this;
 }
 
-Extractor &Extractor::AddPlan(shared_ptr<EntryBase> spEntry)
+Extractor &Extractor::AddPlan(shared_ptr<const VirtualModel> spModel)
 {
-    if (spEntry->IsVirtual())
-    {
-        auto spArchiveFile = dynamic_pointer_cast<VirtualEntry>(
-            spEntry)->GetArchiveFile();
-        AddPlan(spArchiveFile->GetArchiveEntry(), spArchiveFile->GetIndex());
-        if (spEntry->IsDirectory())
-        {
-            AddPlan(dynamic_pointer_cast<VirtualModel>(spEntry->GetModel()));
-        }
-    }
-    else
-    {
-        m_entries.push_back(spEntry);
-    }
+    m_models.push_back(move(spModel));
     return *this;
-}
-
-Extractor &Extractor::AddPlan(shared_ptr<VirtualModel> spModel)
-{
-    auto spArchiveEntry = spModel->GetArchiveFolder()->GetArchiveEntry();
-    if (spModel->IsRoot())
-    {
-        return AddPlan(move(spArchiveEntry));
-    }
-    else
-    {
-        vector<UINT32> vun32ArchiveIndex;
-        queue<const SevenZipCore::ArchiveFolder *> qpFolder;
-        qpFolder.push(spModel->GetArchiveFolder().get());
-
-        while (!qpFolder.empty())
-        {
-            const auto &folder = *qpFolder.front();
-            qpFolder.pop();
-            for (const auto &spFile : folder.GetFiles())
-            {
-                vun32ArchiveIndex.push_back(spFile->GetIndex());
-            }
-            for (const auto &spFolder : folder.GetFolders())
-            {
-                auto un32ArchiveIndex = spFolder->GetIndex();
-                if (UINT32_MAX != un32ArchiveIndex)
-                {
-                    vun32ArchiveIndex.push_back(un32ArchiveIndex);
-                }
-                qpFolder.push(spFolder.get());
-            }
-        }
-        return AddPlan(move(spArchiveEntry), move(vun32ArchiveIndex));
-    }
 }
 
 Extractor &Extractor::Execute()
 {
-    for (auto &plan : m_plans)
+    map<shared_ptr<const SevenZipCore::ArchiveEntry>, vector<UINT32>> plans;
+    for (const auto &spEntry : m_entries)
+    {
+        if (spEntry->IsVirtual())
+        {
+            auto spArchiveFile = dynamic_pointer_cast<const VirtualEntry>(
+                spEntry)->GetArchiveFile();
+            plans[spArchiveFile->GetArchiveEntry()].push_back(
+                spArchiveFile->GetIndex());
+            if (spEntry->IsDirectory())
+            {
+                m_models.push_back(
+                    dynamic_pointer_cast<VirtualModel>(spEntry->GetModel()));
+            }
+        }
+        else
+        {
+            if (m_pProgressDialog && m_pProgressDialog->IsCancelled())
+            {
+                return *this;
+            }
+            __ExtractFile(spEntry);
+        }
+    }
+    for (const auto &spModel : m_models)
+    {
+        auto spArchiveEntry = spModel->GetArchive()->GetArchiveEntry();
+        if (spModel->IsRoot())
+        {
+            plans[spArchiveEntry].clear();
+        }
+        else
+        {
+            bool isExist = plans.count(spArchiveEntry) > 0;
+            auto &plan = plans[spArchiveEntry];
+            if (isExist && plan.empty())
+            {
+                continue;
+            }
+            auto vun32Index = spModel->GetArchiveFolder()->GetAllIndexes();
+            plan.insert(plan.end(), vun32Index.cbegin(), vun32Index.cend());
+        }
+    }
+
+    for (auto &plan : plans)
     {
         if (m_pProgressDialog && m_pProgressDialog->IsCancelled())
         {
             return *this;
         }
+        sort(plan.second.begin(), plan.second.end());
+        plan.second.erase(unique(plan.second.begin(), plan.second.end()),
+            plan.second.end());
         __Execute(plan.first, plan.second);
     }
-    for (auto &spEntry : m_entries)
-    {
-        if (m_pProgressDialog && m_pProgressDialog->IsCancelled())
-        {
-            return *this;
-        }
-        auto spModel = dynamic_pointer_cast<VirtualModel>(
-            spEntry->GetModel());
-        if (!spModel)
-        {
-            if (m_pExtractIndicator)
-            {
-                m_pExtractIndicator->AddError(wxString::Format(
-                    _("%s: The archive is either in unknown format or damaged."),
-                    spEntry->GetPath()).ToStdWstring());
-            }
-            continue;
-        }
-        __Execute(spModel->GetArchive()->GetArchiveEntry(), vector<UINT32>{});
-    }
+
     return *this;
 }
 
-void Extractor::__Execute(shared_ptr<SevenZipCore::ArchiveEntry> spArchiveEntry,
+void Extractor::__ExtractFile(shared_ptr<const EntryBase> spEntry)
+{
+    bool isSuccess = false;
+    try
+    {
+        auto spModel = dynamic_pointer_cast<VirtualModel>(
+            spEntry->GetModel());
+        if (spModel)
+        {
+            __Execute(spModel->GetArchive()->GetArchiveEntry(),
+                vector < UINT32 > {});
+            isSuccess = true;
+        }
+    }
+    catch (const SevenZipCore::ArchiveException &)
+    {
+    }
+    if (!isSuccess)
+    {
+        if (m_pExtractIndicator)
+        {
+            m_pExtractIndicator->AddError(wxString::Format(
+                _("%s: The archive is either in unknown format or damaged."),
+                spEntry->GetPath()).ToStdWstring());
+        }
+    }
+}
+
+void Extractor::__Execute(shared_ptr<const SevenZipCore::ArchiveEntry> spArchiveEntry,
     vector<UINT32> &vun32ArchiveIndex)
 {
     auto spArchive = spArchiveEntry->GetArchive();

@@ -81,6 +81,19 @@ shared_ptr<ModelBase> VirtualModel::GetParent() const
     }
 }
 
+const vector<EntryItemType> &VirtualModel::GetSupportedItems() const
+{
+    static vector<EntryItemType> vType = {
+        EntryItemType::Name,
+        EntryItemType::Type,
+        EntryItemType::Size,
+        EntryItemType::PackedSize,
+        //EntryItemType::Modified,
+        EntryItemType::CRC
+    };
+    return vType;
+}
+
 VirtualModel::EntryVector VirtualModel::_InitializeEntries() const
 {
     EntryVector result;
@@ -100,19 +113,6 @@ VirtualModel::EntryVector VirtualModel::_InitializeEntries() const
             file));
     }
     return result;
-}
-
-const vector<EntryItemType> &VirtualModel::GetSupportedItems() const
-{
-    static vector<EntryItemType> vType = {
-        EntryItemType::Name,
-        EntryItemType::Type,
-        EntryItemType::Size,
-        EntryItemType::PackedSize,
-        //EntryItemType::Modified,
-        EntryItemType::CRC
-    };
-    return vType;
 }
 
 shared_ptr<SevenZipCore::ArchiveExtractCallback> VirtualModel::__CreateCallback(

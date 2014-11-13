@@ -14,6 +14,7 @@ class VirtualModel;
 
 class VirtualEntry
     : public EntryBase
+    , public std::enable_shared_from_this<VirtualEntry>
 {
 public:
     VirtualEntry(TString tstrLocation, TString tstrName, bool isDirectory,
