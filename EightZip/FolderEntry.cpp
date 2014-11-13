@@ -43,7 +43,7 @@ shared_ptr<ModelBase> FolderEntry::GetModel() const
             SevenZipCore::Helper::GetFileName(tstrPath),
             tstrPath,
             nullptr,
-            SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
+            *SevenZipCore::MakeUniqueCom(new SevenZipCore::OpenCallback));
         return result;
     }
 }
@@ -59,13 +59,8 @@ bool FolderEntry::CanExtract() const
         auto tstrPath = GetPath();
         try
         {
-            SevenZipCore::ArchiveEntry(
-                weak_ptr<SevenZipCore::Archive>(),
-                CodecsLoader::GetInstance().GetCodecs(),
-                tstrPath,
-                nullptr,
-                -1,
-                SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
+            SevenZipCore::Archive(CodecsLoader::GetInstance().GetCodecs(),
+                GetPath(), SevenZipCore::OpenCallback());
             return true;
         }
         catch (const SevenZipCore::SevenZipCoreException &)

@@ -3,6 +3,7 @@
 #ifndef SEVENZIPCORE_LIBRARY_H
 #define SEVENZIPCORE_LIBRARY_H
 
+#include <functional>
 #include <memory>
 
 #include "Platform.h"
@@ -30,7 +31,8 @@ namespace SevenZipCore
             bool isSuppresseException = false) const;
 
     protected:
-        std::shared_ptr<HINSTANCE__> m_sphModule;
+        std::unique_ptr<HINSTANCE__,
+            std::function<void(HMODULE) >> m_uphModule;
 
         HMODULE _CheckLibrary(HMODULE hModule);
 
@@ -56,7 +58,7 @@ namespace SevenZipCore
     T Library::GetProc(const std::string &strProcName,
         bool isSuppresseException /*= false*/) const
     {
-        auto result = ::GetProcAddress(m_sphModule.get(), strProcName.c_str());
+        auto result = ::GetProcAddress(m_uphModule.get(), strProcName.c_str());
         if (!isSuppresseException && !result)
         {
             throw LibraryException(

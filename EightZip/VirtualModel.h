@@ -26,26 +26,23 @@ class VirtualModel
 {
 public:
     // Open stream.
-    VirtualModel(
-        TString tstrLocation,
+    VirtualModel(TString tstrLocation,
         TString tstrName,
         std::shared_ptr<ModelBase> spParent,
         std::shared_ptr<SevenZipCore::IInStream> cpStream,
-        std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback);
+        SevenZipCore::IArchiveOpenCallback &callback);
     // Open real file.
-    VirtualModel(
-        TString tstrLocation,
+    VirtualModel(TString tstrLocation,
         TString tstrName,
         TString tstrRealPath,
         std::shared_ptr<ModelBase> spParent,
-        std::shared_ptr<SevenZipCore::IArchiveOpenCallback> cpCallback);
+        SevenZipCore::IArchiveOpenCallback &callback);
     // Open archive folder.
-    VirtualModel(
-        TString tstrLocation,
+    VirtualModel(TString tstrLocation,
         TString tstrInternalLocation,
         TString tstrName,
-        std::shared_ptr<ModelBase> spParent,
-        std::shared_ptr<SevenZipCore::ArchiveFolder> spArchiveFolder);
+        std::shared_ptr<VirtualModel> spParent,
+        SevenZipCore::ArchiveFolder &archiveFolder);
     virtual ~VirtualModel() {}
 
     virtual std::shared_ptr<ModelBase> GetParent() const;
@@ -57,17 +54,13 @@ public:
         return m_tstrInternalLocation;
     }
 
-    inline std::shared_ptr<SevenZipCore::ArchiveFolder> GetArchiveFolder() const
-    {
-        if (!m_spArchiveFolder)
-        {
-            m_spArchiveFolder = m_spArchive->GetRootFolder();
-        }
-        return m_spArchiveFolder;
-    }
     inline std::shared_ptr<SevenZipCore::Archive> GetArchive() const
     {
         return m_spArchive;
+    }
+    inline SevenZipCore::ArchiveFolder &GetArchiveFolder() const
+    {
+        return m_archiveFolder;
     }
 
     inline bool IsRoot() const { return !m_spParent; }
@@ -76,9 +69,9 @@ protected:
     virtual EntryVector _InitializeEntries() const;
 
 private:
-    std::shared_ptr<ModelBase> m_spParent;
-    mutable std::shared_ptr<SevenZipCore::ArchiveFolder> m_spArchiveFolder;
     std::shared_ptr<SevenZipCore::Archive> m_spArchive;
+    std::shared_ptr<ModelBase> m_spParent;
+    SevenZipCore::ArchiveFolder &m_archiveFolder;
 
     TString m_tstrInternalLocation;
 

@@ -17,13 +17,13 @@ VirtualEntry::VirtualEntry(TString tstrLocation,
     TString tstrName,
     bool isDirectory,
     weak_ptr<VirtualModel> wpParent,
-    shared_ptr<SevenZipCore::ArchiveFile> spArchiveFile)
+    SevenZipCore::ArchiveFile &archiveFile)
     : EntryBase(move(tstrLocation), move(tstrName), isDirectory, true)
-    , m_un64Size(spArchiveFile->GetSize())
-    , m_un64PackedSize(spArchiveFile->GetPackedSize())
-    , m_oun32CRC(spArchiveFile->GetCRC())
+    , m_un64Size(archiveFile.GetSize())
+    , m_un64PackedSize(archiveFile.GetPackedSize())
+    , m_oun32CRC(archiveFile.GetCRC())
     , m_wpParent(move(wpParent))
-    , m_spArchiveFile(move(spArchiveFile))
+    , m_archiveFile(archiveFile)
 {
 
 }
@@ -47,14 +47,14 @@ shared_ptr<ModelBase> VirtualEntry::GetModel() const
                 GetInternalLocation(),
                 GetName(),
                 spParent,
-                dynamic_pointer_cast<SevenZipCore::ArchiveFolder>(m_spArchiveFile));
+                dynamic_cast<SevenZipCore::ArchiveFolder &>(m_archiveFile));
             return result;
         }
         else
         {
-            auto spArchiveEntry = m_spArchiveFile->GetArchiveEntry();
+            auto &archiveEntry = m_archiveFile.GetArchiveEntry();
             SevenZipCore::IInArchiveAdapter<> inArchiveAdapter(
-                spArchiveEntry->GetInArchive());
+                archiveEntry.GetInArchive());
             try
             {
                 auto cpGetStream = inArchiveAdapter.QueryInterface<
@@ -62,20 +62,19 @@ shared_ptr<ModelBase> VirtualEntry::GetModel() const
                 if (cpGetStream)
                 {
                     auto cpSubSeqStream = SevenZipCore::IInArchiveGetStreamAdapter<>
-                        (cpGetStream).GetStream(m_spArchiveFile->GetIndex());
+                        (*cpGetStream).GetStream(m_archiveFile.GetIndex());
                     if (cpSubSeqStream)
                     {
-                        auto cpSubStream =
-                            SevenZipCore::Helper::QueryInterface<
+                        auto cpSubStream = SevenZipCore::Helper::QueryInterface<
                             SevenZipCore::IInStream>(
-                            cpSubSeqStream, SevenZipCore::IID_IInStream);
+                            *cpSubSeqStream, SevenZipCore::IID_IInStream);
                         if (cpSubStream)
                         {
                             return make_shared<VirtualModel>(GetLocation(),
                                 GetName(),
                                 m_wpParent.lock(),
                                 cpSubStream,
-                                SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
+                                *SevenZipCore::MakeUniqueCom(new SevenZipCore::OpenCallback));
                         }
                     }
                 }
@@ -88,7 +87,7 @@ shared_ptr<ModelBase> VirtualEntry::GetModel() const
                 GetName(),
                 m_upTempFolder->GetFilePath(),
                 m_wpParent.lock(),
-                SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
+                *SevenZipCore::MakeUniqueCom(new SevenZipCore::OpenCallback));
         }
     }
     else

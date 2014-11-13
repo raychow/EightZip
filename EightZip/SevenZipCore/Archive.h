@@ -8,38 +8,41 @@
 
 #include <boost/optional.hpp>
 
+#include "ArchiveFile.h"
 #include "Platform.h"
 #include "TString.h"
 
 namespace SevenZipCore
 {
     class ArchiveEntry;
-    class ArchiveFolder;
     class Codecs;
     struct IArchiveOpenCallback;
     struct IInStream;
 
     // CArchiveLink
     class Archive
-        : public std::enable_shared_from_this<Archive>
+        : public std::enable_shared_from_this < Archive >
     {
     public:
-        Archive(std::shared_ptr<Codecs> cpCodecs);
-        virtual ~Archive();
-
-        void Open(
+        Archive(std::shared_ptr<Codecs> cpCodecs,
             TString tstrPath,
-            std::shared_ptr<IArchiveOpenCallback> cpCallback);
-        void Open(
+            IArchiveOpenCallback &callback)
+            : Archive(move(cpCodecs), move(tstrPath), nullptr, callback)
+        {
+        }
+        Archive(std::shared_ptr<Codecs> cpCodecs,
             TString tstrPath,
             std::shared_ptr<IInStream> cpStream,
-            std::shared_ptr<IArchiveOpenCallback> cpCallback);
-        void Close();
+            IArchiveOpenCallback &callback)
+            : m_cpCodecs(move(cpCodecs))
+        {
+            __Open(move(tstrPath), move(cpStream), callback);
+        }
+        virtual ~Archive() { }
 
-        inline TString GetPath() const { return m_tstrPath; }
-        std::shared_ptr<ArchiveFolder> GetRootFolder() const;
+        inline const TString &GetPath() const { return m_tstrPath; }
 
-        std::shared_ptr<ArchiveEntry> GetArchiveEntry() const;
+        ArchiveEntry &GetArchiveEntry() const;
 
         inline const boost::optional<FILETIME> &GetModifiedTime() const
         {
@@ -51,9 +54,13 @@ namespace SevenZipCore
 
         TString m_tstrPath;
 
-        std::vector<std::shared_ptr<ArchiveEntry>> m_vspArchiveEntry;
-        mutable std::shared_ptr<ArchiveFolder> m_spRootFolder;
+        std::vector<std::unique_ptr<ArchiveEntry>> m_vupArchiveEntry;
+        mutable std::unique_ptr<ArchiveFolder> m_upRootFolder;
         boost::optional<FILETIME> m_oftModified;
+
+        void __Open(TString tstrPath,
+            std::shared_ptr<IInStream> cpStream,
+            IArchiveOpenCallback &callback);
 
     };
 }

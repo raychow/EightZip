@@ -5,6 +5,7 @@
 
 #include <boost/optional.hpp>
 
+#include "ComPtr.h"
 #include "Platform.h"
 #include "TString.h"
 
@@ -19,33 +20,24 @@ namespace SevenZipCore
 
     // CArc
     class ArchiveEntry
-        : public std::enable_shared_from_this<ArchiveEntry>
     {
     public:
-        ArchiveEntry(
-            std::weak_ptr<Archive> wpArchive,
+        ArchiveEntry(Archive &archive,
             std::shared_ptr<Codecs> cpCodecs,
             TString tstrPath,
             std::shared_ptr<IInStream> cpStream,
             int nSubFileIndex,
-            std::shared_ptr<IArchiveOpenCallback> cpCallback);
+            IArchiveOpenCallback &callback);
         virtual ~ArchiveEntry();
 
-        std::shared_ptr<Archive> GetArchive() const
-        {
-            return m_wpArchive.lock();
-        }
+        inline Archive &GetArchive() const { return m_archive; }
 
-        int GetSubfileIndex() const { return m_nSubfileIndex; }
-        void SetSubfileIndex(int value) { m_nSubfileIndex = value; }
+        inline int GetSubfileIndex() const { return m_nSubfileIndex; }
+        inline void SetSubfileIndex(int value) { m_nSubfileIndex = value; }
 
-        std::shared_ptr<IInArchive> GetInArchive() const
-        {
-            return m_cpInArchive;
-        }
+        inline IInArchive &GetInArchive() const { return *m_cpInArchive; }
 
-        // Do not use it directly since it loads files during every call.
-        std::shared_ptr<ArchiveFolder> GetRootFolder();
+        inline ArchiveFolder &GetRootFolder() { return *m_upRootFolder; }
 
     private:
         static const UINT64 MAX_CHECK_START_POSITION = 1 << 22;
@@ -56,13 +48,15 @@ namespace SevenZipCore
         std::shared_ptr<IInStream> m_cpInStream;
         int m_nSubfileIndex = -1;
 
-        std::weak_ptr<Archive> m_wpArchive;
-        std::shared_ptr<IInArchive> m_cpInArchive;
-        std::shared_ptr<IArchiveOpenCallback> m_cpCallback;
+        Archive &m_archive;
+        SevenZipCore::unique_com_ptr<IInArchive> m_cpInArchive;
+        std::unique_ptr<ArchiveFolder> m_upRootFolder;
 
-        void __OpenFile();
-        void __OpenStream();
+        void __OpenFile(IArchiveOpenCallback &callback);
+        void __OpenStream(IArchiveOpenCallback &callback);
         void __Close();
+
+        void __LoadFolder();
     };
 }
 

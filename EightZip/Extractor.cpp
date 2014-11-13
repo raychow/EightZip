@@ -17,14 +17,13 @@
 
 using namespace std;
 
-shared_ptr<SevenZipCore::ArchiveExtractCallback> CreateCallback(
-    shared_ptr<SevenZipCore::Archive> spArchive,
+SevenZipCore::unique_com_ptr<SevenZipCore::ArchiveExtractCallback> CreateCallback(
+    SevenZipCore::Archive &archive,
     TString tstrPath, TString tstrInternalPath,
     SevenZipCore::IExtractIndicator *pExtractIndicator)
 {
-    return SevenZipCore::MakeComPtr(
-        new SevenZipCore::ArchiveExtractCallback(
-        spArchive,
+    return SevenZipCore::MakeUniqueCom(
+        new SevenZipCore::ArchiveExtractCallback(archive,
         false,
         false,
         false,
@@ -50,16 +49,16 @@ Extractor &Extractor::AddPlan(const EntryBase &entry)
 {
     if (entry.IsVirtual())
     {
-        auto archiveFile = *dynamic_cast<const VirtualEntry &>(
+        auto &archiveFile = dynamic_cast<const VirtualEntry &>(
             entry).GetArchiveFile();
-        auto &plan = m_plans[*archiveFile.GetArchiveEntry()];
+        auto &plan = m_plans[archiveFile.GetArchiveEntry()];
         plan.push_back(
             archiveFile.GetIndex());
         if (entry.IsDirectory())
         {
             auto model = dynamic_cast<const VirtualModel &>(*entry.GetModel());
             queue<const SevenZipCore::ArchiveFolder *> qpFolder;
-            qpFolder.push(model.GetArchiveFolder().get());
+            qpFolder.push(&model.GetArchiveFolder());
 
             while (!qpFolder.empty())
             {
@@ -91,7 +90,7 @@ Extractor &Extractor::AddPlan(const EntryBase &entry)
 
 Extractor &Extractor::AddPlan(const VirtualModel &model)
 {
-    auto &archiveEntry = *model.GetArchive()->GetArchiveEntry();
+    auto &archiveEntry = model.GetArchive()->GetArchiveEntry();
     if (model.IsRoot())
     {
         m_plans[archiveEntry].clear();
@@ -102,7 +101,7 @@ Extractor &Extractor::AddPlan(const VirtualModel &model)
         auto &plan = m_plans[archiveEntry];
         if (!isExist || !plan.empty())
         {
-            auto vun32Index = model.GetArchiveFolder()->GetAllIndexes();
+            auto vun32Index = model.GetArchiveFolder().GetAllIndexes();
             plan.insert(plan.end(), vun32Index.cbegin(), vun32Index.cend());
         }
     }
@@ -141,7 +140,7 @@ void Extractor::__ExtractFile(const EntryBase &entry)
     {
         auto model = dynamic_cast<const VirtualModel &>(
             *entry.GetModel());
-        __Execute(*model.GetArchive()->GetArchiveEntry(), vector < UINT32 > {});
+        __Execute(model.GetArchive()->GetArchiveEntry(), vector<UINT32> {});
         isSuccess = true;
     }
     catch (const bad_cast &)
@@ -164,17 +163,17 @@ void Extractor::__ExtractFile(const EntryBase &entry)
 void Extractor::__Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
     std::vector<UINT32> &vun32ArchiveIndex)
 {
-    auto spArchive = archiveEntry.GetArchive();
+    auto &archive = archiveEntry.GetArchive();
     if (m_pProgressDialog)
     {
-        m_pProgressDialog->SetArchivePath(spArchive->GetPath());
+        m_pProgressDialog->SetArchivePath(archive.GetPath());
     }
     try
     {
         auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
             archiveEntry.GetInArchive());
         auto cpCallback = CreateCallback(
-            spArchive,
+            archive,
             m_tstrPath,
             m_tstrInternalLocation,
             m_pExtractIndicator);
@@ -198,7 +197,7 @@ void Extractor::__Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
         {
             m_pExtractIndicator->AddError(wxString::Format(
                 _("Cannot extract \"%s\"."),
-                spArchive->GetPath()).ToStdWstring());
+                archive.GetPath()).ToStdWstring());
         }
     }
 }

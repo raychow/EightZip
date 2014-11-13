@@ -10,12 +10,12 @@
 
 namespace SevenZipCore
 {
-    template<typename T = std::shared_ptr<ISetCompressCodecsInfo>>
+    template<typename T = ISetCompressCodecsInfo>
     class ISetCompressCodecsInfoAdapter
-        : protected virtual Adapter < T >
+        : protected virtual Adapter<T>
     {
     public:
-        explicit ISetCompressCodecsInfoAdapter(T target)
+        explicit ISetCompressCodecsInfoAdapter(T &target)
             : Adapter(target)
         {
         }
@@ -26,7 +26,7 @@ namespace SevenZipCore
         void SetCompressCodecsInfo(ICompressCodecsInfo &compressCodecsInfo) const
         {
             EnsureOk<LibraryException>(
-                GetTarget()->SetCompressCodecsInfo(&compressCodecsInfo),
+                GetTarget().SetCompressCodecsInfo(&compressCodecsInfo),
                 "Cannot set compress codecs info.");
         }
     };

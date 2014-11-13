@@ -11,7 +11,7 @@ CodecsLoader::CodecsLoader()
         = wxStandardPaths::Get().GetExecutablePath();
     tstrExecutablePath = tstrExecutablePath.substr(
         0, tstrExecutablePath.find_last_of(wxFILE_SEP_PATH) + 1);
-    m_cpCodecs = SevenZipCore::MakeComPtr(
+    m_cpCodecs = SevenZipCore::MakeSharedCom(
         new SevenZipCore::Codecs(tstrExecutablePath));
 
 }

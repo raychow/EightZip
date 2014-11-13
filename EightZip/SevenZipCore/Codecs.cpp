@@ -54,7 +54,7 @@ namespace SevenZipCore
     {
         TString tstrExtension;
         TString tstrAdditionExtension;
-        // Will call std::[w]string's or std::vector's move constructor.
+        // Will call [w]string's or vector's move constructor.
         m_tstrName = PropertyHelper::GetString(propertyReader.ReadProperty(
             m_unFormatIndex, static_cast<PROPID>(FormatInfo::Name)), TString());
         m_classId = PropertyHelper::GetGUID(propertyReader.ReadProperty(
@@ -84,22 +84,8 @@ namespace SevenZipCore
     {
     }
 
-    std::shared_ptr<IInArchive> CodecFormat::CreateInArchive() const
-    {
-        auto result = MakeComPtr(m_codecLibrary.CreateObject<IInArchive>(
-            m_classId, IID_IInArchive), false);
-        return result;
-    }
-
-    std::shared_ptr<IOutArchive> CodecFormat::CreateOutArchive() const
-    {
-        auto result = MakeComPtr(m_codecLibrary.CreateObject<IOutArchive>(
-            m_classId, IID_IOutArchive), false);
-        return result;
-    }
-
     void CodecFormat::__SplitString(const TString &tstrSource,
-        std::vector<TString> &vtstrDestination, TCHAR wchDelimiter)
+        vector<TString> &vtstrDestination, TCHAR wchDelimiter)
     {
         TStringStream tstringStream(tstrSource);
         TString tstrItem;

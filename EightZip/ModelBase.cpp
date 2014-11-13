@@ -44,7 +44,7 @@ shared_ptr<ModelBase> GetModelFromPath(
                     SevenZipCore::Helper::GetFileName(tstrPath),
                     tstrPath,
                     nullptr,
-                    SevenZipCore::MakeComPtr(new SevenZipCore::OpenCallback));
+                    *SevenZipCore::MakeUniqueCom(new SevenZipCore::OpenCallback));
                 return GetModelFromPath(spModel, tstrOriginalPath);
             }
             tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));

@@ -83,13 +83,12 @@ namespace SevenZipCore
 
     };
 
-    template<typename T = std::shared_ptr<InFileStream>>
+    template<typename T = InFileStream>
     class InFileStreamAdapter
         : public IInStreamAdapter<T>
         , public IStreamGetSizeAdapter<T>
     {
-        explicit InFileStreamAdapter(
-            T target)
+        explicit InFileStreamAdapter(T &target)
             : Adapter(target)
             , IInStreamAdapter(target)
             , IStreamGetSizeAdapter(target)
@@ -99,31 +98,31 @@ namespace SevenZipCore
 
     };
 
-    template<typename T = std::shared_ptr<OutFileStream>>
+    template<typename T = OutFileStream>
     class OutFileStreamAdapter
         : public IOutStreamAdapter<T>
     {
     public:
-        explicit OutFileStreamAdapter(T target)
+        explicit OutFileStreamAdapter(T &target)
             : Adapter(target)
             , IOutStreamAdapter(target)
         {
 
         }
 
-        inline void Close() { GetTarget()->Close(); }
+        inline void Close() { GetTarget().Close(); }
 
         inline void SetTime(
             const FILETIME *pftCreated,
             const FILETIME *pftAccessed,
             const FILETIME *pftModified) const
         {
-            GetTarget()->SetTime(pftCreated, pftAccessed, pftModified);
+            GetTarget().SetTime(pftCreated, pftAccessed, pftModified);
         }
 
         inline UINT64 GetProcessedSize() const
         {
-            return GetTarget()->GetProcessedSize();
+            return GetTarget().GetProcessedSize();
         }
 
     };

@@ -5,39 +5,41 @@
 
 #include <Windows.h>
 
+#include "ComPtr.h"
+
 namespace SevenZipCore
 {
-    template < typename T >
+    template<typename T>
     class Adapter
     {
     public:
-        explicit Adapter(T target)
+        explicit Adapter(T &target)
             : m_target(target)
         {
 
         }
 
         template<typename I>
-        std::shared_ptr<I> QueryInterface(REFGUID iid)
+        unique_com_ptr<I> QueryInterface(REFGUID iid)
         {
             I *pResult = nullptr;
-            if (SUCCEEDED(m_target->QueryInterface(
+            if (SUCCEEDED(m_target.QueryInterface(
                 iid, reinterpret_cast<void **>(&pResult))))
             {
-                return MakeComPtr(pResult, false);
+                return MakeUniqueCom(pResult, false);
             }
             return nullptr;
         }
 
-        inline T GetTarget() const
+        inline T &GetTarget() const
         {
             return m_target;
         }
 
-        virtual ~Adapter() { };
+        virtual ~Adapter() { }
 
     private:
-        T m_target;
+        T &m_target;
 
     };
 

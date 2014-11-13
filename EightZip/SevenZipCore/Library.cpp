@@ -5,15 +5,15 @@
 namespace SevenZipCore
 {
     Library::Library(const TString &tstrPath)
-        : m_sphModule(
-        _CheckLibrary(::LoadLibrary(tstrPath.c_str())), &::FreeLibrary)
+        : m_uphModule(_CheckLibrary(::LoadLibrary(tstrPath.c_str())),
+        [](HMODULE p) { ::FreeLibrary(p); })
     {
     }
 
     Library::Library(const TString &tstrPath, DWORD dwFlags)
-        : m_sphModule(
+        : m_uphModule(
         _CheckLibrary(::LoadLibraryEx(tstrPath.c_str(), nullptr, dwFlags)),
-        &::FreeLibrary)
+        [](HMODULE p) { ::FreeLibrary(p); })
     {
     }
 

@@ -11,12 +11,12 @@
 
 namespace SevenZipCore
 {
-    template<typename T = std::shared_ptr<IInStream>>
+    template<typename T = IInStream>
     class IInStreamAdapter
-        : protected virtual Adapter < T >
+        : protected virtual Adapter<T>
     {
     public:
-        explicit IInStreamAdapter(T target)
+        explicit IInStreamAdapter(T &target)
             : Adapter(target)
         {
         }
@@ -29,12 +29,12 @@ namespace SevenZipCore
 
     };
 
-    template<typename T = std::shared_ptr<IOutStream>>
+    template<typename T = IOutStream>
     class IOutStreamAdapter
-        : protected virtual Adapter < T >
+        : protected virtual Adapter<T>
     {
     public:
-        explicit IOutStreamAdapter(T target)
+        explicit IOutStreamAdapter(T &target)
             : Adapter(target)
         {
         }
@@ -48,12 +48,12 @@ namespace SevenZipCore
 
     };
 
-    template<typename T = std::shared_ptr<IStreamGetSize>>
+    template<typename T = IStreamGetSize>
     class IStreamGetSizeAdapter
-        : protected virtual Adapter < T >
+        : protected virtual Adapter<T>
     {
     public:
-        explicit IStreamGetSizeAdapter(T target)
+        explicit IStreamGetSizeAdapter(T &target)
             : Adapter(target)
         {
         }
@@ -71,7 +71,7 @@ namespace SevenZipCore
         std::vector<char> result(size);
         UINT32 unReadSize = 0;
         EnsureOk<StreamException>(
-            GetTarget()->Read(result.data(), size, &unReadSize),
+            GetTarget().Read(result.data(), size, &unReadSize),
             "Cannot read the file stream.");
         result.resize(size);
         return result;
@@ -82,7 +82,7 @@ namespace SevenZipCore
     {
         UINT64 result = 0;
         EnsureOk<StreamException>(
-            static_cast<bool>(GetTarget()->Seek(offset, seekOrigin, &result)),
+            static_cast<bool>(GetTarget().Seek(offset, seekOrigin, &result)),
             "Cannot seek the file stream.");
         return result;
     }
@@ -92,7 +92,7 @@ namespace SevenZipCore
     {
         UINT32 result = 0;
         EnsureOk<StreamException>(
-            GetTarget()->Write(data.data(), data.size(), &result),
+            GetTarget().Write(data.data(), data.size(), &result),
             "Cannot write to the file stream.");
         return result;
     }
@@ -102,7 +102,7 @@ namespace SevenZipCore
     {
         UINT64 result = 0;
         EnsureOk<StreamException>(
-            GetTarget()->Seek(offset, seekOrigin, &result),
+            GetTarget().Seek(offset, seekOrigin, &result),
             "Cannot seek the file stream.");
         return result;
     }
@@ -110,7 +110,7 @@ namespace SevenZipCore
     template<typename T>
     void IOutStreamAdapter<T>::SetSize(UINT64 newSize) const
     {
-        EnsureOk<StreamException>(GetTarget()->SetSize(newSize),
+        EnsureOk<StreamException>(GetTarget().SetSize(newSize),
             "Cannot set size of the file stream.");
     }
 
@@ -118,7 +118,7 @@ namespace SevenZipCore
     UINT64 IStreamGetSizeAdapter<T>::GetSize() const
     {
         UINT64 result = 0;
-        EnsureOk<StreamException>(GetTarget()->GetSize(&result),
+        EnsureOk<StreamException>(GetTarget().GetSize(&result),
             "Cannot get size of the file stream.");
         return result;
     }

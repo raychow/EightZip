@@ -19,7 +19,7 @@ class VirtualEntry
 public:
     VirtualEntry(TString tstrLocation, TString tstrName, bool isDirectory,
         std::weak_ptr<VirtualModel> wpParent,
-        std::shared_ptr<SevenZipCore::ArchiveFile> spArchiveFile);
+        SevenZipCore::ArchiveFile &archiveFile);
     virtual ~VirtualEntry() { }
 
     TString GetInternalLocation() const;
@@ -32,9 +32,9 @@ public:
         EntryItemType itemType,
         bool isAscending) const;
 
-    inline std::shared_ptr<SevenZipCore::ArchiveFile> GetArchiveFile() const
+    inline SevenZipCore::ArchiveFile &GetArchiveFile() const
     {
-        return m_spArchiveFile;
+        return m_archiveFile;
     }
 
 private:
@@ -44,7 +44,7 @@ private:
     boost::optional<UINT32> m_oun32CRC;
 
     std::weak_ptr<VirtualModel> m_wpParent;
-    std::shared_ptr<SevenZipCore::ArchiveFile> m_spArchiveFile;
+    SevenZipCore::ArchiveFile &m_archiveFile;
     mutable std::unique_ptr<TempFolder> m_upTempFolder;
 
     void __ExtractToTempFolder() const;

@@ -10,6 +10,7 @@
 #include "Platform.h"
 
 #include "COM.h"
+#include "ComPtr.h"
 #include "Library.h"
 #include "IArchive.h"
 #include "ICoder.h"
@@ -64,8 +65,17 @@ namespace SevenZipCore
         const std::vector<BYTE> &Signature() const { return m_vbySignature; }
         bool IsKeepName() const { return m_isKeepName; }
 
-        std::shared_ptr<IInArchive> CreateInArchive() const;
-        std::shared_ptr<IOutArchive> CreateOutArchive() const;
+        inline unique_com_ptr<IInArchive> CreateInArchive() const
+        {
+            return MakeUniqueCom(m_codecLibrary.CreateObject<IInArchive>(
+                m_classId, IID_IInArchive), false);
+        }
+        inline unique_com_ptr<IOutArchive> CreateOutArchive() const
+        {
+            return MakeUniqueCom(m_codecLibrary.CreateObject<IOutArchive>(
+                m_classId, IID_IOutArchive), false);
+        }
+
     private:
         const CodecLibrary &m_codecLibrary;
         UINT32 m_unFormatIndex = 0;

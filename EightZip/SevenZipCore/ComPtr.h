@@ -16,6 +16,9 @@
 
 namespace SevenZipCore
 {
+    template<typename T>
+    using unique_com_ptr = std::unique_ptr<T, std::function<void(T *)>>;
+
 #ifdef _DEBUG
     template<typename T>
     void ComRelease(T *pCom)
@@ -30,7 +33,7 @@ namespace SevenZipCore
     }
 
     template<typename T>
-    std::shared_ptr<T> MakeComPtr(T *pCom, bool isAddRef = true)
+    std::shared_ptr<T> MakeSharedCom(T *pCom, bool isAddRef = true)
     {
         TStringStream tss;
         tss << TEXT("ComAddRef: 0x") << std::hex << pCom << TEXT('\n');
@@ -45,9 +48,35 @@ namespace SevenZipCore
         }
         return nullptr;
     }
+
+    template<typename T>
+    unique_com_ptr<T> MakeUniqueCom(T *pCom, bool isAddRef = true)
+    {
+        TStringStream tss;
+        tss << TEXT("ComAddRef: 0x") << std::hex << pCom << TEXT('\n');
+        OutputDebugString(tss.str().c_str());
+        if (pCom)
+        {
+            if (isAddRef)
+            {
+                pCom->AddRef();
+            }
+            return unique_com_ptr<T>(pCom, ComRelease<T>);
+        }
+        return nullptr;
+    }
 #else
     template<typename T>
-    std::shared_ptr<T> MakeComPtr(T *pCom, bool isAddRef = true)
+    void ComRelease(T *pCom)
+    {
+        if (pCom)
+        {
+            pCom->Release();
+        }
+    }
+
+    template<typename T>
+    std::shared_ptr<T> MakeSharedCom(T *pCom, bool isAddRef = true)
     {
         if (pCom)
         {
@@ -56,6 +85,20 @@ namespace SevenZipCore
                 pCom->AddRef();
             }
             return std::shared_ptr<T>(pCom, std::mem_fn(&T::Release));
+        }
+        return nullptr;
+    }
+
+    template<typename T>
+    unique_com_ptr<T> MakeUniqueCom(T *pCom, bool isAddRef = true)
+    {
+        if (pCom)
+        {
+            if (isAddRef)
+            {
+                pCom->AddRef();
+            }
+            return unique_com_ptr<T>(pCom, ComRelease<T>);
         }
         return nullptr;
     }

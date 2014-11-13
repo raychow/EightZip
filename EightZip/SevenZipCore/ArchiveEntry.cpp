@@ -19,25 +19,24 @@ using namespace std;
 
 namespace SevenZipCore
 {
-    ArchiveEntry::ArchiveEntry(
-        weak_ptr<Archive> wpArchive,
+    ArchiveEntry::ArchiveEntry(Archive &archive,
         shared_ptr<Codecs> cpCodecs,
         TString tstrPath,
-        shared_ptr<IInStream> cpStream,
+        std::shared_ptr<IInStream> cpStream,
         int nSubFileIndex,
-        shared_ptr<IArchiveOpenCallback> cpCallback)
-        : m_wpArchive(wpArchive)
+        IArchiveOpenCallback &callback)
+        : m_archive(archive)
         , m_cpCodecs(cpCodecs)
         , m_tstrPath(move(tstrPath))
         , m_cpInStream(cpStream)
         , m_nSubfileIndex(nSubFileIndex)
-        , m_cpCallback(move(cpCallback))
     {
         if (!m_cpInStream)
         {
-            __OpenFile();
+            __OpenFile(callback);
         }
-        __OpenStream();
+        __OpenStream(callback);
+        __LoadFolder();
     }
 
     ArchiveEntry::~ArchiveEntry()
@@ -51,54 +50,12 @@ namespace SevenZipCore
         }
     }
 
-    shared_ptr<ArchiveFolder> ArchiveEntry::GetRootFolder()
+    void ArchiveEntry::__OpenFile(IArchiveOpenCallback &callback)
     {
-        auto result = make_shared<ArchiveFolder>(TEXT(""), shared_from_this());
-        IInArchiveAdapter<> archiveAdapter(m_cpInArchive);
-        UINT32 un32ItemCount = archiveAdapter.GetNumberOfItems();
-        TString tstrArchiveFileName = Helper::GetFileName(m_tstrPath);
-        for (UINT32 i = 0; i != un32ItemCount; ++i)
-        {
-            shared_ptr<ArchiveFolder> spCurrentFolder = result;
-            TString tstrItemPath = archiveAdapter.GetItemPath(i);
-            auto vtstrFolder = Helper::SplitString(
-                tstrItemPath,
-                FOLDER_POSSIBLE_SEPARATOR,
-                true);
-            const auto tstrBack = vtstrFolder.back();
-            vtstrFolder.pop_back();
-            for (const auto &strFolder : vtstrFolder)
-            {
-                if (strFolder.empty())
-                {
-                    continue;
-                }
-                spCurrentFolder = spCurrentFolder->AddFolder(
-                    strFolder, spCurrentFolder);
-            }
-            if (tstrBack.empty())
-            {
-                continue;
-            }
-            if (PropertyHelper::GetBool(archiveAdapter.GetProperty(
-                i, PropertyId::IsDir), false))
-            {
-                spCurrentFolder->AddFolder(i, tstrBack, spCurrentFolder);
-            }
-            else
-            {
-                spCurrentFolder->AddFile(i, tstrBack, spCurrentFolder);
-            }
-        }
-        return result;
+        m_cpInStream = MakeSharedCom(new InFileStream(m_tstrPath, false));
     }
 
-    void ArchiveEntry::__OpenFile()
-    {
-        m_cpInStream = MakeComPtr(new InFileStream(m_tstrPath, false));
-    }
-
-    void ArchiveEntry::__OpenStream()
+    void ArchiveEntry::__OpenStream(IArchiveOpenCallback &callback)
     {
         TString tstrFileName = Helper::GetFileName(m_tstrPath);
         TString tstrFileExtension = Helper::GetFileExtension(m_tstrPath);
@@ -142,7 +99,7 @@ namespace SevenZipCore
                 auto cpInArchive = format.CreateInArchive();
                 m_cpInStream->Seek(0, STREAM_SEEK_SET, nullptr);
 
-                IInArchiveAdapter<> archiveAdapter(cpInArchive);
+                IInArchiveAdapter<> archiveAdapter(*cpInArchive);
 
                 auto cpSetCompressCodecsInfo
                     = archiveAdapter.QueryInterface<ISetCompressCodecsInfo>(
@@ -150,12 +107,12 @@ namespace SevenZipCore
                 if (cpSetCompressCodecsInfo)
                 {
                     ISetCompressCodecsInfoAdapter<>(
-                        cpSetCompressCodecsInfo).SetCompressCodecsInfo(*m_cpCodecs);
+                        *cpSetCompressCodecsInfo).SetCompressCodecsInfo(*m_cpCodecs);
                 }
 
                 archiveAdapter.Open(
-                    m_cpInStream.get(), MAX_CHECK_START_POSITION, m_cpCallback.get());
-                m_cpInArchive = cpInArchive;
+                    m_cpInStream.get(), MAX_CHECK_START_POSITION, &callback);
+                m_cpInArchive = move(cpInArchive);
                 return;
             }
             catch (const SevenZipCoreException &)
@@ -184,7 +141,48 @@ namespace SevenZipCore
     {
         if (m_cpInArchive)
         {
-            IInArchiveAdapter<>(m_cpInArchive).Close();
+            IInArchiveAdapter<>(*m_cpInArchive).Close();
+        }
+    }
+
+    void ArchiveEntry::__LoadFolder()
+    {
+        m_upRootFolder = make_unique<ArchiveFolder>(TEXT(""), *this);
+        IInArchiveAdapter<> archiveAdapter(*m_cpInArchive);
+        UINT32 un32ItemCount = archiveAdapter.GetNumberOfItems();
+        TString tstrArchiveFileName = Helper::GetFileName(m_tstrPath);
+        for (UINT32 i = 0; i != un32ItemCount; ++i)
+        {
+            auto pCurrentFolder = m_upRootFolder.get();
+            auto tstrItemPath = archiveAdapter.GetItemPath(i);
+            auto vtstrFolder = Helper::SplitString(
+                tstrItemPath,
+                FOLDER_POSSIBLE_SEPARATOR,
+                true);
+            const auto tstrBack = vtstrFolder.back();
+            vtstrFolder.pop_back();
+            for (const auto &strFolder : vtstrFolder)
+            {
+                if (strFolder.empty())
+                {
+                    continue;
+                }
+                pCurrentFolder = &pCurrentFolder->AddFolder(
+                    strFolder, *pCurrentFolder);
+            }
+            if (tstrBack.empty())
+            {
+                continue;
+            }
+            if (PropertyHelper::GetBool(archiveAdapter.GetProperty(
+                i, PropertyId::IsDir), false))
+            {
+                pCurrentFolder->AddFolder(i, tstrBack, *pCurrentFolder);
+            }
+            else
+            {
+                pCurrentFolder->AddFile(i, tstrBack, *pCurrentFolder);
+            }
         }
     }
 

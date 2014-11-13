@@ -16,8 +16,7 @@ using namespace std;
 
 namespace SevenZipCore
 {
-    ArchiveExtractCallback::ArchiveExtractCallback(
-        std::shared_ptr<Archive> spArchive,
+    ArchiveExtractCallback::ArchiveExtractCallback(Archive &archive,
         bool isStandardOutMode,
         bool isTestMode,
         bool isCRCMode,
@@ -26,7 +25,7 @@ namespace SevenZipCore
         ExtractPathMode pathMode,
         ExtractOverwriteMode overwriteMode,
         IExtractIndicator *pExtractIndicator)
-        : m_spArchive(move(spArchive))
+        : m_archive(archive)
         , m_isStandardOutMode(isStandardOutMode)
         , m_isTestMode(isTestMode)
         , m_isCRCMode(isCRCMode)
@@ -83,7 +82,7 @@ namespace SevenZipCore
             m_nindex = index;
 
             IInArchiveAdapter<> inArchiveAdapter(
-                m_spArchive->GetArchiveEntry()->GetInArchive());
+                m_archive.GetArchiveEntry().GetInArchive());
             m_tstrInternalPath = inArchiveAdapter.GetItemPath(index);
 
             try
@@ -219,8 +218,8 @@ namespace SevenZipCore
                                 m_oftCreated ? &*m_oftCreated : nullptr,
                                 m_oftAccessed ? &*m_oftAccessed : nullptr,
                                 m_oftModified ? &*m_oftModified :
-                                m_spArchive->GetModifiedTime() ?
-                                &*m_spArchive->GetModifiedTime() : nullptr);
+                                m_archive.GetModifiedTime() ?
+                                &*m_archive.GetModifiedTime() : nullptr);
                         }
                         catch (const SystemException &)
                         {
@@ -331,7 +330,7 @@ namespace SevenZipCore
                 {
                     try
                     {
-                        m_cpOutStream = MakeComPtr(
+                        m_cpOutStream = MakeSharedCom(
                             new OutFileStream(tstrFullPath, !m_oun64Position));
                     }
                     catch (const FileException &)
@@ -344,7 +343,7 @@ namespace SevenZipCore
                         }
                         return S_OK;
                     }
-                    OutFileStreamAdapter<> streamAdapter(m_cpOutStream);
+                    OutFileStreamAdapter<> streamAdapter(*m_cpOutStream);
                     if (m_oun64Position)
                     {
                         streamAdapter.Seek(*m_oun64Position, STREAM_SEEK_SET);
@@ -422,7 +421,7 @@ namespace SevenZipCore
             // if m_cpCRCStream
             if (m_cpOutStream)
             {
-                OutFileStreamAdapter<> streamAdapter(m_cpOutStream);
+                OutFileStreamAdapter<> streamAdapter(*m_cpOutStream);
                 streamAdapter.SetTime(
                     m_oftCreated ? &*m_oftCreated : nullptr,
                     m_oftAccessed ? &*m_oftAccessed : nullptr,

@@ -13,12 +13,12 @@
 
 namespace SevenZipCore
 {
-    template<typename T = std::shared_ptr<IInArchive>>
+    template<typename T = IInArchive>
     class IInArchiveAdapter
         : protected virtual Adapter<T>
     {
     public:
-        explicit IInArchiveAdapter(T target)
+        explicit IInArchiveAdapter(T &target)
             : Adapter(target)
         {
         }
@@ -31,21 +31,21 @@ namespace SevenZipCore
             UINT64 maxCheckStartPosition,
             IArchiveOpenCallback *openArchiveCallback) const
         {
-            EnsureOk<ArchiveException>(GetTarget()->Open(
+            EnsureOk<ArchiveException>(GetTarget().Open(
                 stream, &maxCheckStartPosition, openArchiveCallback),
                 "Cannot open the specified stream.");
         }
 
         void Close() const
         {
-            EnsureOk<ArchiveException>(GetTarget()->Close(),
+            EnsureOk<ArchiveException>(GetTarget().Close(),
                 "Cannot close the archive.");
         }
 
         UINT32 GetNumberOfItems() const
         {
             UINT32 result = 0;
-            EnsureOk<ArchiveException>(GetTarget()->GetNumberOfItems(&result),
+            EnsureOk<ArchiveException>(GetTarget().GetNumberOfItems(&result),
                 "Cannot get number of archive items");
             return result;
         }
@@ -53,7 +53,7 @@ namespace SevenZipCore
         PROPVARIANT GetProperty(UINT32 index, PropertyId propertyID) const
         {
             PROPVARIANT result = {};
-            EnsureOk<ArchiveException>(GetTarget()->GetProperty(
+            EnsureOk<ArchiveException>(GetTarget().GetProperty(
                 index,
                 static_cast<PROPID>(propertyID), &result),
                 "Cannot get property of the file in archive.");
@@ -65,7 +65,7 @@ namespace SevenZipCore
             bool testMode,
             IArchiveExtractCallback *extractCallback) const
         {
-            EnsureOk<ArchiveException>(GetTarget()->Extract(
+            EnsureOk<ArchiveException>(GetTarget().Extract(
                 indices.data(),
                 indices.size(),
                 testMode ? 1 : 0,
@@ -77,7 +77,7 @@ namespace SevenZipCore
             bool testMode,
             IArchiveExtractCallback *extractCallback) const
         {
-            EnsureOk<ArchiveException>(GetTarget()->Extract(
+            EnsureOk<ArchiveException>(GetTarget().Extract(
                 nullptr,
                 -1,
                 testMode ? 1 : 0,
@@ -88,7 +88,7 @@ namespace SevenZipCore
         PROPVARIANT GetArchiveProperty(PropertyId propID) const
         {
             PROPVARIANT result = {};
-            EnsureOk<ArchiveException>(GetTarget()->GetArchiveProperty(
+            EnsureOk<ArchiveException>(GetTarget().GetArchiveProperty(
                 static_cast<PROPID>(propertyId),
                 &result),
                 "Cannot get property of the archive.");
@@ -98,7 +98,7 @@ namespace SevenZipCore
         UINT32 GetNumberOfProperties() const
         {
             UINT32 result = 0;
-            EnsureOk<ArchiveException>(GetTarget()->GetNumberOfProperties(&result),
+            EnsureOk<ArchiveException>(GetTarget().GetNumberOfProperties(&result),
                 "Cannot get number of archive properties");
             return result;
         }
@@ -109,7 +109,7 @@ namespace SevenZipCore
             PROPID *propID,
             VARTYPE *varType) const
         {
-            EnsureOk<ArchiveException>(GetTarget()->GetPropertyInfo(
+            EnsureOk<ArchiveException>(GetTarget().GetPropertyInfo(
                 index, name, propID, varType),
                 "Cannot get property info of the archive.");
         }
@@ -118,7 +118,7 @@ namespace SevenZipCore
         {
             UINT32 result = 0;
             EnsureOk<ArchiveException>(
-                GetTarget()->GetNumberOfArchiveProperties(&result),
+                GetTarget().GetNumberOfArchiveProperties(&result),
                 "Cannot get number of archive properties.");
             return result;
         }
@@ -129,7 +129,7 @@ namespace SevenZipCore
             PROPID *propID,
             VARTYPE *varType) const
         {
-            EnsureOk<ArchiveException>(GetTarget()->GetArchivePropertyInfo(
+            EnsureOk<ArchiveException>(GetTarget().GetArchivePropertyInfo(
                 index, name, propID, varType),
                 "Cannot get property info of the file in archive.");
         }
@@ -152,12 +152,12 @@ namespace SevenZipCore
 
     };
 
-    template<typename T = std::shared_ptr<IInArchiveGetStream>>
+    template<typename T = IInArchiveGetStream>
     class IInArchiveGetStreamAdapter
         : protected virtual Adapter<T>
     {
     public:
-        explicit IInArchiveGetStreamAdapter(T target)
+        explicit IInArchiveGetStreamAdapter(T &target)
             : Adapter(target)
         {
         }
@@ -165,13 +165,13 @@ namespace SevenZipCore
         using Adapter<T>::QueryInterface;
         using Adapter<T>::GetTarget;
 
-        std::shared_ptr<ISequentialInStream> GetStream(UINT32 index) const
+        unique_com_ptr<ISequentialInStream> GetStream(UINT32 index) const
         {
-                ISequentialInStream *pStream = nullptr;
-                EnsureOk<ArchiveException>(
-                    GetTarget()->GetStream(index, &pStream),
-                    "Cannot get stream.");
-                return MakeComPtr(pStream, false);
+            ISequentialInStream *pStream = nullptr;
+            EnsureOk<ArchiveException>(
+                GetTarget().GetStream(index, &pStream),
+                "Cannot get stream.");
+            return MakeUniqueCom(pStream, false);
         }
 
     };

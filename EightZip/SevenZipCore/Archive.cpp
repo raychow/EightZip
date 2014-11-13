@@ -1,7 +1,6 @@
 #include "Archive.h"
 
 #include "ArchiveEntry.h"
-#include "ArchiveFile.h"
 #include "Codecs.h"
 #include "CommonHelper.h"
 #include "IArchive.h"
@@ -11,42 +10,21 @@ using namespace std;
 
 namespace SevenZipCore
 {
-    Archive::Archive(std::shared_ptr<Codecs> cpCodecs)
-        : m_cpCodecs(cpCodecs)
+    ArchiveEntry &Archive::GetArchiveEntry() const
     {
+        return *m_vupArchiveEntry.back();
     }
 
-    Archive::~Archive()
-    {
-        Close();
-    }
-
-    void Archive::Open(
-        TString tstrPath,
-        shared_ptr<IArchiveOpenCallback> cpCallback)
-    {
-        Open(move(tstrPath), nullptr, move(cpCallback));
-    }
-
-    void Archive::Open(
-        TString tstrPath,
+    void Archive::__Open(TString tstrPath,
         shared_ptr<IInStream> cpStream,
-        shared_ptr<IArchiveOpenCallback> cpCallback)
+        IArchiveOpenCallback &callback)
     {
-        if (!m_vspArchiveEntry.empty())
-        {
-            throw ArchiveException(
-                "The archive class is already associated with a file.");
-        }
-        m_vspArchiveEntry.clear();
-
-        m_vspArchiveEntry.push_back(make_shared<ArchiveEntry>(
-            shared_from_this(),
+        m_vupArchiveEntry.push_back(make_unique<ArchiveEntry>(*this,
             m_cpCodecs,
             tstrPath,
             cpStream,
             -1,
-            move(cpCallback)));
+            callback));
         // Maybe open inner main stream in the PE file automatically (like 7zFM).
 
         try
@@ -59,31 +37,6 @@ namespace SevenZipCore
         }
 
         m_tstrPath = move(tstrPath);
-    }
-
-    void Archive::Close()
-    {
-        m_tstrPath.clear();
-        m_vspArchiveEntry.clear();
-        m_spRootFolder.reset();
-    }
-
-    std::shared_ptr<ArchiveFolder> Archive::GetRootFolder() const
-    {
-        if (!m_spRootFolder)
-        {
-            m_spRootFolder = GetArchiveEntry()->GetRootFolder();
-        }
-        return m_spRootFolder;
-    }
-
-    std::shared_ptr<ArchiveEntry> Archive::GetArchiveEntry() const
-    {
-        if (m_vspArchiveEntry.empty())
-        {
-            return nullptr;
-        }
-        return m_vspArchiveEntry.back();
     }
 
 }

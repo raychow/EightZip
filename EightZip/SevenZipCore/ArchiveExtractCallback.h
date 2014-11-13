@@ -21,8 +21,7 @@ namespace SevenZipCore
         : public IArchiveExtractCallback
     {
     public:
-        ArchiveExtractCallback(
-            std::shared_ptr<Archive> spArchive,
+        ArchiveExtractCallback(Archive &archive,
             bool isStandardOutMode,
             bool isTestMode,
             bool isCRCMode,
@@ -48,7 +47,7 @@ namespace SevenZipCore
         IUNKNOWN_IMP1(IArchiveExtractCallback)
 
     private:
-        std::shared_ptr<Archive> m_spArchive;
+        Archive &m_archive;
         bool m_isStandardOutMode;
         bool m_isTestMode;
         bool m_isCRCMode;

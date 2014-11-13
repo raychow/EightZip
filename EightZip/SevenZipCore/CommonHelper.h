@@ -8,8 +8,8 @@
 
 #include <boost/optional.hpp>
 
+#include "ComPtr.h"
 #include "Platform.h"
-
 #include "TString.h"
 
 namespace SevenZipCore
@@ -48,14 +48,14 @@ namespace SevenZipCore
         bool AutoRenamePath(TString &tstrPath);
         time_t GetUnixTimeFromFileTime(const FILETIME &fileTime);
 
-        template<typename T, typename U>
-        std::shared_ptr<T> QueryInterface(U p, REFGUID iid)
+        template<typename T, typename C>
+        std::shared_ptr<T> QueryInterface(C &c, REFGUID iid)
         {
             T *pResult = nullptr;
-            if (S_OK == p->QueryInterface(
+            if (S_OK == c.QueryInterface(
                 iid, reinterpret_cast<void **>(&pResult)))
             {
-                return MakeComPtr(pResult, false);
+                return MakeSharedCom(pResult, false);
             }
             return nullptr;
         }
