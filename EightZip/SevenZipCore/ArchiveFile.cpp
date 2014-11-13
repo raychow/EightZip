@@ -5,6 +5,7 @@
 #include "Property.h"
 
 #include <cassert>
+#include <queue>
 
 using namespace boost;
 using namespace std;
@@ -20,58 +21,50 @@ namespace SevenZipCore
         , m_tstrName(move(tstrName))
         , m_wpArchiveEntry(move(wpArchiveEntry))
         , m_wpParent(move(wpParent))
-        , m_upInformation(new ArchiveInformation())
     {
     }
 
     UINT64 ArchiveFile::GetSize() const
     {
-        _Calculate();
-        return m_upInformation->Size;
+        _CheckCalculate();
+        return m_un64Size;
     }
 
     UINT64 ArchiveFile::GetPackedSize() const
     {
-        _Calculate();
-        return m_upInformation->PackedSize;
+        _CheckCalculate();
+        return m_un64PackedSize;
     }
 
     const boost::optional<UINT32> &ArchiveFile::GetCRC() const
 {
-        _Calculate();
-        return m_upInformation->CRC;
-    }
-
-    void ArchiveFile::Calculate() const
-    {
-        m_upInformation->IsValid = false;
-        _Calculate();
+        _CheckCalculate();
+        return m_oun32CRC;
     }
 
     void ArchiveFile::_Calculate() const
     {
-        if (m_unIndex == UINT_MAX || m_upInformation->IsValid)
+        if (m_unIndex == UINT_MAX)
         {
             return;
         }
         IInArchiveAdapter<> inArchiveAdapter(
             m_wpArchiveEntry.lock()->GetInArchive());
-        m_upInformation->Size = PropertyHelper::GetConvertedUInt64(
+        m_un64Size = PropertyHelper::GetConvertedUInt64(
             inArchiveAdapter.GetProperty(m_unIndex, PropertyId::Size), 0);
-        m_upInformation->PackedSize = PropertyHelper::GetConvertedUInt64(
+        m_un64PackedSize = PropertyHelper::GetConvertedUInt64(
             inArchiveAdapter.GetProperty(m_unIndex, PropertyId::PackSize), 0);
         auto property = inArchiveAdapter.GetProperty(
             m_unIndex, PropertyId::CRC);
         try
         {
-            m_upInformation->CRC = PropertyHelper::GetUInt32(property);
+            m_oun32CRC = PropertyHelper::GetUInt32(property);
         }
         catch (const PropertyException &)
         {
-            m_upInformation->CRC = none;
+            m_oun32CRC = none;
 
         }
-        m_upInformation->IsValid = true;
     }
 
     ArchiveFolder::ArchiveFolder(
@@ -111,63 +104,86 @@ namespace SevenZipCore
         TString tstrName,
         weak_ptr<ArchiveFolder> wpParent)
     {
-        m_isInformationValid = false;
         auto spFile = make_shared<ArchiveFile>(
             unIndex, move(tstrName),
-            m_wpArchiveEntry,
+            GetArchiveEntry(),
             move(wpParent));
         m_vspFile.push_back(move(spFile));
+        _Invalid();
         return spFile;
+    }
+
+    vector<UINT32> ArchiveFolder::GetAllIndexes() const
+    {
+        _CheckCalculate();
+        vector<UINT32> result;
+        queue<const ArchiveFolder *> qpFolder;
+        qpFolder.push(this);
+
+        while (!qpFolder.empty())
+        {
+            const auto &folder = *qpFolder.front();
+            qpFolder.pop();
+            for (const auto &spFile : folder.GetFiles())
+            {
+                result.push_back(spFile->GetIndex());
+            }
+            for (const auto &spFolder : folder.GetFolders())
+            {
+                auto un32ArchiveIndex = spFolder->GetIndex();
+                if (UINT32_MAX != un32ArchiveIndex)
+                {
+                    result.push_back(un32ArchiveIndex);
+                }
+                qpFolder.push(spFolder.get());
+            }
+        }
+        return result;
     }
 
     void ArchiveFolder::_Calculate() const
     {
-        if (m_upInformation->IsValid)
-        {
-            return;
-        }
-        m_upInformation->Size = 0;
-        m_upInformation->PackedSize = 0;
-        m_upInformation->CRC = 0;
+        m_un64Size = 0;
+        m_un64PackedSize = 0;
+        m_oun32CRC = 0;
         for (const auto &file : m_vspFile)
         {
-            m_upInformation->Size += file->GetSize();
-            m_upInformation->PackedSize += file->GetPackedSize();
-            if (m_upInformation->CRC)
+            m_un64Size += file->GetSize();
+            m_un64PackedSize += file->GetPackedSize();
+            if (m_oun32CRC)
             {
                 try
                 {
                     if (auto oun32CRC = file->GetCRC())
                     {
-                        *m_upInformation->CRC += *oun32CRC;
+                        *m_oun32CRC += *oun32CRC;
                         continue;
                     }
                 }
                 catch (const SevenZipCoreException &)
                 {
                 }
-                m_upInformation->CRC.reset();
+                m_oun32CRC.reset();
             }
         }
         for (int i = 0; i != m_vspFolder.size(); ++i)
         {
             const auto &folder = m_vspFolder[i];
             folder->SetPosition(i);
-            m_upInformation->Size += folder->GetSize();
-            m_upInformation->PackedSize += folder->GetPackedSize();
-            if (m_upInformation->CRC)
+            m_un64Size += folder->GetSize();
+            m_un64PackedSize += folder->GetPackedSize();
+            if (m_oun32CRC)
             {
                 if (const auto &oun32CRC = folder->GetCRC())
                 {
-                    *m_upInformation->CRC += *oun32CRC;
+                    *m_oun32CRC += *oun32CRC;
                 }
                 else
                 {
-                    m_upInformation->CRC.reset();
+                    m_oun32CRC.reset();
                 }
             }
         }
-        m_upInformation->IsValid = true;
     }
 
     shared_ptr<ArchiveFolder> ArchiveFolder::__AddFolder(
@@ -175,7 +191,6 @@ namespace SevenZipCore
         TString tstrName,
         weak_ptr<ArchiveFolder> wpParent /*= weak_ptr<ArchiveFolder>()*/)
     {
-        m_isInformationValid = false;
         auto iter = lower_bound(
             m_vspFolder.begin(),
             m_vspFolder.end(),
@@ -194,6 +209,7 @@ namespace SevenZipCore
         {
             (*iter)->SetIndex(unIndex);
         }
+        _Invalid();
         return *iter;
     }
 

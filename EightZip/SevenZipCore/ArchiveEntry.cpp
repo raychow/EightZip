@@ -90,7 +90,6 @@ namespace SevenZipCore
                 spCurrentFolder->AddFile(i, tstrBack, spCurrentFolder);
             }
         }
-        result->Calculate();
         return result;
     }
 
