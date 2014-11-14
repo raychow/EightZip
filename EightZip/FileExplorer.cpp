@@ -137,7 +137,7 @@ void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
 void FileExplorer::__SetModel(shared_ptr<ModelBase> spModel,
     TString tstrFocusedName/* = wxEmptyString*/)
 {
-    m_pListCtrl->SetModel(spModel, tstrFocusedName);
+    m_pListCtrl->SetModel(*spModel, tstrFocusedName);
     auto tstrPath = spModel->GetPath();
     m_pAddressComboBox->SetValue(tstrPath);
     m_pAddressComboBox->SelectAll();

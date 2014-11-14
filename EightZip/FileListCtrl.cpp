@@ -20,36 +20,36 @@ FileListCtrl::FileListCtrl(
     Bind(wxEVT_LIST_COL_CLICK, &FileListCtrl::__OnListColumnClick, this);
 }
 
-void FileListCtrl::SetModel(const shared_ptr<ModelBase> &model
+void FileListCtrl::SetModel(ModelBase &model
     , TString tstrFocused/* = wxEmptyString*/)
 {
-    m_pModel = model.get();
+    m_pModel = &model;
     ClearAll();
     wxString wxstrColumnName;
-    const auto &supportedItems = model->GetSupportedItems();
+    const auto &supportedItems = m_pModel->GetSupportedItems();
     for (auto t : supportedItems)
     {
         AppendColumn(
             GetColumnCaption(t), GetColumnFormat(t), GetColumnWidth(t));
     }
-    m_vnChildrenMap.resize(model->GetEntryCount());
+    m_vnChildrenMap.resize(m_pModel->GetEntryCount());
     int i = 0;
     int nSelectedIndex = -1;
     generate(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [&]() {
-        if (!tstrFocused.empty() && (*model)[i].GetName() == tstrFocused)
+        if (!tstrFocused.empty() && (*m_pModel)[i].GetName() == tstrFocused)
         {
             nSelectedIndex = i;
         }
         return i++;
     });
-    SetItemCount(model->GetEntryCount());
+    SetItemCount(m_pModel->GetEntryCount());
     if (-1 != nSelectedIndex)
     {
         SetItemState(
             nSelectedIndex, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
     }
     SetImageList(&m_imageList, wxIMAGE_LIST_SMALL);
-    auto &sortParameter = m_mSortParameter[typeid(*model).name()];
+    auto &sortParameter = m_mSortParameter[typeid(*m_pModel).name()];
     Sort(sortParameter.Column, sortParameter.IsAscending, true);
 }
 
