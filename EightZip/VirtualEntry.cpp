@@ -73,7 +73,7 @@ shared_ptr<ModelBase> VirtualEntry::GetModel() const
                             return make_shared<VirtualModel>(GetLocation(),
                                 GetName(),
                                 m_wpParent.lock(),
-                                cpSubStream,
+                                move(cpSubStream),
                                 *SevenZipCore::MakeUniqueCom(new SevenZipCore::OpenCallback));
                         }
                     }

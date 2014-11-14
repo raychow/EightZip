@@ -49,13 +49,13 @@ namespace SevenZipCore
         time_t GetUnixTimeFromFileTime(const FILETIME &fileTime);
 
         template<typename T, typename C>
-        std::shared_ptr<T> QueryInterface(C &c, REFGUID iid)
+        SevenZipCore::unique_com_ptr<T> QueryInterface(C &c, REFGUID iid)
         {
             T *pResult = nullptr;
             if (S_OK == c.QueryInterface(
                 iid, reinterpret_cast<void **>(&pResult)))
             {
-                return MakeSharedCom(pResult, false);
+                return MakeUniqueCom(pResult, false);
             }
             return nullptr;
         }
