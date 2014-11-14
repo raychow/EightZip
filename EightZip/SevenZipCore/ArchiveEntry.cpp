@@ -153,7 +153,7 @@ namespace SevenZipCore
         TString tstrArchiveFileName = Helper::GetFileName(m_tstrPath);
         for (UINT32 i = 0; i != un32ItemCount; ++i)
         {
-            auto pCurrentFolder = m_upRootFolder.get();
+            auto *pCurrentFolder = m_upRootFolder.get();
             auto tstrItemPath = archiveAdapter.GetItemPath(i);
             auto vtstrFolder = Helper::SplitString(
                 tstrItemPath,

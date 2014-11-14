@@ -20,37 +20,36 @@ FileListCtrl::FileListCtrl(
     Bind(wxEVT_LIST_COL_CLICK, &FileListCtrl::__OnListColumnClick, this);
 }
 
-void FileListCtrl::SetModel(shared_ptr<ModelBase> spModel
+void FileListCtrl::SetModel(const shared_ptr<ModelBase> &model
     , TString tstrFocused/* = wxEmptyString*/)
 {
-    typeid(m_spModel.get()).name();
-    m_spModel = spModel;
+    m_pModel = model.get();
     ClearAll();
     wxString wxstrColumnName;
-    const auto &supportedItems = spModel->GetSupportedItems();
+    const auto &supportedItems = model->GetSupportedItems();
     for (auto t : supportedItems)
     {
         AppendColumn(
             GetColumnCaption(t), GetColumnFormat(t), GetColumnWidth(t));
     }
-    m_vnChildrenMap.resize(m_spModel->GetEntryCount());
+    m_vnChildrenMap.resize(model->GetEntryCount());
     int i = 0;
     int nSelectedIndex = -1;
     generate(m_vnChildrenMap.begin(), m_vnChildrenMap.end(), [&]() {
-        if (!tstrFocused.empty() && (*m_spModel)[i]->GetName() == tstrFocused)
+        if (!tstrFocused.empty() && (*model)[i].GetName() == tstrFocused)
         {
             nSelectedIndex = i;
         }
         return i++;
     });
-    SetItemCount(m_spModel->GetEntryCount());
+    SetItemCount(model->GetEntryCount());
     if (-1 != nSelectedIndex)
     {
         SetItemState(
             nSelectedIndex, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
     }
     SetImageList(&m_imageList, wxIMAGE_LIST_SMALL);
-    auto &sortParameter = m_mSortParameter[typeid(*spModel).name()];
+    auto &sortParameter = m_mSortParameter[typeid(*model).name()];
     Sort(sortParameter.Column, sortParameter.IsAscending, true);
 }
 
@@ -71,7 +70,7 @@ void FileListCtrl::Sort(int nColumn, bool isAscending, bool isForce /*= false*/)
             lItemIndex, 0, wxLIST_STATE_SELECTED | wxLIST_STATE_FOCUSED);
         vbSelectedIndex[m_vnChildrenMap[lItemIndex]] = true;
     }
-    auto itemType = m_spModel->GetSupportedItems()[nColumn];
+    auto itemType = m_pModel->GetSupportedItems()[nColumn];
     bool isReverse = false;
     if (!isForce && m_currentSortParameter.Column == nColumn)
     {
@@ -101,15 +100,15 @@ void FileListCtrl::Sort(int nColumn, bool isAscending, bool isForce /*= false*/)
             m_vnChildrenMap.end(),
             [this, &itemType](int nLeft, int nRight)
         {
-            const auto &leftChild = (*m_spModel)[nLeft];
-            const auto &rightChild = (*m_spModel)[nRight];
-            bool isLeftChildDiectory = leftChild->IsDirectory();
-            bool isRightChildDiectory = rightChild->IsDirectory();
+            const auto &leftChild = (*m_pModel)[nLeft];
+            const auto &rightChild = (*m_pModel)[nRight];
+            bool isLeftChildDiectory = leftChild.IsDirectory();
+            bool isRightChildDiectory = rightChild.IsDirectory();
             bool result = false;
             if (isLeftChildDiectory == isRightChildDiectory)
             {
-                result = leftChild->Compare(
-                    *rightChild, itemType, m_currentSortParameter.IsAscending);
+                result = leftChild.Compare(
+                    rightChild, itemType, m_currentSortParameter.IsAscending);
             }
             else
             {
@@ -152,8 +151,8 @@ wxString FileListCtrl::OnGetItemText(long item, long column) const
 {
     try
     {
-        const auto &spChild = m_spModel->GetEntry(m_vnChildrenMap[item]);
-        return spChild->GetItem(m_spModel->GetSupportedItems().at(column));
+        return m_pModel->GetEntry(m_vnChildrenMap[item]).GetItem(
+            m_pModel->GetSupportedItems().at(column));
     }
     catch (const out_of_range &)
     {
@@ -165,8 +164,7 @@ int FileListCtrl::OnGetItemImage(long item) const
 {
     try
     {
-        const auto spChild = m_spModel->GetEntry(m_vnChildrenMap[item]);
-        return spChild->GetIconIndex();
+        return m_pModel->GetEntry(m_vnChildrenMap[item]).GetIconIndex();
     }
     catch (const out_of_range &)
     {
@@ -317,7 +315,7 @@ void FileListCtrl::__OnEraseBackground(wxEraseEvent &event)
 void FileListCtrl::__OnListColumnClick(wxListEvent &event)
 {
     int nColumn = event.GetColumn();
-    auto &sortParameter = m_mSortParameter[typeid(*m_spModel).name()];
+    auto &sortParameter = m_mSortParameter[typeid(*m_pModel).name()];
     sortParameter.IsAscending = nColumn == sortParameter.Column
         ? !sortParameter.IsAscending
         : true;

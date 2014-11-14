@@ -96,7 +96,7 @@ namespace Helper
 
     static void ExtractEntriesThread(TString tstrExtractPath,
         TString tstrInternalPath,
-        vector<shared_ptr<EntryBase>> vspEntry,
+        vector<reference_wrapper<EntryBase>> vEntry,
         ProgressDialog *pProgressDialog,
         bool isLaunchFolder)
     {
@@ -105,9 +105,9 @@ namespace Helper
 
         Extractor extractor(tstrExtractPath, &extractIndicator);
         extractor.SetInternalLocation(tstrInternalPath);
-        for (auto &spEntry : vspEntry)
+        for (auto &entry : vEntry)
         {
-            extractor.AddPlan(*spEntry);
+            extractor.AddPlan(entry);
         }
         try
         {
@@ -152,8 +152,8 @@ namespace Helper
                 wxTheApp->GetTopWindow(), wxID_ANY, _("Extracting"));
 
             thread extractThread(ExtractModelThread,
-                Helper::GetCanonicalPath(tstrPath), tstrInternalPath, spModel,
-                pProgressDialog, isLaunchFolder);
+                Helper::GetCanonicalPath(tstrPath), tstrInternalPath,
+                move(spModel), pProgressDialog, isLaunchFolder);
             extractThread.detach();
         }
         catch (const boost::system::system_error &)
@@ -165,12 +165,12 @@ namespace Helper
 
     bool Extract(TString tstrPath,
         TString tstrInternalPath,
-        vector<shared_ptr<EntryBase>> vspEntry,
+        vector<reference_wrapper<EntryBase>> vEntry,
         bool isLaunchFolder)
     {
         try
         {
-            if (vspEntry.empty())
+            if (vEntry.empty())
             {
                 return false;
             }
@@ -180,8 +180,8 @@ namespace Helper
                 wxTheApp->GetTopWindow(), wxID_ANY, _("Extracting"));
 
             thread extractThread(ExtractEntriesThread,
-                Helper::GetCanonicalPath(tstrPath), tstrInternalPath, vspEntry,
-                pProgressDialog, isLaunchFolder);
+                Helper::GetCanonicalPath(tstrPath), tstrInternalPath,
+                move(vEntry), pProgressDialog, isLaunchFolder);
             extractThread.detach();
         }
         catch (const boost::system::system_error &)

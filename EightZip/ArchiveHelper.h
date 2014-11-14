@@ -19,7 +19,7 @@ namespace Helper
         bool isLaunchFolder);
     bool Extract(TString tstrPath,
         TString tstrInternalPath,
-        std::vector<std::shared_ptr<EntryBase>> vspEntry,
+        std::vector<std::reference_wrapper<EntryBase>> vEntry,
         bool isLaunchFolder);
 }
 

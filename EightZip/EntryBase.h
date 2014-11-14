@@ -78,6 +78,8 @@ public:
         EntryItemType itemType,
         bool isAscending) const;
 
+    virtual ~EntryBase() = 0 { }
+
 protected:
     EntryBase(TString tstrLocation,
         TString tstrName,
@@ -90,7 +92,7 @@ protected:
         bool isDirectory,
         bool isVirtual);
 
-    virtual ~EntryBase() = 0 { }
+    EntryBase(const EntryBase &) = default;
 
 private:
     TString m_tstrLocation;

@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <mutex>
+#include <vector>
 
 #include <boost/thread.hpp>
 
@@ -43,10 +44,10 @@ public:
             m_tstrLocation.size() == 1 && wxIsPathSeparator(m_tstrLocation[0]));
     }
 
-    inline std::shared_ptr<EntryBase> GetEntry(int index) const
+    inline EntryBase &GetEntry(EntryVector::size_type index) const
     {
         __Initialize();
-        return m_vspEntry.at(index);
+        return *m_vupEntry.at(index);
     }
 
     virtual std::shared_ptr<ModelBase> GetParent() const = 0;
@@ -55,61 +56,73 @@ public:
 
     virtual bool IsArchive() const = 0;
 
-    inline std::shared_ptr<EntryBase> operator[](int index) const
+    inline EntryBase &operator[](EntryVector::size_type index) const
     {
         __Initialize();
-        return m_vspEntry[index];
+        return *m_vupEntry[index];
     }
 
     inline iterator begin()
     {
         __Initialize();
-        return m_vspEntry.begin();
+        return m_vupEntry.begin();
     }
-    inline iterator end() const
+    inline const_iterator begin() const
     {
         __Initialize();
-        return m_vspEntry.end();
+        return m_vupEntry.begin();
+    }
+    inline iterator end()
+    {
+        __Initialize();
+        return m_vupEntry.end();
+    }
+    inline const_iterator end() const
+    {
+        __Initialize();
+        return m_vupEntry.end();
     }
     inline reverse_iterator rbegin()
     {
         __Initialize();
-        return m_vspEntry.rbegin();
+        return m_vupEntry.rbegin();
     }
     inline reverse_iterator rend() const
     {
         __Initialize();
-        return m_vspEntry.rend();
+        return m_vupEntry.rend();
     }
     inline const_iterator cbegin() const
     {
         __Initialize();
-        return m_vspEntry.cbegin();
+        return m_vupEntry.cbegin();
     }
     inline const_iterator cend() const
     {
         __Initialize();
-        return m_vspEntry.cend();
+        return m_vupEntry.cend();
     }
     inline const_reverse_iterator crbegin() const
     {
         __Initialize();
-        return m_vspEntry.crbegin();
+        return m_vupEntry.crbegin();
     }
     inline const_reverse_iterator crend() const
     {
         __Initialize();
-        return m_vspEntry.crend();
+        return m_vupEntry.crend();
     }
     inline EntryVector::size_type GetEntryCount() const
     {
         __Initialize();
-        return m_vspEntry.size();
+        return m_vupEntry.size();
     }
+
+    virtual ~ModelBase() = 0 { }
 
 protected:
     ModelBase(TString tstrLocation, TString tstrName);
-    virtual ~ModelBase() = 0 { }
+    ModelBase(const ModelBase &) = default;
 
     virtual EntryVector _InitializeEntries() const = 0;
 
@@ -118,13 +131,13 @@ private:
     TString m_tstrName;
 
     mutable bool m_isInitialized = false;
-    mutable EntryVector m_vspEntry;
+    mutable EntryVector m_vupEntry;
 
     inline void __Initialize() const
     {
         if (!m_isInitialized)
         {
-            m_vspEntry = _InitializeEntries();
+            m_vupEntry = _InitializeEntries();
             m_isInitialized = true;
         }
     }

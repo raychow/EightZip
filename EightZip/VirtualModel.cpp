@@ -58,7 +58,7 @@ VirtualModel::VirtualModel(TString tstrLocation,
     shared_ptr<VirtualModel> spParent,
     SevenZipCore::ArchiveFolder &archiveFolder)
     : ModelBase(move(tstrLocation), move(tstrName))
-    , m_spArchive(spParent->GetArchive())
+    , m_spArchive(spParent->m_spArchive)
     , m_spParent(move(spParent))
     , m_archiveFolder(archiveFolder)
     , m_tstrInternalLocation(
@@ -97,33 +97,17 @@ VirtualModel::EntryVector VirtualModel::_InitializeEntries() const
     auto tstrPath = GetPath();
     for (const auto &folder : m_archiveFolder.GetFolders())
     {
-        result.push_back(make_shared<VirtualEntry>(
+        result.push_back(make_unique<VirtualEntry>(
             tstrPath, folder->GetName(), true,
             const_pointer_cast<VirtualModel>(shared_from_this()),
             *folder));
     }
     for (const auto &file : m_archiveFolder.GetFiles())
     {
-        result.push_back(make_shared<VirtualEntry>(
+        result.push_back(make_unique<VirtualEntry>(
             tstrPath, file->GetName(), false,
             const_pointer_cast<VirtualModel>(shared_from_this()),
             *file));
     }
     return result;
-}
-
-shared_ptr<SevenZipCore::ArchiveExtractCallback> VirtualModel::__CreateCallback(
-    TString tstrPath, SevenZipCore::IExtractIndicator *pExtractIndicator) const
-{
-    return SevenZipCore::MakeSharedCom(
-        new SevenZipCore::ArchiveExtractCallback(
-        m_archiveFolder.GetArchiveEntry().GetArchive(),
-        false,
-        false,
-        false,
-        move(tstrPath),
-        GetInternalLocation(),
-        SevenZipCore::ExtractPathMode::CurrentPathNames,
-        SevenZipCore::ExtractOverwriteMode::AskBefore,
-        pExtractIndicator));
 }

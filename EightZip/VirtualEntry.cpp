@@ -37,18 +37,17 @@ TString VirtualEntry::GetInternalLocation() const
     return GetName();
 }
 
-shared_ptr<ModelBase> VirtualEntry::GetModel() const
+std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
 {
     if (auto spParent = m_wpParent.lock())
     {
         if (IsDirectory())
         {
-            auto result = make_shared<VirtualModel>(GetLocation(),
+            return make_shared<VirtualModel>(GetLocation(),
                 GetInternalLocation(),
                 GetName(),
                 spParent,
                 dynamic_cast<SevenZipCore::ArchiveFolder &>(m_archiveFile));
-            return result;
         }
         else
         {

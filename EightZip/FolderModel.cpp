@@ -93,7 +93,7 @@ FolderModel::EntryVector FolderModel::_InitializeEntries() const
     FileFinder finder(tstrPath);
     while (finder.FindNext())
     {
-        result.push_back(make_shared<FolderEntry>(
+        result.push_back(make_unique<FolderEntry>(
             tstrPath,
             finder.GetFileName(),
             finder.IsDirectory(),

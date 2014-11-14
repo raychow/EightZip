@@ -30,8 +30,6 @@ public:
     }
 };
 
-
-
 class Extractor
 {
 public:

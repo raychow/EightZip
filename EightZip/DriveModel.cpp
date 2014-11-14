@@ -37,7 +37,7 @@ DriveModel::EntryVector DriveModel::_InitializeEntries() const
             while (*ptchDrive)
             {
                 TString tstrDrive(ptchDrive);
-                result.push_back(make_shared<DriveEntry>(tstrDrive));
+                result.push_back(make_unique<DriveEntry>(tstrDrive));
                 ptchDrive += tstrDrive.size() + 1;
             }
         }

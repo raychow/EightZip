@@ -56,7 +56,7 @@ Extractor &Extractor::AddPlan(const EntryBase &entry)
             archiveFile.GetIndex());
         if (entry.IsDirectory())
         {
-            auto model = dynamic_cast<const VirtualModel &>(*entry.GetModel());
+            const auto &model = dynamic_cast<const VirtualModel &>(*entry.GetModel());
             queue<const SevenZipCore::ArchiveFolder *> qpFolder;
             qpFolder.push(&model.GetArchiveFolder());
 
@@ -90,7 +90,7 @@ Extractor &Extractor::AddPlan(const EntryBase &entry)
 
 Extractor &Extractor::AddPlan(const VirtualModel &model)
 {
-    auto &archiveEntry = model.GetArchive()->GetArchiveEntry();
+    auto &archiveEntry = model.GetArchive().GetArchiveEntry();
     if (model.IsRoot())
     {
         m_plans[archiveEntry].clear();
@@ -138,9 +138,9 @@ void Extractor::__ExtractFile(const EntryBase &entry)
     bool isSuccess = false;
     try
     {
-        auto model = dynamic_cast<const VirtualModel &>(
+        const auto &model = dynamic_cast<const VirtualModel &>(
             *entry.GetModel());
-        __Execute(model.GetArchive()->GetArchiveEntry(), vector<UINT32> {});
+        __Execute(model.GetArchive().GetArchiveEntry(), vector<UINT32> {});
         isSuccess = true;
     }
     catch (const bad_cast &)

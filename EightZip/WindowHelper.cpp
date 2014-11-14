@@ -18,7 +18,7 @@ namespace Helper
         int nCount = pSizer->GetItemCount();
         if (nCount)
         {
-            auto pSizerLast = pSizer->GetItem(nCount - 1);
+            auto *pSizerLast = pSizer->GetItem(nCount - 1);
             auto nBorderLast = pSizerLast->GetBorder();
             if ((pSizerLast->GetFlag() & wxRIGHT) && SIZER_BORDER > nBorderLast)
             {

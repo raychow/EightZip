@@ -88,7 +88,7 @@ void EightZipFrame::__OnFileExitClick(wxCommandEvent &WXUNUSED(event))
 
 void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
 {
-    auto vspEntry = m_pFileExplorer->GetSelectedEntries();
+    auto vEntry = m_pFileExplorer->GetSelectedEntries();
     auto spModel = m_pFileExplorer->GetModel();
     auto spFolderModel = spModel;
     TString tstrExtractFolder;
@@ -107,17 +107,17 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
     }
     else
     {
-        if (vspEntry.empty())
+        if (vEntry.empty())
         {
             wxMessageBox(
                 wxString::Format(_("No file selected."), EIGHTZIP_NAME));
             return;
         }
-        if (vspEntry.size() == 1)
+        if (vEntry.size() == 1)
         {
             bool isSuccess = false;
-            auto &spEntry = vspEntry.front();
-            if (spEntry->IsDirectory())
+            auto &entry = vEntry.front().get();
+            if (entry.IsDirectory())
             {
                 wxMessageBox(
                     wxString::Format(_("No file selected."), EIGHTZIP_NAME));
@@ -125,7 +125,7 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
             }
             try
             {
-                spModel = spEntry->GetModel();
+                spModel = entry.GetModel();
                 isSuccess = true;
             }
             catch (const SevenZipCore::ArchiveException &)
@@ -133,14 +133,12 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
             }
             if (!isSuccess)
             {
-                wxMessageBox(
-                    wxString::Format(_("Cannot extract \"%s\"."), spEntry
-                    ? spEntry->GetPath() : spModel->GetPath()),
-                    EIGHTZIP_NAME);
+                wxMessageBox(wxString::Format(_("Cannot extract \"%s\"."),
+                    entry.GetPath()), EIGHTZIP_NAME);
                 return;
             }
             tstrExtractFolder = SevenZipCore::Helper::GetFileNameStem(
-                spEntry->GetName());
+                entry.GetName());
         }
     }
     ExtractDialog dialog(this, wxID_ANY, _T("Extract"));
@@ -154,7 +152,7 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
 
     auto extractPath = boost::filesystem::absolute(
         dialog.GetPath(), spFolderModel->GetPath()).wstring();
-    if (vspEntry.empty())
+    if (vEntry.empty())
     {
         auto spVirtualModel = dynamic_pointer_cast<VirtualModel>(spModel);
         if (!Helper::Extract(extractPath,
@@ -172,7 +170,7 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
             spModel->IsArchive()
             ? dynamic_pointer_cast<VirtualModel>(spModel)->GetInternalLocation()
             : wxEmptyString,
-            vspEntry,
+            vEntry,
             dialog.IsLaunchFolder()))
         {
             wxMessageBox(_("Extract failed."));

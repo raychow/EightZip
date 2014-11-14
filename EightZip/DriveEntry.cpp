@@ -22,7 +22,7 @@ DriveEntry::DriveEntry(TString tstrName)
     }
 }
 
-shared_ptr<ModelBase> DriveEntry::GetModel() const
+std::shared_ptr<ModelBase> DriveEntry::GetModel() const
 {
     return make_shared<FolderModel>(GetPath());
 }

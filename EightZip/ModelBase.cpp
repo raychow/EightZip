@@ -35,7 +35,7 @@ shared_ptr<ModelBase> GetModelFromPath(
             int attributes = Helper::GetFileAttributes(tstrPath);
             if (attributes & EIGHT_FILE_STATUS_DIRECTORY)
             {
-                return make_shared<FolderModel>(tstrPath);
+                return make_unique<FolderModel>(tstrPath);
             }
             else if (isTryOpenArchive && attributes & EIGHT_FILE_STATUS_FILE)
             {
@@ -57,9 +57,9 @@ shared_ptr<ModelBase> GetModelFromPath(
         }
     }
 #ifdef __WXMSW__
-    return make_shared<DriveModel>();
+    return make_unique<DriveModel>();
 #else
-    return make_shared<FolderModel>(wxT("/"));
+    return make_unique<FolderModel>(wxT("/"));
 #endif
 }
 
@@ -98,8 +98,8 @@ shared_ptr<ModelBase> GetModelFromPath(
     while (i != vtstrPathPart.size())
     {
         auto iter = find_if(spModel->cbegin(), spModel->cend(),
-            [&vtstrPathPart, i](const shared_ptr<EntryBase> &spEntry) {
-            return spEntry->GetName() == vtstrPathPart[i];
+            [&vtstrPathPart, i](const ModelBase::EntryVector::value_type &upEntry) {
+            return upEntry->GetName() == vtstrPathPart[i];
         });
         if (spModel->cend() == iter || !(*iter)->IsDirectory())
         {

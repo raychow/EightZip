@@ -75,7 +75,7 @@ void OverwriteDialog::__Create(
     pSizerFileInfo->Add(new wxStaticText(this, wxID_ANY,
         _("The following file already exists:")),
         wxSizerFlags().Border(wxBOTTOM, 3));
-    auto pTextCtrlPath = new wxTextCtrl(this, wxID_ANY, m_tstrPath,
+    auto *pTextCtrlPath = new wxTextCtrl(this, wxID_ANY, m_tstrPath,
         wxDefaultPosition, wxSize(350, 60), wxTE_MULTILINE);
     pTextCtrlPath->SetEditable(false);
     pSizerFileInfo->Add(pTextCtrlPath,
@@ -133,20 +133,20 @@ void OverwriteDialog::__Create(
 
     auto *pSizerButton = new wxGridSizer(2, 4, 3, 3);
 
-    auto pButtonYes = new wxButton(this, wxID_ANY, _("&Yes"));
+    auto *pButtonYes = new wxButton(this, wxID_ANY, _("&Yes"));
     pSizerButton->Add(pButtonYes);
-    auto pButtonNo = new wxButton(this, wxID_ANY, _("&No"));
+    auto *pButtonNo = new wxButton(this, wxID_ANY, _("&No"));
     pSizerButton->Add(pButtonNo);
-    auto pButtonRename = new wxButton(this, wxID_ANY, _("&Rename"));
+    auto *pButtonRename = new wxButton(this, wxID_ANY, _("&Rename"));
     pSizerButton->Add(pButtonRename);
     pSizerButton->Add(new wxWindow(this, wxID_ANY));
-    auto pButtonYesToAll = new wxButton(this, wxID_ANY, _("Yes to &All"));
+    auto *pButtonYesToAll = new wxButton(this, wxID_ANY, _("Yes to &All"));
     pSizerButton->Add(pButtonYesToAll);
-    auto pButtonNoToAll = new wxButton(this, wxID_ANY, _("No to A&ll"));
+    auto *pButtonNoToAll = new wxButton(this, wxID_ANY, _("No to A&ll"));
     pSizerButton->Add(pButtonNoToAll);
-    auto pButtonRenameAll = new wxButton(this, wxID_ANY, _("R&ename All"));
+    auto *pButtonRenameAll = new wxButton(this, wxID_ANY, _("R&ename All"));
     pSizerButton->Add(pButtonRenameAll);
-    auto pButtonCancel = new wxButton(this, wxID_ANY, _("&Cancel"));
+    auto *pButtonCancel = new wxButton(this, wxID_ANY, _("&Cancel"));
     pSizerButton->Add(pButtonCancel);
 
     pSizerMain->Add(pSizerButton,

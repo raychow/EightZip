@@ -60,14 +60,14 @@ vector<int> FileExplorer::GetSelectedIndexes() const
     }
 }
 
-shared_ptr<EntryBase> FileExplorer::GetSelectedEntry() const
+EntryBase &FileExplorer::GetSelectedEntry() const
 {
     return GetEntry(m_pListCtrl->GetEntryIndex(GetSelectedIndex()));
 }
 
-vector<shared_ptr<EntryBase>> FileExplorer::GetSelectedEntries() const
+vector<reference_wrapper<EntryBase>> FileExplorer::GetSelectedEntries() const
 {
-    vector<shared_ptr<EntryBase>> result;
+    vector<reference_wrapper<EntryBase>> result;
     vector<int> indexes = GetSelectedIndexes();
     for (auto index : indexes)
     {
@@ -76,16 +76,8 @@ vector<shared_ptr<EntryBase>> FileExplorer::GetSelectedEntries() const
     return result;
 }
 
-shared_ptr<EntryBase> FileExplorer::GetEntry(int nIndex) const
+EntryBase &FileExplorer::GetEntry(int nIndex) const
 {
-    if (0 > nIndex || !m_spModel)
-    {
-        return nullptr;
-    }
-    if (nIndex > static_cast<int>(m_spModel->GetEntryCount()))
-    {
-        return nullptr;
-    }
     return (*m_spModel)[nIndex];
 }
 
@@ -146,11 +138,11 @@ void FileExplorer::__SetModel(shared_ptr<ModelBase> spModel,
     TString tstrFocusedName/* = wxEmptyString*/)
 {
     m_pListCtrl->SetModel(spModel, tstrFocusedName);
-    m_spModel = move(spModel);
-    auto tstrPath = m_spModel->GetPath();
+    auto tstrPath = spModel->GetPath();
     m_pAddressComboBox->SetValue(tstrPath);
     m_pAddressComboBox->SelectAll();
-    m_pParentFolderToolBar->EnableTool(ID_PARENT_FOLDER, m_spModel->HasParent());
+    m_pParentFolderToolBar->EnableTool(ID_PARENT_FOLDER, spModel->HasParent());
+    m_spModel = move(spModel);
 }
 
 void FileExplorer::__OnParentFolderClick(wxCommandEvent &event)
@@ -172,19 +164,19 @@ void FileExplorer::__OnPathComboBoxKeyDown(wxKeyEvent& event)
 
 void FileExplorer::__OnListItemActivated(wxListEvent &event)
 {
-    const auto spEntry = GetEntry(m_pListCtrl->GetEntryIndex(event.GetIndex()));
-    if (!spEntry->IsOpenExternal())
+    const auto &entry = GetEntry(m_pListCtrl->GetEntryIndex(event.GetIndex()));
+    if (!entry.IsOpenExternal())
     {
         try
         {
-            __SetModel(spEntry->GetModel());
+            __SetModel(entry.GetModel());
             return;
         }
         catch (const ModelException &)
         {
             wxMessageBox(
                 wxString::Format(_("Cannot access \"%s\"."),
-                spEntry->GetPath()),
+                entry.GetPath()),
                 EIGHTZIP_NAME,
                 wxOK | wxICON_ERROR);
             return;
@@ -197,13 +189,13 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
     // else
     try
     {
-        spEntry->OpenExternal();
+        entry.OpenExternal();
     }
     catch (const SystemException &)
     {
         wxMessageBox(
             wxString::Format(_("Cannot open \"%s\"."),
-            spEntry->GetPath()),
+            entry.GetPath()),
             EIGHTZIP_NAME,
             wxOK | wxICON_ERROR);
     }

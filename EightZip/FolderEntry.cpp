@@ -29,7 +29,7 @@ FolderEntry::FolderEntry(TString tstrLocation,
 
 }
 
-shared_ptr<ModelBase> FolderEntry::GetModel() const
+std::shared_ptr<ModelBase> FolderEntry::GetModel() const
 {
     auto tstrPath = GetPath();
     if (IsDirectory())
@@ -38,13 +38,12 @@ shared_ptr<ModelBase> FolderEntry::GetModel() const
     }
     else
     {
-        auto result = make_shared<VirtualModel>(
+        return make_shared<VirtualModel>(
             Helper::GetLocation(tstrPath),
             SevenZipCore::Helper::GetFileName(tstrPath),
             tstrPath,
             nullptr,
             *SevenZipCore::MakeUniqueCom(new SevenZipCore::OpenCallback));
-        return result;
     }
 }
 

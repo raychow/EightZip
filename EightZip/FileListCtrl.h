@@ -20,8 +20,8 @@ public:
         const wxValidator& validator = wxDefaultValidator,
         const wxString& name = wxListCtrlNameStr);
 
-    void SetModel(std::shared_ptr<ModelBase> spModel
-        , TString tstrFocused = wxEmptyString);
+    void SetModel(const std::shared_ptr<ModelBase> &model,
+        TString tstrFocused = wxEmptyString);
 
     static wxString GetColumnCaption(EntryItemType itemType);
     static wxListColumnFormat GetColumnFormat(EntryItemType itemType);
@@ -42,7 +42,7 @@ private:
         bool IsAscending = true;
     };
 
-    std::shared_ptr<ModelBase> m_spModel;
+    ModelBase *m_pModel = nullptr;
     SystemImageList m_imageList;
     std::vector<int> m_vnChildrenMap;
 

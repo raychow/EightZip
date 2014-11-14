@@ -54,9 +54,9 @@ public:
         return m_tstrInternalLocation;
     }
 
-    inline std::shared_ptr<SevenZipCore::Archive> GetArchive() const
+    inline SevenZipCore::Archive &GetArchive() const
     {
-        return m_spArchive;
+        return *m_spArchive;
     }
     inline SevenZipCore::ArchiveFolder &GetArchiveFolder() const
     {
@@ -74,10 +74,6 @@ private:
     SevenZipCore::ArchiveFolder &m_archiveFolder;
 
     TString m_tstrInternalLocation;
-
-    std::shared_ptr<SevenZipCore::ArchiveExtractCallback>  __CreateCallback(
-        TString tstrPath,
-        SevenZipCore::IExtractIndicator *pExtractIndicator) const;
 
 };
 
