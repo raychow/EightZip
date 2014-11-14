@@ -1,6 +1,6 @@
 #include "TString.h"
 
-#include <memory>
+#include <vector>
 
 #include "Platform.h"
 
@@ -15,22 +15,22 @@ wstring ConvertStringToWString(const string &value)
     {
         return wstring();
     }
-    unique_ptr<wchar_t[]> upWChar(new wchar_t[szLength]);
+    auto vwchBuffer = vector<wchar_t>(szLength);
     if (0 != mbstowcs_s(
-        &szLength, upWChar.get(), szLength, value.c_str(), _TRUNCATE))
+        &szLength, vwchBuffer.data(), szLength, value.c_str(), _TRUNCATE))
     {
         return wstring();
     }
-    return wstring(upWChar.get());
+    return wstring(vwchBuffer.data());
 #else
     if ((size_t)-1 == (szLength = mbstowcs(nullptr, value.c_str(), 0)))
     {
         return wstring();
     }
-    unique_ptr<wchar_t[]> upWChar(new wchar_t[++szLength]);
-    mbstowcs(upWChar.get(), value.c_str(), szLength);
-    upWChar[szLength - 1] = 0;
-    return wstring(upWChar.get());
+    auto vwchBuffer = vector<wchar_t>(++szLength);
+    mbstowcs(vwchBuffer.data(), value.c_str(), szLength);
+    vwchBuffer[szLength - 1] = 0;
+    return wstring(vwchBuffer.data());
 #endif
 }
 
@@ -43,24 +43,24 @@ string ConvertWStringToString(const wstring &value)
     {
         return string();
     }
-    unique_ptr<char[]> upChar(new char[szLength]);
+    auto vchBuffer = vector<char>(szLength);
     if (0 != wcstombs_s(
-        &szLength, upChar.get(), szLength, value.c_str(), _TRUNCATE))
+        &szLength, vchBuffer.data(), szLength, value.c_str(), _TRUNCATE))
     {
         return string();
     }
-    return string(upChar.get());
+    return string(vchBuffer.data());
 #else
     if ((size_t)-1 == (szLength = wcstombs(nullptr, value.c_str(), 0)))
     {
         return string();
     }
-    unique_ptr<char[]> upChar(new char[++szLength]);
-    if ((size_t)-1 == wcstombs(upChar.get(), value.c_str(), szLength))
+    auto vchBuffer = vector<char>(++szLength);
+    if ((size_t)-1 == wcstombs(vchBuffer.data(), value.c_str(), szLength))
     {
         return string();
-}
-    upChar[szLength - 1] = 0;
-    return string(upChar.get());
+    }
+    vchBuffer[szLength - 1] = 0;
+    return string(vchBuffer.data());
 #endif
 }

@@ -105,8 +105,8 @@ namespace SevenZipCore
         auto iterAdditionExtension = vtstrAdditionExtension.cbegin();
         for (const auto &tstrExtension : vtstrExtension)
         {
-            auto upExtensionInfo = unique_ptr<ExtensionInfo>(
-                new ExtensionInfo(tstrExtension.c_str()));
+            auto upExtensionInfo = make_unique<ExtensionInfo>(
+                tstrExtension.c_str());
             if (iterAdditionExtension != vtstrAdditionExtension.cend())
             {
                 upExtensionInfo->AdditionExtension = *iterAdditionExtension++;
@@ -249,8 +249,7 @@ namespace SevenZipCore
 
     void Codecs::__LoadDLL(const TString &tstrPath)
     {
-        auto upCodecLibrary = unique_ptr<CodecLibrary>(
-            new CodecLibrary(tstrPath));
+        auto upCodecLibrary = make_unique<CodecLibrary>(tstrPath);
         if (__LoadCodecs(*upCodecLibrary) + __LoadFormats(*upCodecLibrary))
         {
             m_vupCodecLibrary.push_back(move(upCodecLibrary));
@@ -276,8 +275,8 @@ namespace SevenZipCore
         {
             try
             {
-                m_vupCodecInfo.push_back(unique_ptr<CodecInfo>(
-                    new CodecInfo(codecLibrary, i)));
+                m_vupCodecInfo.push_back(
+                    make_unique<CodecInfo>(codecLibrary, i));
                 ++result;
             }
             catch (const LibraryException &)
@@ -310,8 +309,8 @@ namespace SevenZipCore
         {
             try
             {
-                m_vupCodecFormat.push_back(unique_ptr<CodecFormat>(
-                    new CodecFormat(codecLibrary, i, propertyReader)));
+                m_vupCodecFormat.push_back(make_unique<CodecFormat>(
+                    codecLibrary, i, propertyReader));
                 ++result;
             }
             catch (const LibraryException &)

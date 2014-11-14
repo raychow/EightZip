@@ -30,10 +30,10 @@ DriveModel::EntryVector DriveModel::_InitializeEntries() const
     int nBufferLength = ::GetLogicalDriveStrings(0, nullptr);
     if (nBufferLength)
     {
-        std::unique_ptr<wxChar[]> uptchBuffer(new wxChar[nBufferLength]);
-        if (::GetLogicalDriveStrings(nBufferLength, uptchBuffer.get()))
+        auto vwchBuffer = vector<wxChar>(nBufferLength);
+        if (::GetLogicalDriveStrings(nBufferLength, vwchBuffer.data()))
         {
-            const auto *ptchDrive = uptchBuffer.get();
+            const auto *ptchDrive = vwchBuffer.data();
             while (*ptchDrive)
             {
                 TString tstrDrive(ptchDrive);

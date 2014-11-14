@@ -67,24 +67,24 @@ namespace Helper
         {
             return tstrPath;
         }
-        unique_ptr<wxChar[]> uptchFullPath(new wxChar[nBufferSize]);
+        auto vwchFullPath = vector<wxChar>(nBufferSize);
         if (!::GetFullPathName(
-            tstrPath.c_str(), nBufferSize, uptchFullPath.get(), nullptr))
+            tstrPath.c_str(), nBufferSize, vwchFullPath.data(), nullptr))
         {
             return tstrPath;
         }
-        nBufferSize = ::GetLongPathName(uptchFullPath.get(), nullptr, 0);
+        nBufferSize = ::GetLongPathName(vwchFullPath.data(), nullptr, 0);
         if (!nBufferSize)
         {
-            return uptchFullPath.get();
+            return vwchFullPath.data();
         }
-        unique_ptr<wxChar[]> uptchLongPath(new wxChar[nBufferSize]);
+        auto vwchLongPath = vector<wxChar>(nBufferSize);
         if (!::GetLongPathName(
-            uptchFullPath.get(), uptchLongPath.get(), nBufferSize))
+            vwchFullPath.data(), vwchLongPath.data(), nBufferSize))
         {
-            return uptchFullPath.get();
+            return vwchFullPath.data();
         }
-        return uptchLongPath.get();
+        return vwchLongPath.data();
 #endif
     }
 

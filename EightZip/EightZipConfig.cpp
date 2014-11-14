@@ -1,8 +1,10 @@
 #include "stdwx.h"
 #include "EightZipConfig.h"
 
+using namespace std;
+
 bool EightZipConfig::m_isDestroyed = false;
-std::unique_ptr<EightZipConfig> EightZipConfig::m_upInstance;
+unique_ptr<EightZipConfig> EightZipConfig::m_upInstance;
 
 const EightZipConfig::Definition EightZipConfig::m_definitions[] = {
     { wxT("Layout/EightZipLocationX"), ConfigType::Integer, ConfigIndex::EightZipLocationX },
