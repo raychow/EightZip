@@ -92,7 +92,7 @@ protected:
         bool isDirectory,
         bool isVirtual);
 
-    EntryBase(const EntryBase &) = default;
+    EntryBase(const EntryBase &) = delete;
 
 private:
     TString m_tstrLocation;

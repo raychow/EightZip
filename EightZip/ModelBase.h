@@ -18,7 +18,7 @@ class EntryBase;
 class ModelBase
 {
 public:
-    typedef std::vector<std::shared_ptr<EntryBase>> EntryVector;
+    typedef std::vector<std::unique_ptr<EntryBase>> EntryVector;
     typedef EntryVector::iterator iterator;
     typedef EntryVector::const_iterator const_iterator;
     typedef EntryVector::reverse_iterator reverse_iterator;
@@ -122,7 +122,7 @@ public:
 
 protected:
     ModelBase(TString tstrLocation, TString tstrName);
-    ModelBase(const ModelBase &) = default;
+    ModelBase(const ModelBase &) = delete;
 
     virtual EntryVector _InitializeEntries() const = 0;
 
