@@ -55,7 +55,7 @@ TString FileInfo::GetType(
         }
     }
 
-    SHFILEINFO info;
+    auto info = SHFILEINFO{};
     if (SUCCEEDED(SHGetFileInfo(tstrPath.c_str(),
         isDirectory ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL,
         &info,
@@ -79,7 +79,7 @@ int FileInfo::GetIconIndex(
     bool isVirtual /*= true*/)
 {
 #ifdef __WXMSW__
-    SHFILEINFO info;
+    auto info = SHFILEINFO{};
     if (SUCCEEDED(SHGetFileInfo(tstrPath.c_str(),
         isDirectory ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL,
         &info,
