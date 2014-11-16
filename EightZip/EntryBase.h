@@ -63,6 +63,8 @@ public:
         return m_nIconIndex;
     }
 
+    virtual std::shared_ptr<ModelBase> GetContainer() const = 0;
+
     virtual std::shared_ptr<ModelBase> GetModel() const = 0;
 
     virtual bool IsOpenExternal() const;

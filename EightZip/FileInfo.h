@@ -16,15 +16,13 @@ class FileInfo
 public:
     FileInfo(TString tstrPath);
 
-    bool IsOK() const { return m_isOK; }
-
     TString GetCanonicalPath() const;
     bool IsDirectory() const
     {
         return 0 != (m_fileAttributeData.dwFileAttributes
             & FILE_ATTRIBUTE_DIRECTORY);
     }
-    wxULongLong_t GetSize() const
+    inline wxULongLong_t GetSize() const
     {
         return IsDirectory() ? 0 : wxULongLong(
             m_fileAttributeData.nFileSizeHigh,
@@ -58,7 +56,6 @@ public:
 private:
     TString m_tstrPath;
     mutable TString m_tstrCanonicalPath;
-    bool m_isOK;
 
     WIN32_FILE_ATTRIBUTE_DATA m_fileAttributeData;
 

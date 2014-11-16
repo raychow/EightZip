@@ -37,6 +37,11 @@ TString VirtualEntry::GetInternalLocation() const
     return GetName();
 }
 
+std::shared_ptr<ModelBase> VirtualEntry::GetContainer() const
+{
+    return m_wpParent.lock();
+}
+
 std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
 {
     if (auto spParent = m_wpParent.lock())
@@ -161,8 +166,9 @@ void VirtualEntry::__ExtractToTempFolder() const
 {
     m_upTempFolder.reset(new TempFolder());
     m_upTempFolder->SetFilePath(
-        Extractor(m_upTempFolder->GetLocation(), nullptr)
+        VirtualFileExtractor(m_upTempFolder->GetLocation(), nullptr,
+        m_wpParent.lock()->GetInternalLocation(),
+        wxEmptyString, GetArchiveFile().GetArchiveEntry())
         .AddPlan(*this)
-        .SetInternalLocation(m_wpParent.lock()->GetInternalLocation())
         .Execute().GetLastExtractPath());
 }

@@ -10,39 +10,49 @@
 #include "SevenZipCore/BaseType.h"
 #include "SevenZipCore/TString.h"
 
+#include "ExtractIndicator.h"
+
 namespace SevenZipCore
 {
     class ArchiveEntry;
 }
 
-class EntryBase;
-class ExtractIndicator;
 class ProgressDialog;
+class VirtualEntry;
 class VirtualModel;
-
-class ArchiveEntryComparer
-{
-public:
-    bool operator()(const SevenZipCore::ArchiveEntry &lhs,
-        const SevenZipCore::ArchiveEntry &rhs)
-    {
-        return &lhs < &rhs;
-    }
-};
 
 class Extractor
 {
 public:
-    Extractor(
-        TString tstrPath, ExtractIndicator *pExtractIndicator);
-
-    Extractor &AddPlan(const EntryBase &entry);
-    Extractor &AddPlan(const VirtualModel &model);
-
-    inline Extractor &SetInternalLocation(TString tstrInternalLocation)
+    Extractor(TString tstrExtractLocation,
+        ExtractIndicator *pExtractIndicator,
+        TString tstrInternalLocation)
+        : m_tstrExtractLocation(tstrExtractLocation)
+        , m_pExtractIndicator(pExtractIndicator)
+        , m_pProgressDialog(pExtractIndicator
+        ? pExtractIndicator->GetProgressDialog()
+        : nullptr)
+        , m_tstrInternalLocation(tstrInternalLocation)
     {
-        m_tstrInternalLocation = move(tstrInternalLocation);
-        return *this;
+
+    }
+    virtual ~Extractor() = 0 {};
+
+    virtual Extractor &Execute() = 0;
+
+    inline TString GetExtractLocation() const
+    {
+        return m_tstrExtractLocation;
+    }
+
+    inline ExtractIndicator *GetExtractIndicator() const
+    {
+        return m_pExtractIndicator;
+    }
+
+    inline ProgressDialog *GetProgressDialog() const
+    {
+        return m_pProgressDialog;
     }
 
     inline const TString &GetLastExtractPath() const
@@ -50,23 +60,79 @@ public:
         return m_tstrLastExtractPath;
     }
 
-    Extractor &Execute();
+protected:
+    void _Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
+        const std::vector<UINT32> &vun32ArchiveIndex);
 
 private:
-    TString m_tstrPath;
+    TString m_tstrExtractLocation;
     TString m_tstrInternalLocation;
-    TString m_tstrLastExtractPath;
     ExtractIndicator *m_pExtractIndicator = nullptr;
     ProgressDialog *m_pProgressDialog = nullptr;
-    std::map<std::reference_wrapper<const SevenZipCore::ArchiveEntry>,
-        std::vector<UINT32>, ArchiveEntryComparer> m_plans;
-    std::vector<std::reference_wrapper<const EntryBase>> m_entries;
-    Extractor(const Extractor&) = delete;
-    Extractor &operator=(const Extractor &) = delete;
 
-    void __ExtractFile(const EntryBase &entry);
-    void __Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
-        std::vector<UINT32> &vun32ArchiveIndex);
+    TString m_tstrLastExtractPath;
+
+};
+
+class RealFileExtractor
+    : public Extractor
+{
+public:
+    RealFileExtractor(
+        TString tstrExtractLocation, ExtractIndicator *pExtractIndicator)
+        : Extractor(tstrExtractLocation, pExtractIndicator, wxEmptyString)
+    {
+
+    }
+
+    inline RealFileExtractor &AddPlan(TString tstrPath)
+    {
+        m_vtstrPath.push_back(move(tstrPath));
+        return *this;
+    }
+
+    virtual RealFileExtractor &Execute() override;
+
+private:
+    std::vector<TString> m_vtstrPath;
+
+};
+
+class VirtualFileExtractor
+    : public Extractor
+{
+public:
+    VirtualFileExtractor(
+        TString tstrExtractLocation,
+        ExtractIndicator *pExtractIndicator,
+        TString tstrInternalLocation,
+        TString tstrVirtualArchivePath,
+        const SevenZipCore::ArchiveEntry &archiveEntry)
+        : Extractor(tstrExtractLocation, pExtractIndicator, tstrInternalLocation)
+        , m_tstrVirtualArchivePath(tstrVirtualArchivePath)
+        , m_archiveEntry(archiveEntry)
+    {
+
+    }
+
+    inline VirtualFileExtractor &AddPlan(UINT32 vun32Index)
+    {
+        m_vun32Index.push_back(vun32Index);
+    }
+    inline VirtualFileExtractor &AddPlan(const std::vector<UINT32> &vun32Index)
+    {
+        m_vun32Index.insert(
+            m_vun32Index.end(), vun32Index.cbegin(), vun32Index.cend());
+    }
+    VirtualFileExtractor &AddPlan(const VirtualEntry &entry);
+    VirtualFileExtractor &AddPlan(const VirtualModel &model);
+
+    virtual VirtualFileExtractor &Execute() override;
+
+private:
+    TString m_tstrVirtualArchivePath;
+    const SevenZipCore::ArchiveEntry &m_archiveEntry;
+    std::vector<UINT32> m_vun32Index;
 
 };
 

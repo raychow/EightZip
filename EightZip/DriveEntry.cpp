@@ -3,6 +3,7 @@
 
 #include "SevenZipCore/CommonHelper.h"
 
+#include "DriveModel.h"
 #include "FolderModel.h"
 
 using namespace std;
@@ -20,6 +21,11 @@ DriveEntry::DriveEntry(TString tstrName)
         m_un64TotalSize = 0;
         m_un64FreeSpace = 0;
     }
+}
+
+std::shared_ptr<ModelBase> DriveEntry::GetContainer() const
+{
+    return make_shared<DriveModel>();
 }
 
 std::shared_ptr<ModelBase> DriveEntry::GetModel() const

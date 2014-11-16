@@ -12,6 +12,7 @@ public:
     DriveEntry(TString tstrName);
     virtual ~DriveEntry() { }
 
+    virtual std::shared_ptr<ModelBase> GetContainer() const;
     virtual std::shared_ptr<ModelBase> GetModel() const;
     virtual bool IsOpenExternal() { return false; }
     virtual bool CanExtract() const { return false; }

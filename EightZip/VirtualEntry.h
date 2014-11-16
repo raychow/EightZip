@@ -23,6 +23,7 @@ public:
 
     TString GetInternalLocation() const;
 
+    virtual std::shared_ptr<ModelBase> GetContainer() const;
     virtual std::shared_ptr<ModelBase> GetModel() const;
     virtual bool CanExtract() const { return true; }
     virtual void OpenExternal() const;

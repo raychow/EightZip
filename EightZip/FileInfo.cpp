@@ -1,6 +1,7 @@
 #include "stdwx.h"
 #include "FileInfo.h"
 
+#include "Exception.h"
 #include "FileHelper.h"
 
 using namespace std;
@@ -11,17 +12,16 @@ FileInfo::FileInfo(TString tstrPath)
     : m_tstrPath(move(tstrPath))
 {
 #ifdef __WXMSW__
-    m_isOK = (FALSE != ::GetFileAttributesEx(
-        m_tstrPath.c_str(), GetFileExInfoStandard, &m_fileAttributeData));
+    if (FALSE == ::GetFileAttributesEx(
+        m_tstrPath.c_str(), GetFileExInfoStandard, &m_fileAttributeData))
+    {
+        throw FileException("Cannot get attributes of the specified file.");
+    }
 #endif
 }
 
 TString FileInfo::GetCanonicalPath() const
 {
-    if (!IsOK())
-    {
-        return wxEmptyString;
-    }
     if (m_tstrCanonicalPath.empty())
     {
         m_tstrCanonicalPath = Helper::GetCanonicalPath(m_tstrPath);

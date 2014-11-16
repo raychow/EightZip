@@ -12,7 +12,9 @@
 #include "ExtractIndicator.h"
 #include "Extractor.h"
 #include "FileHelper.h"
+#include "FolderEntry.h"
 #include "ProgressDialog.h"
+#include "VirtualEntry.h"
 #include "VirtualModel.h"
 
 using namespace std;
@@ -27,7 +29,7 @@ namespace Helper
         {
             wxTheApp->CallAfter(bind(
                 // Probably be called after destruct.
-                [](ProgressDialog *pDialog){
+                [](ProgressDialog *pDialog) {
                 pDialog->CenterOnParent();
                 pDialog->ShowModal();
             }, m_pDialog));
@@ -56,7 +58,53 @@ namespace Helper
 
     };
 
-    static void ExtractModelThread(TString tstrExtractPath,
+    static void CallExecute(Extractor &extractor,
+        ProgressDialogManager &dialogManager,
+        bool isLaunchFolder)
+    {
+        try
+        {
+            extractor.Execute();
+        }
+        catch (const SevenZipCore::ArchiveException &)
+        {
+            return;
+        }
+        dialogManager.SetSuccess(true);
+        if (isLaunchFolder)
+        {
+            try
+            {
+                OpenFileExternal(extractor.GetExtractLocation());
+            }
+            catch (const SystemException &)
+            {
+                wxMessageBox(
+                    wxString::Format(_("Cannot open \"%s\"."),
+                    extractor.GetExtractLocation()),
+                    EIGHTZIP_NAME,
+                    wxOK | wxICON_ERROR);
+            }
+        }
+    }
+
+    static void ExtractFolderEntriesThread(TString tstrExtractPath,
+        vector<reference_wrapper<FolderEntry>> vEntry,
+        ProgressDialog *pProgressDialog,
+        bool isLaunchFolder)
+    {
+        ProgressDialogManager dialogManager(pProgressDialog);
+        ExtractIndicator extractIndicator(pProgressDialog);
+
+        RealFileExtractor extractor(tstrExtractPath, &extractIndicator);
+        for (auto &entry : vEntry)
+        {
+            extractor.AddPlan(entry.get().GetPath());
+        }
+        CallExecute(extractor, dialogManager, isLaunchFolder);
+    }
+
+    static void ExtractVirtualModelThread(TString tstrExtractPath,
         TString tstrInternalPath,
         shared_ptr<VirtualModel> spModel,
         ProgressDialog *pProgressDialog,
@@ -65,74 +113,46 @@ namespace Helper
         ProgressDialogManager dialogManager(pProgressDialog);
         ExtractIndicator extractIndicator(pProgressDialog);
 
-        Extractor extractor(tstrExtractPath, &extractIndicator);
-        extractor.SetInternalLocation(tstrInternalPath);
+        VirtualFileExtractor extractor(tstrExtractPath,
+            &extractIndicator,
+            tstrInternalPath,
+            spModel->GetPath(),
+            spModel->GetArchiveFolder().GetArchiveEntry());
         extractor.AddPlan(*spModel);
-        try
-        {
-            extractor.Execute();
-        }
-        catch (const SevenZipCore::ArchiveException &)
-        {
-            return;
-        }
-        dialogManager.SetSuccess(true);
-        if (isLaunchFolder)
-        {
-            try
-            {
-                OpenFileExternal(tstrExtractPath);
-            }
-            catch (const SystemException &)
-            {
-                wxMessageBox(
-                    wxString::Format(_("Cannot open \"%s\"."),
-                    tstrExtractPath),
-                    EIGHTZIP_NAME,
-                    wxOK | wxICON_ERROR);
-            }
-        }
+        CallExecute(extractor, dialogManager, isLaunchFolder);
     }
 
-    static void ExtractEntriesThread(TString tstrExtractPath,
+    static void ExtractVirtualEntriesThread(TString tstrExtractPath,
         TString tstrInternalPath,
-        vector<reference_wrapper<EntryBase>> vEntry,
+        vector<reference_wrapper<VirtualEntry>> vEntry,
         ProgressDialog *pProgressDialog,
         bool isLaunchFolder)
     {
+        if (vEntry.empty())
+        {
+            return;
+        }
+
         ProgressDialogManager dialogManager(pProgressDialog);
         ExtractIndicator extractIndicator(pProgressDialog);
 
-        Extractor extractor(tstrExtractPath, &extractIndicator);
-        extractor.SetInternalLocation(tstrInternalPath);
+        auto spModel = dynamic_pointer_cast<VirtualModel>(
+            vEntry.front().get().GetContainer());
+        while (!spModel->IsRoot())
+        {
+            spModel = dynamic_pointer_cast<VirtualModel>(spModel->GetParent());
+        }
+
+        VirtualFileExtractor extractor(tstrExtractPath,
+            &extractIndicator,
+            tstrInternalPath,
+            spModel->GetPath(),
+            spModel->GetArchiveFolder().GetArchiveEntry());
         for (auto &entry : vEntry)
         {
             extractor.AddPlan(entry);
         }
-        try
-        {
-            extractor.Execute();
-        }
-        catch (const SevenZipCore::ArchiveException &)
-        {
-            return;
-        }
-        dialogManager.SetSuccess(true);
-        if (isLaunchFolder)
-        {
-            try
-            {
-                OpenFileExternal(tstrExtractPath);
-            }
-            catch (const SystemException &)
-            {
-                wxMessageBox(
-                    wxString::Format(_("Cannot open \"%s\"."),
-                    tstrExtractPath),
-                    EIGHTZIP_NAME,
-                    wxOK | wxICON_ERROR);
-            }
-        }
+        CallExecute(extractor, dialogManager, isLaunchFolder);
     }
 
     bool Extract(TString tstrPath,
@@ -151,7 +171,7 @@ namespace Helper
             auto *pProgressDialog = new ProgressDialog(
                 wxTheApp->GetTopWindow(), wxID_ANY, _("Extracting"));
 
-            thread extractThread(ExtractModelThread,
+            thread extractThread(ExtractVirtualModelThread,
                 Helper::GetCanonicalPath(tstrPath), tstrInternalPath,
                 move(spModel), pProgressDialog, isLaunchFolder);
             extractThread.detach();
@@ -165,7 +185,7 @@ namespace Helper
 
     bool Extract(TString tstrPath,
         TString tstrInternalPath,
-        vector<reference_wrapper<EntryBase>> vEntry,
+        const vector<reference_wrapper<EntryBase>> &vEntry,
         bool isLaunchFolder)
     {
         try
@@ -179,12 +199,38 @@ namespace Helper
             auto *pProgressDialog = new ProgressDialog(
                 wxTheApp->GetTopWindow(), wxID_ANY, _("Extracting"));
 
-            thread extractThread(ExtractEntriesThread,
-                Helper::GetCanonicalPath(tstrPath), tstrInternalPath,
-                move(vEntry), pProgressDialog, isLaunchFolder);
-            extractThread.detach();
+            if (vEntry.front().get().IsVirtual())
+            {
+                auto vVirtualEntry = vector < reference_wrapper<VirtualEntry> > { };
+                for (const auto &entry : vEntry)
+                {
+                    vVirtualEntry.push_back(
+                        dynamic_cast<VirtualEntry &>(entry.get()));
+                }
+                thread extractThread(ExtractVirtualEntriesThread,
+                    Helper::GetCanonicalPath(tstrPath), tstrInternalPath,
+                    move(vVirtualEntry), pProgressDialog, isLaunchFolder);
+                extractThread.detach();
+            }
+            else
+            {
+                auto vFolderEntry = vector < reference_wrapper<FolderEntry> > { };
+                for (const auto &entry : vEntry)
+                {
+                    vFolderEntry.push_back(
+                        dynamic_cast<FolderEntry &>(entry.get()));
+                }
+                thread extractThread(ExtractFolderEntriesThread,
+                    Helper::GetCanonicalPath(tstrPath),
+                    move(vFolderEntry), pProgressDialog, isLaunchFolder);
+                extractThread.detach();
+            }
         }
         catch (const boost::system::system_error &)
+        {
+            return false;
+        }
+        catch (const bad_cast &)
         {
             return false;
         }

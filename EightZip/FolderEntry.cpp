@@ -29,6 +29,11 @@ FolderEntry::FolderEntry(TString tstrLocation,
 
 }
 
+std::shared_ptr<ModelBase> FolderEntry::GetContainer() const
+{
+    return make_shared<FolderModel>(GetLocation());
+}
+
 std::shared_ptr<ModelBase> FolderEntry::GetModel() const
 {
     auto tstrPath = GetPath();
@@ -61,7 +66,7 @@ bool FolderEntry::CanExtract() const
         try
         {
             SevenZipCore::Archive(CodecsLoader::GetInstance().GetCodecs(),
-                GetPath(), SevenZipCore::OpenCallback());
+                GetPath(), nullptr);
             return true;
         }
         catch (const SevenZipCore::SevenZipCoreException &)

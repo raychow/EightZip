@@ -16,29 +16,22 @@ FolderModel::FolderModel(TString tstrPath)
     : ModelBase(wxEmptyString, wxEmptyString)
 {
     FileInfo fileInfo(move(tstrPath));
-    if (fileInfo.IsOK())
-    {
-        auto tstrCanonicalPath = SevenZipCore::Helper::RemovePathSlash(
-            fileInfo.GetCanonicalPath());
+    auto tstrCanonicalPath = SevenZipCore::Helper::RemovePathSlash(
+        fileInfo.GetCanonicalPath());
 #ifdef __WXMSW__
-        if (2 == tstrCanonicalPath.size() && tstrCanonicalPath.back() == ':')
+    if (2 == tstrCanonicalPath.size() && tstrCanonicalPath.back() == ':')
 #else
-        if (tstrCanonicalPath.empty())
+    if (tstrCanonicalPath.empty())
 #endif
-        {
-            tstrCanonicalPath.push_back(wxFILE_SEP_PATH);
-            SetLocation(move(tstrCanonicalPath));
-            SetName(wxEmptyString);
-        }
-        else
-        {
-            SetLocation(Helper::GetLocation(tstrCanonicalPath));
-            SetName(SevenZipCore::Helper::GetFileName(move(tstrCanonicalPath)));
-        }
+    {
+        tstrCanonicalPath.push_back(wxFILE_SEP_PATH);
+        SetLocation(move(tstrCanonicalPath));
+        SetName(wxEmptyString);
     }
     else
     {
-        throw ModelException("Cannot access the specified path.");
+        SetLocation(Helper::GetLocation(tstrCanonicalPath));
+        SetName(SevenZipCore::Helper::GetFileName(move(tstrCanonicalPath)));
     }
 }
 

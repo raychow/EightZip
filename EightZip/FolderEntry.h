@@ -18,6 +18,7 @@ public:
         wxDateTime dtCreated);
     virtual ~FolderEntry() { }
 
+    virtual std::shared_ptr<ModelBase> GetContainer() const;
     virtual std::shared_ptr<ModelBase> GetModel() const;
     virtual bool CanExtract() const;
     virtual TString GetItem(EntryItemType itemType) const;
