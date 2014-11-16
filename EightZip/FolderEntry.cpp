@@ -38,12 +38,14 @@ std::shared_ptr<ModelBase> FolderEntry::GetModel() const
     }
     else
     {
+        auto upCallback = SevenZipCore::MakeUniqueCom(
+            new SevenZipCore::OpenCallback);
         return make_shared<VirtualModel>(
             Helper::GetLocation(tstrPath),
             SevenZipCore::Helper::GetFileName(tstrPath),
             tstrPath,
             nullptr,
-            *SevenZipCore::MakeUniqueCom(new SevenZipCore::OpenCallback));
+            upCallback.get());
     }
 }
 

@@ -24,18 +24,16 @@ namespace SevenZipCore
         TString tstrPath,
         std::shared_ptr<IInStream> cpStream,
         int nSubFileIndex,
-        IArchiveOpenCallback &callback)
+        IArchiveOpenCallback *pCallback)
         : m_archive(archive)
         , m_cpCodecs(cpCodecs)
         , m_tstrPath(move(tstrPath))
-        , m_cpInStream(cpStream)
+        , m_cpInStream(cpStream
+        ? cpStream
+        : MakeSharedCom(new InFileStream(m_tstrPath, false)))
         , m_nSubfileIndex(nSubFileIndex)
     {
-        if (!m_cpInStream)
-        {
-            __OpenFile(callback);
-        }
-        __OpenStream(callback);
+        __OpenStream(pCallback);
         __LoadFolder();
     }
 
@@ -50,12 +48,7 @@ namespace SevenZipCore
         }
     }
 
-    void ArchiveEntry::__OpenFile(IArchiveOpenCallback &callback)
-    {
-        m_cpInStream = MakeSharedCom(new InFileStream(m_tstrPath, false));
-    }
-
-    void ArchiveEntry::__OpenStream(IArchiveOpenCallback &callback)
+    void ArchiveEntry::__OpenStream(IArchiveOpenCallback *pCallback)
     {
         TString tstrFileName = Helper::GetFileName(m_tstrPath);
         TString tstrFileExtension = Helper::GetFileExtension(m_tstrPath);
@@ -111,7 +104,7 @@ namespace SevenZipCore
                 }
 
                 archiveAdapter.Open(
-                    m_cpInStream.get(), MAX_CHECK_START_POSITION, &callback);
+                    m_cpInStream.get(), MAX_CHECK_START_POSITION, pCallback);
                 m_cpInArchive = move(cpInArchive);
                 return;
             }

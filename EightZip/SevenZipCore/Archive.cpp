@@ -17,14 +17,14 @@ namespace SevenZipCore
 
     void Archive::__Open(TString tstrPath,
         shared_ptr<IInStream> cpStream,
-        IArchiveOpenCallback &callback)
+        IArchiveOpenCallback *pCallback)
     {
         m_vupArchiveEntry.push_back(make_unique<ArchiveEntry>(*this,
             m_cpCodecs,
             tstrPath,
             cpStream,
             -1,
-            callback));
+            pCallback));
         // Maybe open inner main stream in the PE file automatically (like 7zFM).
 
         try

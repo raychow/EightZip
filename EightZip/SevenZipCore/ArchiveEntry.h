@@ -27,7 +27,7 @@ namespace SevenZipCore
             TString tstrPath,
             std::shared_ptr<IInStream> cpStream,
             int nSubFileIndex,
-            IArchiveOpenCallback &callback);
+            IArchiveOpenCallback *pCallback);
         virtual ~ArchiveEntry();
 
         inline Archive &GetArchive() const { return m_archive; }
@@ -52,8 +52,7 @@ namespace SevenZipCore
         SevenZipCore::unique_com_ptr<IInArchive> m_cpInArchive;
         std::unique_ptr<ArchiveFolder> m_upRootFolder;
 
-        void __OpenFile(IArchiveOpenCallback &callback);
-        void __OpenStream(IArchiveOpenCallback &callback);
+        void __OpenStream(IArchiveOpenCallback *pCallback);
         void __Close();
 
         void __LoadFolder();

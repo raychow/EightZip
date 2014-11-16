@@ -30,13 +30,13 @@ public:
         TString tstrName,
         std::shared_ptr<ModelBase> spParent,
         std::shared_ptr<SevenZipCore::IInStream> cpStream,
-        SevenZipCore::IArchiveOpenCallback &callback);
+        SevenZipCore::IArchiveOpenCallback *pCallback);
     // Open real file.
     VirtualModel(TString tstrLocation,
         TString tstrName,
         TString tstrRealPath,
         std::shared_ptr<ModelBase> spParent,
-        SevenZipCore::IArchiveOpenCallback &callback);
+        SevenZipCore::IArchiveOpenCallback *pCallback);
     // Open archive folder.
     VirtualModel(TString tstrLocation,
         TString tstrInternalLocation,

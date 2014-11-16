@@ -26,17 +26,17 @@ namespace SevenZipCore
     public:
         Archive(std::shared_ptr<Codecs> cpCodecs,
             TString tstrPath,
-            IArchiveOpenCallback &callback)
-            : Archive(move(cpCodecs), move(tstrPath), nullptr, callback)
+            IArchiveOpenCallback *pCallback)
+            : Archive(move(cpCodecs), move(tstrPath), nullptr, pCallback)
         {
         }
         Archive(std::shared_ptr<Codecs> cpCodecs,
             TString tstrPath,
             std::shared_ptr<IInStream> cpStream,
-            IArchiveOpenCallback &callback)
+            IArchiveOpenCallback *pCallback)
             : m_cpCodecs(move(cpCodecs))
         {
-            __Open(move(tstrPath), move(cpStream), callback);
+            __Open(move(tstrPath), move(cpStream), pCallback);
         }
         virtual ~Archive() { }
 
@@ -60,7 +60,7 @@ namespace SevenZipCore
 
         void __Open(TString tstrPath,
             std::shared_ptr<IInStream> cpStream,
-            IArchiveOpenCallback &callback);
+            IArchiveOpenCallback *pCallback);
 
     };
 }

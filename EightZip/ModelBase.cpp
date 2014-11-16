@@ -9,7 +9,6 @@
 #include "EntryBase.h"
 #include "DriveModel.h"
 #include "FileHelper.h"
-#include "FileInfo.h"
 #include "FolderModel.h"
 #include "VirtualModel.h"
 
@@ -39,12 +38,14 @@ shared_ptr<ModelBase> GetModelFromPath(
             }
             else if (isTryOpenArchive && attributes & EIGHT_FILE_STATUS_FILE)
             {
+                auto upCallback = SevenZipCore::MakeUniqueCom(
+                    new SevenZipCore::OpenCallback);
                 auto spModel = make_shared<VirtualModel>(
                     Helper::GetLocation(tstrPath),
                     SevenZipCore::Helper::GetFileName(tstrPath),
                     tstrPath,
                     nullptr,
-                    *SevenZipCore::MakeUniqueCom(new SevenZipCore::OpenCallback));
+                    upCallback.get());
                 return GetModelFromPath(spModel, tstrOriginalPath);
             }
             tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));

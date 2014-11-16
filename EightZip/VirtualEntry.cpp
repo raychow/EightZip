@@ -69,11 +69,13 @@ std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
                             *cpSubSeqStream, SevenZipCore::IID_IInStream);
                         if (cpSubStream)
                         {
+                            auto upCallback = SevenZipCore::MakeUniqueCom(
+                                new SevenZipCore::OpenCallback);
                             return make_shared<VirtualModel>(GetLocation(),
                                 GetName(),
                                 m_wpParent.lock(),
                                 move(cpSubStream),
-                                *SevenZipCore::MakeUniqueCom(new SevenZipCore::OpenCallback));
+                                upCallback.get());
                         }
                     }
                 }
@@ -82,11 +84,13 @@ std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
             {
             }
             __ExtractToTempFolder();
+            auto upCallback = SevenZipCore::MakeUniqueCom(
+                new SevenZipCore::OpenCallback);
             return make_shared<VirtualModel>(GetLocation(),
                 GetName(),
                 m_upTempFolder->GetFilePath(),
                 m_wpParent.lock(),
-                *SevenZipCore::MakeUniqueCom(new SevenZipCore::OpenCallback));
+                upCallback.get());
         }
     }
     else
