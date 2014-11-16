@@ -48,18 +48,32 @@ void ProgressDialog::SetTotal(UINT64 un64Total)
 {
     lock_guard<mutex> lg(m_mutex);
     CheckCancelled();
-    m_un64Total = un64Total;
+    m_un64Base = m_un64NextBase;
+    m_un64NextBase += un64Total;
+    m_un64Completed = m_un64Base;
+
+    m_un64Total = m_un64Total + un64Total - m_un64NowTotal;
 }
 
 void ProgressDialog::SetCompleted(UINT64 un64Completed)
 {
     lock_guard<mutex> lg(m_mutex);
     CheckCancelled();
-    m_un64Completed = un64Completed;
+    m_un64Completed = m_un64Base + un64Completed;
 #ifdef __WXMSW__
     m_taskerProgress.SetState(TBPF_NORMAL);
     m_taskerProgress.SetValue(m_un64Completed, m_un64Total);
 #endif
+}
+
+void ProgressDialog::SetAllTotal(UINT64 un64AllTotal)
+{
+    m_un64Total = un64AllTotal;
+}
+
+void ProgressDialog::SetCurrentTotal(UINT64 un64NowTotal)
+{
+    m_un64NowTotal = un64NowTotal;
 }
 
 SevenZipCore::OverwriteAnswer ProgressDialog::AskOverwrite(
@@ -70,17 +84,26 @@ SevenZipCore::OverwriteAnswer ProgressDialog::AskOverwrite(
     boost::optional<UINT64> oun64NewSize,
     TString *ptstrNewPath)
 {
+    switch (m_lastOverwriteAnswer)
+    {
+    case SevenZipCore::OverwriteAnswer::YesToAll:
+    case SevenZipCore::OverwriteAnswer::NoToAll:
+    case SevenZipCore::OverwriteAnswer::AutoRename:
+    case SevenZipCore::OverwriteAnswer::Cancel:
+        return m_lastOverwriteAnswer;
+    }
     __Update();
     __StopTimer();
     OverwriteDialog dialog(this, wxID_ANY, _("Confirm file replace"), tstrPath,
         oftExistModified, oun64ExistSize, oftNewModified, oun64NewSize);
     dialog.CenterOnParent();
-    auto result = static_cast<SevenZipCore::OverwriteAnswer>(dialog.ShowModal());
-    if (ptstrNewPath && SevenZipCore::OverwriteAnswer::Rename == result)
+    m_lastOverwriteAnswer = static_cast<SevenZipCore::OverwriteAnswer>(
+        dialog.ShowModal());
+    if (ptstrNewPath && SevenZipCore::OverwriteAnswer::Rename == m_lastOverwriteAnswer)
     {
         *ptstrNewPath = dialog.GetPath();
     }
-    if (SevenZipCore::OverwriteAnswer::Cancel == result)
+    if (SevenZipCore::OverwriteAnswer::Cancel == m_lastOverwriteAnswer)
     {
         __Cancel();
     }
@@ -88,7 +111,7 @@ SevenZipCore::OverwriteAnswer ProgressDialog::AskOverwrite(
     {
         __StartTimer();
     }
-    return result;
+    return m_lastOverwriteAnswer;
 }
 
 void ProgressDialog::Done(bool isSuccess)

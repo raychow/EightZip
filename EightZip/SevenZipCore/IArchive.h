@@ -70,6 +70,7 @@ namespace SevenZipCore
     // NOverwriteAnswer
     enum struct OverwriteAnswer
     {
+        Unknown,
         Yes,
         YesToAll,
         No,

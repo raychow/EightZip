@@ -1,6 +1,7 @@
 #include "stdwx.h"
 #include "Extractor.h"
 
+#include <cassert>
 #include <queue>
 
 #include "SevenZipCore/ArchiveEntry.h"
@@ -8,6 +9,7 @@
 #include "SevenZipCore/ArchiveFile.h"
 #include "SevenZipCore/ComPtr.h"
 #include "SevenZipCore/Exception.h"
+#include "SevenZipCore/OpenCallback.h"
 
 #include "EntryBase.h"
 #include "ExtractIndicator.h"
@@ -39,10 +41,6 @@ void Extractor::_Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
     const std::vector<UINT32> &vun32ArchiveIndex)
 {
     auto &archive = archiveEntry.GetArchive();
-    if (m_pProgressDialog)
-    {
-        m_pProgressDialog->SetArchivePath(archive.GetPath());
-    }
     try
     {
         auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
@@ -79,33 +77,47 @@ void Extractor::_Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
 RealFileExtractor &RealFileExtractor::Execute()
 {
     auto allSize = wxULongLong_t{};
+    auto sizes = vector < UINT64 > {};
     auto vtstrExistPath = vector < TString > {};
     for (const auto &tstrPath : m_vtstrPath)
     {
         try
         {
-            allSize += FileInfo{ tstrPath }.GetSize();
+            sizes.push_back(FileInfo { tstrPath }.GetSize());
+            allSize += sizes.back();
             vtstrExistPath.push_back(tstrPath);
         }
         catch (const SevenZipCore::SevenZipCoreException &)
         {
         }
     }
-    for (const auto &tstrPath : vtstrExistPath)
+    if (GetProgressDialog())
     {
-        if (GetProgressDialog() && GetProgressDialog()->IsCancelled())
+        GetProgressDialog()->SetAllTotal(allSize);
+    }
+    for (auto i = 0; i != vtstrExistPath.size(); ++i)
+    {
+        const auto &tstrPath = vtstrExistPath[i];
+        if (GetProgressDialog())
         {
-            break;
+            if (GetProgressDialog()->IsCancelled())
+            {
+                break;
+            }
+            GetProgressDialog()->SetArchivePath(tstrPath);
+            GetProgressDialog()->SetCurrentTotal(sizes[i]);
         }
         bool isSuccess = false;
         try
         {
+            auto upCallback = SevenZipCore::MakeUniqueCom(
+                new SevenZipCore::OpenCallback);
             auto spModel = make_shared<VirtualModel>(
                 Helper::GetLocation(tstrPath),
                 SevenZipCore::Helper::GetFileName(tstrPath),
                 tstrPath,
                 nullptr,
-                nullptr);
+                upCallback.get());
             _Execute(spModel->GetArchive().GetArchiveEntry(),
                 vector < UINT32 > {});
             isSuccess = true;
@@ -153,6 +165,10 @@ VirtualFileExtractor &VirtualFileExtractor::Execute()
     sort(m_vun32Index.begin(), m_vun32Index.end());
     m_vun32Index.erase(unique(m_vun32Index.begin(), m_vun32Index.end()),
         m_vun32Index.end());
+    if (GetProgressDialog())
+    {
+        GetProgressDialog()->SetArchivePath(m_tstrVirtualArchivePath);
+    }
     _Execute(m_archiveEntry, m_vun32Index);
     return *this;
 }

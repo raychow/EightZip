@@ -43,6 +43,9 @@ public:
     void SetTotal(UINT64 un64Total);
     void SetCompleted(UINT64 un64Completed);
 
+    void SetAllTotal(UINT64 un64AllTotal);
+    void SetCurrentTotal(UINT64 un64NowTotal);
+
     SevenZipCore::OverwriteAnswer AskOverwrite(
         TString tstrPath,
         boost::optional<time_t> oftExistModified,
@@ -75,6 +78,12 @@ private:
     TString m_tstrCurrentFile;
     UINT64 m_un64Total = 0;
     UINT64 m_un64Completed = 0;
+    UINT64 m_un64NowTotal = 0;
+    UINT64 m_un64Base = 0;
+    UINT64 m_un64NextBase = 0;
+
+    SevenZipCore::OverwriteAnswer m_lastOverwriteAnswer
+        = SevenZipCore::OverwriteAnswer::Unknown;
 
     wxStaticText *m_pLabelElaspedTime = nullptr;
     wxStaticText *m_pLabelTimeLeft = nullptr;
