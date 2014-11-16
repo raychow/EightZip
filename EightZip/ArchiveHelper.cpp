@@ -147,7 +147,7 @@ namespace Helper
             &extractIndicator,
             tstrInternalPath,
             spModel->GetPath(),
-            spModel->GetArchiveFolder().GetArchiveEntry());
+            vEntry.front().get().GetArchiveFile().GetArchiveEntry());
         for (auto &entry : vEntry)
         {
             extractor.AddPlan(entry);
