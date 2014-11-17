@@ -164,7 +164,7 @@ void OverwriteDialog::__Create(
         RenameDialog dialog(this, wxID_ANY, _("Rename"), m_tstrPath);
         if (dialog.ShowModal() == wxID_OK)
         {
-            m_tstrPath = dialog.GetPath();
+            m_tstrPath = dialog.GetValue();
             EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::Rename));
         }
     });

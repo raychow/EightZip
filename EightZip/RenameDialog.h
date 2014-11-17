@@ -21,7 +21,7 @@ public:
 
     virtual ~RenameDialog();
 
-    inline TString GetPath() const
+    inline TString GetValue() const
     {
         return m_pFilePickerCtrl->GetPath().ToStdWstring();
     }
