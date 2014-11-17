@@ -38,7 +38,7 @@ namespace SevenZipCore
         {
             __Open(move(tstrPath), move(cpStream), pCallback);
         }
-        virtual ~Archive() { }
+        virtual ~Archive() {}
 
         inline const TString &GetPath() const { return m_tstrPath; }
 

@@ -14,6 +14,7 @@
 #include "EntryBase.h"
 #include "ExtractIndicator.h"
 #include "FileHelper.h"
+#include "OpenIndicator.h"
 #include "ProgressDialog.h"
 #include "VirtualEntry.h"
 #include "VirtualModel.h"
@@ -110,8 +111,9 @@ RealFileExtractor &RealFileExtractor::Execute()
         bool isSuccess = false;
         try
         {
+            auto openIndicator = OpenIndicator {};
             auto upCallback = SevenZipCore::MakeUniqueCom(
-                new SevenZipCore::OpenCallback);
+                new SevenZipCore::OpenCallback { &openIndicator });
             auto spModel = make_shared<VirtualModel>(
                 Helper::GetLocation(tstrPath),
                 SevenZipCore::Helper::GetFileName(tstrPath),

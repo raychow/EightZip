@@ -7,6 +7,7 @@
 
 #include "COM.h"
 #include "IArchive.h"
+#include "IPassword.h"
 #include "IProgress.h"
 #ifdef _DEBUG
 #include "TString.h"
@@ -14,29 +15,34 @@
 
 namespace SevenZipCore
 {
+    class IOpenIndicator;
+
     class OpenCallback
         : public IArchiveOpenCallback
+        , public ICryptoGetTextPassword
         , public IProgress
     {
     public:
-        OpenCallback() {}
+        OpenCallback(IOpenIndicator *pOpenIndicator)
+            : m_pOpenIndicator(pOpenIndicator)
+        {
+        }
         virtual ~OpenCallback() {}
 
-        void SetArchiveTotal(
-            boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes);
         STDMETHOD(SetTotal)(const UINT64 *numFiles, const UINT64 *numBytes);
-        
-        void SetArchiveCompleted(
-            boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes);
         STDMETHOD(SetCompleted)(const UINT64 *numFiles, const UINT64 *numBytes);
 
-        void SetProgressTotal(UINT64 total);
-        STDMETHOD(SetTotal)(UINT64 total);
+        STDMETHOD(CryptoGetTextPassword)(BSTR *password);
 
-        void SetProgressCompleted(boost::optional<UINT64> completeValue);
+        STDMETHOD(SetTotal)(UINT64 total);
         STDMETHOD(SetCompleted)(const UINT64 *completeValue);
-        
-        IUNKNOWN_IMP2(IArchiveOpenCallback, IProgress)
+
+        IUNKNOWN_IMP3(IArchiveOpenCallback,
+            ICryptoGetTextPassword,
+            IProgress)
+
+    private:
+        IOpenIndicator *m_pOpenIndicator = nullptr;
 
     };
 }

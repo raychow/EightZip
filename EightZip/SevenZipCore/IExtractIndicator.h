@@ -30,7 +30,7 @@ namespace SevenZipCore
             boost::optional<UINT64> oun64Position) = 0;
         virtual void SetOperationResult(ExtractResult extractResult) = 0;
 
-        virtual ~IExtractIndicator() = 0 { };
+        virtual ~IExtractIndicator() = 0 { }
 
     };
 }

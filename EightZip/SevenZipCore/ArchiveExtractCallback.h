@@ -30,6 +30,7 @@ namespace SevenZipCore
             ExtractPathMode pathMode,
             ExtractOverwriteMode overwriteMode,
             IExtractIndicator *extractIndicator);
+        virtual ~ArchiveExtractCallback() {}
 
         STDMETHOD(SetTotal)(UINT64 total);
         STDMETHOD(SetCompleted)(const UINT64 *completeValue);

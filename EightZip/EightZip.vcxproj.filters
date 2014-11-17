@@ -216,6 +216,18 @@
     <ClInclude Include="Extractor.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="SevenZipCore\IOpenIndicator.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenIndicator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SevenZipCore\IPassword.h">
+      <Filter>头文件\SevenZipCore</Filter>
+    </ClInclude>
+    <ClInclude Include="PasswordDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -345,6 +357,12 @@
       <Filter>源文件\Model</Filter>
     </ClCompile>
     <ClCompile Include="Extractor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenIndicator.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PasswordDialog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

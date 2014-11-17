@@ -10,6 +10,7 @@
 #include "DriveModel.h"
 #include "FileHelper.h"
 #include "FolderModel.h"
+#include "OpenIndicator.h"
 #include "VirtualModel.h"
 
 using namespace std;
@@ -38,8 +39,9 @@ shared_ptr<ModelBase> GetModelFromPath(
             }
             else if (isTryOpenArchive && attributes & EIGHT_FILE_STATUS_FILE)
             {
+                auto openIndicator = OpenIndicator {};
                 auto upCallback = SevenZipCore::MakeUniqueCom(
-                    new SevenZipCore::OpenCallback);
+                    new SevenZipCore::OpenCallback { &openIndicator });
                 auto spModel = make_shared<VirtualModel>(
                     Helper::GetLocation(tstrPath),
                     SevenZipCore::Helper::GetFileName(tstrPath),

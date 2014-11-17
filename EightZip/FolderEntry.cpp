@@ -11,6 +11,7 @@ using namespace std;
 #include "CodecsLoader.h"
 #include "FileHelper.h"
 #include "FolderModel.h"
+#include "OpenIndicator.h"
 #include "VirtualModel.h"
 
 FolderEntry::FolderEntry(TString tstrLocation,
@@ -43,8 +44,9 @@ std::shared_ptr<ModelBase> FolderEntry::GetModel() const
     }
     else
     {
+        auto openIndicator = OpenIndicator {};
         auto upCallback = SevenZipCore::MakeUniqueCom(
-            new SevenZipCore::OpenCallback);
+            new SevenZipCore::OpenCallback { &openIndicator });
         return make_shared<VirtualModel>(
             Helper::GetLocation(tstrPath),
             SevenZipCore::Helper::GetFileName(tstrPath),

@@ -128,6 +128,13 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
                 spModel = entry.GetModel();
                 isSuccess = true;
             }
+            catch (const SevenZipCore::ArchiveException &ex)
+            {
+                if (ex.GetErrorCode() == E_ABORT)
+                {
+                    return;
+                }
+            }
             catch (const SevenZipCore::SevenZipCoreException &)
             {
             }

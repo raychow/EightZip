@@ -7,12 +7,22 @@
 #include <vector>
 
 #include "Adapter.h"
+#include "Exception.h"
 #include "IArchive.h"
 #include "Property.h"
 #include "TString.h"
 
 namespace SevenZipCore
 {
+    template<>
+    inline void EnsureOk<ArchiveException>(HRESULT result, const char *message)
+    {
+        if (S_OK != result)
+        {
+            throw ArchiveException(message, result);
+        }
+    }
+
     template<typename T = IInArchive>
     class IInArchiveAdapter
         : protected virtual Adapter<T>

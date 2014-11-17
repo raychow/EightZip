@@ -12,7 +12,6 @@
 
 namespace SevenZipCore
 {
-    class ArchiveExtractCallback;
     class ArchiveFile;
     class ArchiveFolder;
     struct IInStream;

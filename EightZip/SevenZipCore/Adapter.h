@@ -18,6 +18,7 @@ namespace SevenZipCore
         {
 
         }
+        virtual ~Adapter() {}
 
         template<typename I>
         unique_com_ptr<I> QueryInterface(REFGUID iid)
@@ -36,7 +37,6 @@ namespace SevenZipCore
             return m_target;
         }
 
-        virtual ~Adapter() { }
 
     private:
         T &m_target;
@@ -51,7 +51,7 @@ namespace SevenZipCore
             throw E(message);
         }
     }
-
+    
 }
 
 #endif // SEVENZIPCORE_ADAPTER_H

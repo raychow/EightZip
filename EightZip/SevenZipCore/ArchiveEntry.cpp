@@ -108,6 +108,13 @@ namespace SevenZipCore
                 m_cpInArchive = move(cpInArchive);
                 return;
             }
+            catch (const ArchiveException &ex)
+            {
+                if (ex.GetErrorCode() == E_ABORT)
+                {
+                    throw;
+                }
+            }
             catch (const SevenZipCoreException &)
             {
             }

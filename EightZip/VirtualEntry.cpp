@@ -11,6 +11,7 @@ using namespace std;
 
 #include "Extractor.h"
 #include "FileHelper.h"
+#include "OpenIndicator.h"
 #include "VirtualModel.h"
 
 VirtualEntry::VirtualEntry(TString tstrLocation,
@@ -74,8 +75,9 @@ std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
                             *cpSubSeqStream, SevenZipCore::IID_IInStream);
                         if (cpSubStream)
                         {
+                            auto openIndicator = OpenIndicator {};
                             auto upCallback = SevenZipCore::MakeUniqueCom(
-                                new SevenZipCore::OpenCallback);
+                                new SevenZipCore::OpenCallback { &openIndicator });
                             return make_shared<VirtualModel>(GetLocation(),
                                 GetName(),
                                 m_wpParent.lock(),
@@ -89,8 +91,9 @@ std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
             {
             }
             __ExtractToTempFolder();
+            auto openIndicator = OpenIndicator {};
             auto upCallback = SevenZipCore::MakeUniqueCom(
-                new SevenZipCore::OpenCallback);
+                new SevenZipCore::OpenCallback { &openIndicator });
             return make_shared<VirtualModel>(GetLocation(),
                 GetName(),
                 m_upTempFolder->GetFilePath(),

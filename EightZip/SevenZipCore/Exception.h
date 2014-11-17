@@ -71,9 +71,31 @@ namespace SevenZipCore
 
     };
 
+    class ArchiveException
+        : public SevenZipCoreException
+    {
+    public:
+        ArchiveException(const char *pchMessage)
+            : SevenZipCoreException(pchMessage)
+            , m_nErrorCode(0)
+        {
+        }
+
+        ArchiveException(const char *pchMessage, int nErrorCode)
+            : SevenZipCoreException(pchMessage)
+            , m_nErrorCode(nErrorCode)
+        {
+        }
+
+        int GetErrorCode() const { return m_nErrorCode; }
+
+    private:
+        int m_nErrorCode;
+
+    };
+
     DECLARE_EXCEPTION(LibraryException, SevenZipCoreException);
     DECLARE_EXCEPTION(StreamException, SevenZipCoreException);
-    DECLARE_EXCEPTION(ArchiveException, SevenZipCoreException);
     DECLARE_EXCEPTION(FileException, SevenZipCoreException);
     DECLARE_EXCEPTION_WITH_ERROR_CODE(
         PropertyException,

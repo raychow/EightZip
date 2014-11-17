@@ -172,14 +172,12 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
             __SetModel(entry.GetModel());
             return;
         }
-        catch (const ModelException &)
+        catch (const SevenZipCore::ArchiveException &ex)
         {
-            wxMessageBox(
-                wxString::Format(_("Cannot access \"%s\"."),
-                entry.GetPath()),
-                EIGHTZIP_NAME,
-                wxOK | wxICON_ERROR);
-            return;
+            if (ex.GetErrorCode() == E_ABORT)
+            {
+                return;
+            }
         }
         catch (const exception &)
         {

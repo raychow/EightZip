@@ -6,7 +6,6 @@
 #include <boost/filesystem.hpp>
 
 #include "SevenZipCore/Archive.h"
-#include "SevenZipCore/ArchiveExtractCallback.h"
 #include "SevenZipCore/ArchiveFile.h"
 #include "SevenZipCore/CommonHelper.h"
 #include "SevenZipCore/ComPtr.h"

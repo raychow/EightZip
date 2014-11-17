@@ -3,90 +3,47 @@
 #include <cassert>
 
 #include "Exception.h"
+#include "IOpenIndicator.h"
 
 using namespace std;
 using namespace boost;
 
 namespace SevenZipCore
 {
-    void OpenCallback::SetArchiveTotal(
-        boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes)
-    {
-        // COpenArchiveCallback::SetTotal
-    }
-
     STDMETHODIMP OpenCallback::SetTotal(
         const UINT64 *numFiles, const UINT64 *numBytes)
     {
-        try
-        {
-            SetArchiveTotal(numFiles ? optional<UINT64>(*numFiles) : none,
-                numBytes ? optional<UINT64>(*numBytes) : none);
-            return S_OK;
-        }
-        catch (...)
-        {
-            return E_FAIL;
-        }
-    }
-
-    void OpenCallback::SetArchiveCompleted(
-        boost::optional<UINT64> numFiles, boost::optional<UINT64> numBytes)
-    {
-        // COpenArchiveCallback::SetCompleted
+        return S_OK;
     }
 
     STDMETHODIMP OpenCallback::SetCompleted(
         const UINT64 *numFiles, const UINT64 *numBytes)
     {
-        try
-        {
-            SetArchiveCompleted(numFiles ? optional<UINT64>(*numFiles) : none,
-                numBytes ? optional<UINT64>(*numBytes) : none);
-            return S_OK;
-        }
-        catch (...)
-        {
-            return E_FAIL;
-        }
+        return S_OK;
     }
 
-    void OpenCallback::SetProgressTotal(UINT64 total)
+    STDMETHODIMP OpenCallback::CryptoGetTextPassword(BSTR *password)
     {
-        // FM, COpenArchiveCallback::SetTotal
+        if (m_pOpenIndicator)
+        {
+            if (auto otstrPassword = m_pOpenIndicator->GetPassword())
+            {
+                *password = SysAllocStringLen(
+                    otstrPassword->data(), otstrPassword->size());
+                return S_OK;
+            }
+        }
+        return E_ABORT;
     }
 
     STDMETHODIMP OpenCallback::SetTotal(UINT64 total)
     {
-        try
-        {
-            SetProgressTotal(total);
-            return S_OK;
-        }
-        catch (...)
-        {
-            return E_FAIL;
-        }
-    }
-
-    void OpenCallback::SetProgressCompleted(
-        boost::optional<UINT64> completeValue)
-    {
-        // FM, COpenArchiveCallback::SetCompleted
+        return S_OK;
     }
 
     STDMETHODIMP OpenCallback::SetCompleted(const UINT64 *completeValue)
     {
-        try
-        {
-            SetProgressCompleted(
-                completeValue ? optional<UINT64>(*completeValue) : none);
-            return S_OK;
-        }
-        catch (...)
-        {
-            return E_FAIL;
-        }
+        return S_OK;
     }
 
 }
