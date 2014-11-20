@@ -21,7 +21,6 @@ namespace SevenZipCore
 
     // CArchiveLink
     class Archive
-        : public std::enable_shared_from_this < Archive >
     {
     public:
         Archive(std::shared_ptr<Codecs> cpCodecs,
