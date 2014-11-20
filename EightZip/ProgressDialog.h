@@ -22,6 +22,12 @@ class ProgressDialog
     : public wxDialog
 {
 public:
+    enum class Mode
+    {
+        Open,
+        Extract
+    };
+
     class Cancelled {};
 
     static const int PROGRESS_MAX = 1000;
@@ -30,7 +36,7 @@ public:
     ProgressDialog(
         wxWindow *parent,
         wxWindowID id,
-        const wxString& title,
+        Mode mode,
         const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize,
         long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER,
@@ -73,14 +79,17 @@ private:
     std::chrono::milliseconds m_msElasped;
     std::chrono::system_clock::time_point m_tpStart;
 
+    Mode m_mode = Mode::Extract;
+    wxString m_wstrTitle;
+
     TString m_tstrArchiveFileName;
     TString m_tstrArchivePath;
     TString m_tstrCurrentFile;
-    UINT64 m_un64Total = 0;
-    UINT64 m_un64Completed = 0;
-    UINT64 m_un64NowTotal = 0;
-    UINT64 m_un64Base = 0;
-    UINT64 m_un64NextBase = 0;
+    UINT64 m_un64Total = {};
+    UINT64 m_un64Completed = {};
+    UINT64 m_un64NowTotal = {};
+    UINT64 m_un64Base = {};
+    UINT64 m_un64NextBase = {};
 
     SevenZipCore::OverwriteAnswer m_lastOverwriteAnswer
         = SevenZipCore::OverwriteAnswer::Unknown;

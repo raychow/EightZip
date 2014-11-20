@@ -168,8 +168,9 @@ namespace Helper
             }
             boost::filesystem::create_directories(tstrPath);
 
-            auto *pProgressDialog = new ProgressDialog(
-                wxTheApp->GetTopWindow(), wxID_ANY, _("Extracting"));
+            auto *pProgressDialog = new ProgressDialog(wxTheApp->GetTopWindow(),
+                wxID_ANY,
+                ProgressDialog::Mode::Extract);
 
             thread extractThread(ExtractVirtualModelThread,
                 Helper::GetCanonicalPath(tstrPath), tstrInternalPath,
@@ -196,8 +197,9 @@ namespace Helper
             }
             boost::filesystem::create_directories(tstrPath);
 
-            auto *pProgressDialog = new ProgressDialog(
-                wxTheApp->GetTopWindow(), wxID_ANY, _("Extracting"));
+            auto *pProgressDialog = new ProgressDialog(wxTheApp->GetTopWindow(),
+                wxID_ANY,
+                ProgressDialog::Mode::Extract);
 
             if (vEntry.front().get().IsVirtual())
             {

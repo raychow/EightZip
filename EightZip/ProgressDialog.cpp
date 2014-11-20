@@ -10,17 +10,28 @@ using namespace std;
 ProgressDialog::ProgressDialog(
     wxWindow *parent,
     wxWindowID id,
-    const wxString& title,
+    Mode mode,
     const wxPoint& pos /*= wxDefaultPosition*/,
     const wxSize& size /*= wxDefaultSize*/,
     long style /*= wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER*/,
     const wxString& name /*= wxDialogNameStr*/)
-    : wxDialog(parent, id, title, pos, size, style, name)
+    : wxDialog(parent, id, wxEmptyString, pos, size, style, name)
 #ifdef __WXMSW__
     , m_taskerProgress(wxTheApp->GetTopWindow()->GetHandle())
 #endif
     , m_ulPause(m_mutex, defer_lock)
+    , m_mode(mode)
 {
+    switch (mode)
+    {
+    case Mode::Open:
+        m_wstrTitle = _("Opening from %s");
+        break;
+    case Mode::Extract:
+        m_wstrTitle = _("Extracting from %s");
+        break;
+    }
+
     __Create();
     __StartTimer();
 }
@@ -252,7 +263,7 @@ void ProgressDialog::__Update()
             "%02d:%02d:%02d", nLeftHour, nLeftMinute % 60, nLeftSecond % 60));
     }
 
-    SetTitle(wxString::Format(_("Extracting from %s"),
+    SetTitle(wxString::Format(m_wstrTitle,
         m_tstrArchiveFileName));
     m_pLabelArchivePath->SetLabel(wxString::Format(_("Archive %s"),
         m_tstrArchivePath));
