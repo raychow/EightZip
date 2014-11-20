@@ -29,4 +29,3 @@ namespace Helper
         return pSizer;
     }
 }
-

@@ -73,4 +73,3 @@ bool FileFinder::__Check()
     }
     return true;
 }
-
