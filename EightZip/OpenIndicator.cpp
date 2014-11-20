@@ -1,7 +1,11 @@
 #include "stdwx.h"
 #include "OpenIndicator.h"
 
+#include <future>
+
 #include "PasswordDialog.h"
+
+using namespace std;
 
 void OpenIndicator::SetTotal(UINT64 un64FileCount, UINT64 un64Size)
 {
@@ -13,11 +17,18 @@ void OpenIndicator::SetCompleted(UINT64 un64FileCount, UINT64 un64Size)
 
 boost::optional<TString> OpenIndicator::GetPassword()
 {
-    auto passwordDialog = PasswordDialog {
-        wxTheApp->GetTopWindow(), wxID_ANY, _("Enter password") };
-    if (passwordDialog.ShowModal() == wxID_OK)
-    {
-        return passwordDialog.GetValue();
-    }
-    return boost::none;
+    promise<boost::optional<TString>> result;
+    wxTheApp->GetTopWindow()->CallAfter([&]() {
+        PasswordDialog passwordDialog {
+            wxTheApp->GetTopWindow(), wxID_ANY, _("Enter password") };
+        if (passwordDialog.ShowModal() == wxID_OK)
+        {
+            result.set_value(passwordDialog.GetValue());
+        }
+        else
+        {
+            result.set_value(boost::none);
+        }
+    });
+    return result.get_future().get();
 }

@@ -113,39 +113,23 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
                 wxString::Format(_("No file selected."), EIGHTZIP_NAME));
             return;
         }
+        for (auto &entry : vEntry)
+        {
+            if (entry.get().IsDirectory())
+            {
+                wxMessageBox(wxString::Format(_(
+                    "You must select one or more files."), EIGHTZIP_NAME));
+                return;
+            }
+        }
         if (vEntry.size() == 1)
         {
-            bool isSuccess = false;
-            auto &entry = vEntry.front().get();
-            if (entry.IsDirectory())
-            {
-                wxMessageBox(
-                    wxString::Format(_("No file selected."), EIGHTZIP_NAME));
-                return;
-            }
-            try
-            {
-                spModel = entry.GetModel();
-                isSuccess = true;
-            }
-            catch (const SevenZipCore::ArchiveException &ex)
-            {
-                if (ex.GetErrorCode() == E_ABORT)
-                {
-                    return;
-                }
-            }
-            catch (const SevenZipCore::SevenZipCoreException &)
-            {
-            }
-            if (!isSuccess)
-            {
-                wxMessageBox(wxString::Format(_("Cannot extract \"%s\"."),
-                    entry.GetPath()), EIGHTZIP_NAME);
-                return;
-            }
             tstrExtractFolder = SevenZipCore::Helper::GetFileNameStem(
-                entry.GetName());
+                vEntry.front().get().GetName());
+        }
+        else
+        {
+            tstrExtractFolder = spModel->GetName();
         }
     }
     ExtractDialog dialog(this, wxID_ANY, _T("Extract"));
@@ -161,6 +145,7 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
         dialog.GetPath(), spFolderModel->GetPath()).wstring();
     if (vEntry.empty())
     {
+        // spModel is a VirtualModel.
         auto spVirtualModel = dynamic_pointer_cast<VirtualModel>(spModel);
         if (!Helper::Extract(extractPath,
             spVirtualModel->GetInternalLocation(),

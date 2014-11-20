@@ -32,6 +32,9 @@ private:
     wxTextCtrl *m_pTextCtrlPlain = nullptr;
     wxCheckBox *m_pCheckBoxShowPassword = nullptr;
 
+    PasswordDialog(const PasswordDialog &) = delete;
+    PasswordDialog &operator=(const PasswordDialog &) = delete;
+
     void __Create();
 
 };
