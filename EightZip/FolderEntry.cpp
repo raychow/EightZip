@@ -1,7 +1,8 @@
 #include "stdwx.h"
 #include "FolderEntry.h"
 
-using namespace std;
+#include <future>
+#include <thread>
 
 #include "SevenZipCore/ArchiveEntry.h"
 #include "SevenZipCore/ComPtr.h"
@@ -12,7 +13,10 @@ using namespace std;
 #include "FileHelper.h"
 #include "FolderModel.h"
 #include "OpenIndicator.h"
+#include "ProgressDialog.h"
 #include "VirtualModel.h"
+
+using namespace std;
 
 FolderEntry::FolderEntry(TString tstrLocation,
     TString tstrName,
@@ -30,12 +34,12 @@ FolderEntry::FolderEntry(TString tstrLocation,
 
 }
 
-std::shared_ptr<ModelBase> FolderEntry::GetContainer() const
+shared_ptr<ModelBase> FolderEntry::GetContainer() const
 {
     return make_shared<FolderModel>(GetLocation());
 }
 
-std::shared_ptr<ModelBase> FolderEntry::GetModel() const
+shared_ptr<ModelBase> FolderEntry::GetModel() const
 {
     auto tstrPath = GetPath();
     if (IsDirectory())
@@ -44,15 +48,36 @@ std::shared_ptr<ModelBase> FolderEntry::GetModel() const
     }
     else
     {
-        auto openIndicator = OpenIndicator {};
-        auto upCallback = SevenZipCore::MakeUniqueCom(
-            new SevenZipCore::OpenCallback { &openIndicator });
-        return make_shared<VirtualModel>(
-            Helper::GetLocation(tstrPath),
-            SevenZipCore::Helper::GetFileName(tstrPath),
-            tstrPath,
-            nullptr,
-            upCallback.get());
+        auto pProgressDialog = new ProgressDialog { wxTheApp->GetTopWindow(),
+            wxID_ANY,
+            ProgressDialog::Mode::Open };
+        auto openIndicator = OpenIndicator { pProgressDialog };
+        auto result = promise < shared_ptr < ModelBase > > {};
+        thread { [&]() {
+            try
+            {
+                ProgressDialogManager dialogManager(pProgressDialog);
+                auto upCallback = SevenZipCore::MakeUniqueCom(
+                    new SevenZipCore::OpenCallback { &openIndicator });
+                result.set_value(make_shared<VirtualModel>(
+                    Helper::GetLocation(tstrPath),
+                    SevenZipCore::Helper::GetFileName(tstrPath),
+                    tstrPath,
+                    nullptr,
+                    upCallback.get()));
+            }
+            catch (...)
+            {
+                result.set_exception(current_exception());
+            }
+        } }.detach();
+        auto resultFuture = result.get_future();
+        while (resultFuture.wait_for(
+            chrono::milliseconds(50)) != future_status::ready)
+        {
+            wxYield();
+        }
+        return resultFuture.get();
     }
 }
 

@@ -10,19 +10,20 @@
 
 using namespace std;
 
-ExtractIndicator::ExtractIndicator(ProgressDialog *pProgressDialog)
-    : m_pProcessDialog(pProgressDialog)
-{
-}
-
 void ExtractIndicator::SetTotal(UINT64 un64Total)
 {
-    m_pProcessDialog->SetTotal(un64Total);
+    if (m_pProcessDialog)
+    {
+        m_pProcessDialog->SetTotal(un64Total);
+    }
 }
 
 void ExtractIndicator::SetCompleted(boost::optional<UINT64> oun64Value)
 {
-    m_pProcessDialog->SetCompleted(oun64Value ? *oun64Value : 0);
+    if (m_pProcessDialog)
+    {
+        m_pProcessDialog->SetCompleted(oun64Value ? *oun64Value : 0);
+    }
 }
 
 SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
@@ -33,6 +34,10 @@ SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
     boost::optional<UINT64> oun64NewSize,
     TString *ptstrNewPath)
 {
+    if (!m_pProcessDialog)
+    {
+        return SevenZipCore::OverwriteAnswer::YesToAll;
+    }
     promise<SevenZipCore::OverwriteAnswer> result;
     wxTheApp->GetTopWindow()->CallAfter([&](){
         result.set_value(m_pProcessDialog->AskOverwrite(move(tstrPath),
@@ -57,8 +62,11 @@ void ExtractIndicator::Prepare(TString tstrPath,
     SevenZipCore::ExtractAskMode askMode,
     boost::optional<UINT64> oun64Position)
 {
-    m_pProcessDialog->SetCurrentFile(
-        SevenZipCore::Helper::GetFileName(tstrPath));
+    if (m_pProcessDialog)
+    {
+        m_pProcessDialog->SetCurrentFile(
+            SevenZipCore::Helper::GetFileName(tstrPath));
+    }
 }
 
 void ExtractIndicator::SetOperationResult(

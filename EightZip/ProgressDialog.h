@@ -5,6 +5,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <functional>
 #include <mutex>
 
 #include <boost/optional.hpp>
@@ -113,6 +114,42 @@ private:
     void __OnUpdate(wxTimerEvent &WXUNUSED(event));
     void __OnPauseClick(wxCommandEvent &WXUNUSED(event));
     void __OnCancelClick(wxCommandEvent &event);
+
+};
+
+class ProgressDialogManager
+{
+public:
+    ProgressDialogManager(ProgressDialog *pProgressDialog)
+        : m_pDialog(pProgressDialog)
+    {
+        wxTheApp->CallAfter(std::bind(
+            // Probably be called after destruct.
+            [](ProgressDialog *pDialog) {
+            pDialog->ShowModal();
+        }, m_pDialog));
+    }
+
+    ~ProgressDialogManager()
+    {
+        wxTheApp->CallAfter(std::bind(
+            // Probably be called after destruct.
+            [](ProgressDialog *pDialog, bool isSuccess) {
+            pDialog->Done(isSuccess);
+        }, m_pDialog, m_isSuccess));
+    }
+
+    void SetSuccess(bool isSuccess)
+    {
+        m_isSuccess = isSuccess;
+    }
+
+private:
+    ProgressDialog *m_pDialog = nullptr;
+    bool m_isSuccess = false;
+
+    ProgressDialogManager(const ProgressDialogManager&) = delete;
+    ProgressDialogManager &operator=(const ProgressDialogManager&) = delete;
 
 };
 

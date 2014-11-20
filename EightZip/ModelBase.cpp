@@ -39,7 +39,7 @@ shared_ptr<ModelBase> GetModelFromPath(
             }
             else if (isTryOpenArchive && attributes & EIGHT_FILE_STATUS_FILE)
             {
-                auto openIndicator = OpenIndicator {};
+                auto openIndicator = OpenIndicator { nullptr };
                 auto upCallback = SevenZipCore::MakeUniqueCom(
                     new SevenZipCore::OpenCallback { &openIndicator });
                 auto spModel = make_shared<VirtualModel>(

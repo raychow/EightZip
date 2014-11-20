@@ -75,7 +75,7 @@ std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
                             *cpSubSeqStream, SevenZipCore::IID_IInStream);
                         if (cpSubStream)
                         {
-                            auto openIndicator = OpenIndicator {};
+                            auto openIndicator = OpenIndicator { nullptr };
                             auto upCallback = SevenZipCore::MakeUniqueCom(
                                 new SevenZipCore::OpenCallback { &openIndicator });
                             return make_shared<VirtualModel>(GetLocation(),
@@ -91,7 +91,7 @@ std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
             {
             }
             __ExtractToTempFolder();
-            auto openIndicator = OpenIndicator {};
+            auto openIndicator = OpenIndicator { nullptr };
             auto upCallback = SevenZipCore::MakeUniqueCom(
                 new SevenZipCore::OpenCallback { &openIndicator });
             return make_shared<VirtualModel>(GetLocation(),

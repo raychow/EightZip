@@ -4,6 +4,7 @@
 #include <future>
 
 #include "PasswordDialog.h"
+#include "ProgressDialog.h"
 
 using namespace std;
 
@@ -13,6 +14,7 @@ void OpenIndicator::SetTotal(UINT64 un64FileCount, UINT64 un64Size)
 
 void OpenIndicator::SetCompleted(UINT64 un64FileCount, UINT64 un64Size)
 {
+    m_pProgressDialog->CheckCancelled();
 }
 
 boost::optional<TString> OpenIndicator::GetPassword()

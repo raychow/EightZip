@@ -21,43 +21,6 @@ using namespace std;
 
 namespace Helper
 {
-    class ProgressDialogManager
-    {
-    public:
-        ProgressDialogManager(ProgressDialog *pProgressDialog)
-            : m_pDialog(pProgressDialog)
-        {
-            wxTheApp->CallAfter(bind(
-                // Probably be called after destruct.
-                [](ProgressDialog *pDialog) {
-                pDialog->CenterOnParent();
-                pDialog->ShowModal();
-            }, m_pDialog));
-        }
-
-        ~ProgressDialogManager()
-        {
-            wxTheApp->CallAfter(bind(
-                // Probably be called after destruct.
-                [](ProgressDialog *pDialog, bool isSuccess) {
-                pDialog->Done(isSuccess);
-            }, m_pDialog, m_isSuccess));
-        }
-
-        void SetSuccess(bool isSuccess)
-        {
-            m_isSuccess = isSuccess;
-        }
-
-    private:
-        ProgressDialog *m_pDialog = nullptr;
-        bool m_isSuccess = false;
-
-        ProgressDialogManager(const ProgressDialogManager&) = delete;
-        ProgressDialogManager &operator=(const ProgressDialogManager&) = delete;
-
-    };
-
     static void CallExecute(Extractor &extractor,
         ProgressDialogManager &dialogManager,
         bool isLaunchFolder)
@@ -209,10 +172,12 @@ namespace Helper
                     vVirtualEntry.push_back(
                         dynamic_cast<VirtualEntry &>(entry.get()));
                 }
-                thread extractThread(ExtractVirtualEntriesThread,
-                    Helper::GetCanonicalPath(tstrPath), tstrInternalPath,
-                    move(vVirtualEntry), pProgressDialog, isLaunchFolder);
-                extractThread.detach();
+                thread { ExtractVirtualEntriesThread,
+                    Helper::GetCanonicalPath(tstrPath),
+                    tstrInternalPath,
+                    move(vVirtualEntry),
+                    pProgressDialog,
+                    isLaunchFolder }.detach();
             }
             else
             {
@@ -222,10 +187,11 @@ namespace Helper
                     vFolderEntry.push_back(
                         dynamic_cast<FolderEntry &>(entry.get()));
                 }
-                thread extractThread(ExtractFolderEntriesThread,
+                thread { ExtractFolderEntriesThread,
                     Helper::GetCanonicalPath(tstrPath),
-                    move(vFolderEntry), pProgressDialog, isLaunchFolder);
-                extractThread.detach();
+                    move(vFolderEntry),
+                    pProgressDialog,
+                    isLaunchFolder }.detach();
             }
         }
         catch (const boost::system::system_error &)

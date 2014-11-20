@@ -107,7 +107,6 @@ SevenZipCore::OverwriteAnswer ProgressDialog::AskOverwrite(
     __StopTimer();
     OverwriteDialog dialog(this, wxID_ANY, _("Confirm file replace"), tstrPath,
         oftExistModified, oun64ExistSize, oftNewModified, oun64NewSize);
-    dialog.CenterOnParent();
     m_lastOverwriteAnswer = static_cast<SevenZipCore::OverwriteAnswer>(
         dialog.ShowModal());
     if (ptstrNewPath && SevenZipCore::OverwriteAnswer::Rename == m_lastOverwriteAnswer)
@@ -209,12 +208,12 @@ void ProgressDialog::__Create()
 
     SetSizer(pSizerMain);
     SetSize(350, 220);
+    CenterOnParent();
 
     m_pButtonPause->Bind(wxEVT_BUTTON, &ProgressDialog::__OnPauseClick, this);
     pButtonCancel->Bind(wxEVT_BUTTON, &ProgressDialog::__OnCancelClick, this);
 
     m_timer.Bind(wxEVT_TIMER, &ProgressDialog::__OnUpdate, this);
-
 }
 
 void ProgressDialog::__StartTimer()

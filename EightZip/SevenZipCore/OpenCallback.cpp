@@ -13,12 +13,38 @@ namespace SevenZipCore
     STDMETHODIMP OpenCallback::SetTotal(
         const UINT64 *numFiles, const UINT64 *numBytes)
     {
+        try
+        {
+            if (m_pOpenIndicator)
+            {
+                m_pOpenIndicator->SetTotal(numFiles ? *numFiles : 0,
+                    numBytes ? *numBytes : 0);
+            }
+            return S_OK;
+        }
+        catch (...)
+        {
+            return E_FAIL;
+        }
         return S_OK;
     }
 
     STDMETHODIMP OpenCallback::SetCompleted(
         const UINT64 *numFiles, const UINT64 *numBytes)
     {
+        try
+        {
+            if (m_pOpenIndicator)
+            {
+                m_pOpenIndicator->SetCompleted(numFiles ? *numFiles : 0,
+                    numBytes ? *numBytes : 0);
+            }
+            return S_OK;
+        }
+        catch (...)
+        {
+            return E_FAIL;
+        }
         return S_OK;
     }
 

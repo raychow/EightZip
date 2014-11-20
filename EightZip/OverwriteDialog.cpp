@@ -153,6 +153,7 @@ void OverwriteDialog::__Create(
         wxSizerFlags().Border(wxBOTTOM, 8).Center());
 
     SetSizerAndFit(pSizerMain);
+    CenterOnParent();
 
     pButtonYes->Bind(wxEVT_BUTTON, [this](wxCommandEvent &WXUNUSED(event)) {
         EndModal(static_cast<int>(SevenZipCore::OverwriteAnswer::Yes));

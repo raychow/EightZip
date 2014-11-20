@@ -111,7 +111,7 @@ RealFileExtractor &RealFileExtractor::Execute()
         bool isSuccess = false;
         try
         {
-            auto openIndicator = OpenIndicator {};
+            auto openIndicator = OpenIndicator { nullptr };
             auto upCallback = SevenZipCore::MakeUniqueCom(
                 new SevenZipCore::OpenCallback { &openIndicator });
             auto spModel = make_shared<VirtualModel>(

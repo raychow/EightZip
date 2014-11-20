@@ -135,7 +135,6 @@ void EightZipFrame::__OnCommandExtractClick(wxCommandEvent &WXUNUSED(event))
     ExtractDialog dialog(this, wxID_ANY, _T("Extract"));
     dialog.SetPath(SevenZipCore::Helper::MakePathSlash(
         spFolderModel->GetPath()) + tstrExtractFolder);
-    dialog.CenterOnParent();
     if (dialog.ShowModal() != wxID_OK)
     {
         return;
