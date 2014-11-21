@@ -6,7 +6,9 @@
 
 #include "SevenZipCore/CommonHelper.h"
 
+#include "OverwriteDialog.h"
 #include "ProgressDialog.h"
+#include "ScopeGuard.h"
 
 using namespace std;
 
@@ -34,15 +36,53 @@ SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
     boost::optional<UINT64> oun64NewSize,
     TString *ptstrNewPath)
 {
-    if (!m_pProcessDialog)
+    switch (m_lastOverwriteAnswer)
     {
-        return SevenZipCore::OverwriteAnswer::YesToAll;
+    case SevenZipCore::OverwriteAnswer::YesToAll:
+    case SevenZipCore::OverwriteAnswer::NoToAll:
+    case SevenZipCore::OverwriteAnswer::AutoRename:
+    case SevenZipCore::OverwriteAnswer::Cancel:
+        return m_lastOverwriteAnswer;
     }
     promise<SevenZipCore::OverwriteAnswer> result;
-    wxTheApp->GetTopWindow()->CallAfter([&](){
-        result.set_value(m_pProcessDialog->AskOverwrite(move(tstrPath),
-            oftExistModified, oun64ExistSize, oftNewModified, oun64NewSize,
-            ptstrNewPath));
+    wxTheApp->CallAfter([&](){
+        if (m_pProcessDialog)
+        {
+            m_pProcessDialog->Pause();
+        }
+        OverwriteDialog dialog(wxTheApp->GetTopWindow(),
+            wxID_ANY,
+            _("Confirm file replace"),
+            tstrPath,
+            oftExistModified,
+            oun64ExistSize,
+            oftNewModified,
+            oun64NewSize);
+        m_lastOverwriteAnswer = static_cast<SevenZipCore::OverwriteAnswer>(
+            dialog.ShowModal());
+        if (ptstrNewPath
+            && SevenZipCore::OverwriteAnswer::Rename == m_lastOverwriteAnswer)
+        {
+            *ptstrNewPath = dialog.GetPath();
+        }
+        result.set_value(m_lastOverwriteAnswer);
+    });
+    ON_SCOPE_EXIT([&] {
+        if (auto *pProgressDialog = m_pProcessDialog)
+        {
+            auto lastOverwriteAnswer = m_lastOverwriteAnswer;
+            wxTheApp->CallAfter([lastOverwriteAnswer, pProgressDialog]() {
+                if (SevenZipCore::OverwriteAnswer::Cancel
+                    == lastOverwriteAnswer)
+                {
+                    pProgressDialog->Cancel();
+                }
+                else
+                {
+                    pProgressDialog->Resume();
+                }
+            });
+        }
     });
     return result.get_future().get();
 }

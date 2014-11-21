@@ -22,18 +22,19 @@ using namespace std;
 namespace Helper
 {
     static void CallExecute(Extractor &extractor,
-        ProgressDialogManager &dialogManager,
+        ProgressDialog *pProgressDialog,
         bool isLaunchFolder)
     {
         try
         {
+            ProgressDialogManager dialogManager(pProgressDialog);
             extractor.Execute();
+            dialogManager.SetSuccess(true);
         }
         catch (const SevenZipCore::ArchiveException &)
         {
             return;
         }
-        dialogManager.SetSuccess(true);
         if (isLaunchFolder)
         {
             try
@@ -56,7 +57,6 @@ namespace Helper
         ProgressDialog *pProgressDialog,
         bool isLaunchFolder)
     {
-        ProgressDialogManager dialogManager(pProgressDialog);
         ExtractIndicator extractIndicator(pProgressDialog);
 
         RealFileExtractor extractor(tstrExtractPath, &extractIndicator);
@@ -64,7 +64,7 @@ namespace Helper
         {
             extractor.AddPlan(entry.get().GetPath());
         }
-        CallExecute(extractor, dialogManager, isLaunchFolder);
+        CallExecute(extractor, pProgressDialog, isLaunchFolder);
     }
 
     static void ExtractVirtualModelThread(TString tstrExtractPath,
@@ -73,7 +73,6 @@ namespace Helper
         ProgressDialog *pProgressDialog,
         bool isLaunchFolder)
     {
-        ProgressDialogManager dialogManager(pProgressDialog);
         ExtractIndicator extractIndicator(pProgressDialog);
 
         VirtualFileExtractor extractor(tstrExtractPath,
@@ -82,7 +81,7 @@ namespace Helper
             spModel->GetPath(),
             spModel->GetArchiveFolder().GetArchiveEntry());
         extractor.AddPlan(*spModel);
-        CallExecute(extractor, dialogManager, isLaunchFolder);
+        CallExecute(extractor, pProgressDialog, isLaunchFolder);
     }
 
     static void ExtractVirtualEntriesThread(TString tstrExtractPath,
@@ -96,7 +95,6 @@ namespace Helper
             return;
         }
 
-        ProgressDialogManager dialogManager(pProgressDialog);
         ExtractIndicator extractIndicator(pProgressDialog);
 
         auto spModel = dynamic_pointer_cast<VirtualModel>(
@@ -115,7 +113,7 @@ namespace Helper
         {
             extractor.AddPlan(entry);
         }
-        CallExecute(extractor, dialogManager, isLaunchFolder);
+        CallExecute(extractor, pProgressDialog, isLaunchFolder);
     }
 
     bool Extract(TString tstrPath,

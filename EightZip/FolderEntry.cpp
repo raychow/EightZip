@@ -48,36 +48,39 @@ shared_ptr<ModelBase> FolderEntry::GetModel() const
     }
     else
     {
-        auto pProgressDialog = new ProgressDialog { wxTheApp->GetTopWindow(),
+        auto progressDialog = ProgressDialog { wxTheApp->GetTopWindow(),
             wxID_ANY,
             ProgressDialog::Mode::Open };
-        auto openIndicator = OpenIndicator { pProgressDialog };
-        auto result = promise < shared_ptr < ModelBase > > {};
+        progressDialog.SetArchivePath(tstrPath);
+        auto openIndicator = OpenIndicator { &progressDialog };
+        auto result = shared_ptr < ModelBase > {};
+        auto exceptionPtr = exception_ptr {};
         thread { [&]() {
             try
             {
-                ProgressDialogManager dialogManager(pProgressDialog);
                 auto upCallback = SevenZipCore::MakeUniqueCom(
                     new SevenZipCore::OpenCallback { &openIndicator });
-                result.set_value(make_shared<VirtualModel>(
+                result = make_shared<VirtualModel>(
                     Helper::GetLocation(tstrPath),
                     SevenZipCore::Helper::GetFileName(tstrPath),
                     tstrPath,
                     nullptr,
-                    upCallback.get()));
+                    upCallback.get());
             }
             catch (...)
             {
-                result.set_exception(current_exception());
+                exceptionPtr = current_exception();
             }
+            wxTheApp->CallAfter([&]() {
+                progressDialog.Done(false);
+            });
         } }.detach();
-        auto resultFuture = result.get_future();
-        while (resultFuture.wait_for(
-            chrono::milliseconds(50)) != future_status::ready)
+        progressDialog.ShowModal();
+        if (exceptionPtr)
         {
-            wxYield();
+            rethrow_exception(exceptionPtr);
         }
-        return resultFuture.get();
+        return result;
     }
 }
 

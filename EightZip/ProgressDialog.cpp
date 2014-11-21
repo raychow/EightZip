@@ -3,8 +3,6 @@
 
 #include "SevenZipCore/CommonHelper.h"
 
-#include "OverwriteDialog.h"
-
 using namespace std;
 
 ProgressDialog::ProgressDialog(
@@ -33,7 +31,7 @@ ProgressDialog::ProgressDialog(
     }
 
     __Create();
-    __StartTimer();
+    Resume();
 }
 
 ProgressDialog::~ProgressDialog()
@@ -87,41 +85,75 @@ void ProgressDialog::SetCurrentTotal(UINT64 un64NowTotal)
     m_un64NowTotal = un64NowTotal;
 }
 
-SevenZipCore::OverwriteAnswer ProgressDialog::AskOverwrite(
-    TString tstrPath,
-    boost::optional<time_t> oftExistModified,
-    boost::optional<UINT64> oun64ExistSize,
-    boost::optional<time_t> oftNewModified,
-    boost::optional<UINT64> oun64NewSize,
-    TString *ptstrNewPath)
+bool ProgressDialog::Show(bool show /*= true*/)
 {
-    switch (m_lastOverwriteAnswer)
+    UpdateDisplay();
+    return wxDialog::Show(show);
+}
+
+void ProgressDialog::UpdateDisplay()
+{
+
+    lock_guard<mutex> lg(m_mutex);
+    int nElasped = (m_msElasped + chrono::duration_cast<chrono::milliseconds>(
+        chrono::system_clock::now() - m_tpStart)).count();
+
+    int nElaspedSecond = nElasped / 1000;
+    int nElaspedMinute = nElaspedSecond / 60;
+    int nElaspedHour = nElaspedMinute / 60;
+    m_pLabelElaspedTime->SetLabel(wxString::Format("%02d:%02d:%02d",
+        nElaspedHour, nElaspedMinute % 60, nElaspedSecond % 60));
+
+    if (0 != m_un64Completed)
     {
-    case SevenZipCore::OverwriteAnswer::YesToAll:
-    case SevenZipCore::OverwriteAnswer::NoToAll:
-    case SevenZipCore::OverwriteAnswer::AutoRename:
-    case SevenZipCore::OverwriteAnswer::Cancel:
-        return m_lastOverwriteAnswer;
+        int nLeft = nElasped * (m_un64Total - m_un64Completed) / m_un64Completed;
+        int nLeftSecond = nLeft / 1000;
+        int nLeftMinute = nLeftSecond / 60;
+        int nLeftHour = nLeftMinute / 60;
+        m_pLabelTimeLeft->SetLabel(wxString::Format(
+            "%02d:%02d:%02d", nLeftHour, nLeftMinute % 60, nLeftSecond % 60));
     }
-    __Update();
-    __StopTimer();
-    OverwriteDialog dialog(this, wxID_ANY, _("Confirm file replace"), tstrPath,
-        oftExistModified, oun64ExistSize, oftNewModified, oun64NewSize);
-    m_lastOverwriteAnswer = static_cast<SevenZipCore::OverwriteAnswer>(
-        dialog.ShowModal());
-    if (ptstrNewPath && SevenZipCore::OverwriteAnswer::Rename == m_lastOverwriteAnswer)
+
+    SetTitle(wxString::Format(m_wstrTitle,
+        m_tstrArchiveFileName));
+    m_pLabelArchivePath->SetLabel(wxString::Format(_("Archive %s"),
+        m_tstrArchivePath));
+    m_pLabelCurrentFile->SetLabel(m_tstrCurrentFile);
+    int nPercent = 0 == m_un64Total ? 0
+        : static_cast<double>(m_un64Completed) / m_un64Total * PROGRESS_MAX;
+    m_pLabelPercent->SetLabel(
+        wxString::Format(_("%d%%"), nPercent / (PROGRESS_MAX / 100)));
+    m_pGaugeProcessed->SetValue(nPercent);
+}
+
+void ProgressDialog::Pause()
+{
+    if (m_timer.IsRunning())
     {
-        *ptstrNewPath = dialog.GetPath();
+        m_timer.Stop();
+        m_msElasped += chrono::duration_cast<chrono::milliseconds>(
+            chrono::system_clock::now() - m_tpStart);
+        m_tpStart = chrono::system_clock::now();
     }
-    if (SevenZipCore::OverwriteAnswer::Cancel == m_lastOverwriteAnswer)
+}
+
+void ProgressDialog::Resume()
+{
+    if (!m_timer.IsRunning())
     {
-        __Cancel();
+        m_tpStart = chrono::system_clock::now();
+        m_timer.Start(UPDATE_INTERVAL);
     }
-    else
+}
+
+void ProgressDialog::Cancel()
+{
+    m_isCancelled = true;
+    Pause();
+    if (m_ulPause.owns_lock())
     {
-        __StartTimer();
+        m_ulPause.unlock();
     }
-    return m_lastOverwriteAnswer;
 }
 
 void ProgressDialog::Done(bool isSuccess)
@@ -132,7 +164,7 @@ void ProgressDialog::Done(bool isSuccess)
         FlashWindow(wxTheApp->GetTopWindow()->GetHandle(), true);
     }
 #endif
-    __StopTimer();
+    Pause();
     Destroy();
 }
 
@@ -216,67 +248,9 @@ void ProgressDialog::__Create()
     m_timer.Bind(wxEVT_TIMER, &ProgressDialog::__OnUpdate, this);
 }
 
-void ProgressDialog::__StartTimer()
-{
-    m_tpStart = chrono::system_clock::now();
-    __Update();
-    m_timer.Start(UPDATE_INTERVAL);
-}
-
-void ProgressDialog::__StopTimer()
-{
-    m_msElasped += chrono::duration_cast<chrono::milliseconds>(
-        chrono::system_clock::now() - m_tpStart);
-    m_timer.Stop();
-}
-
-void ProgressDialog::__Cancel()
-{
-    m_isCancelled = true;
-    __StopTimer();
-    if (m_ulPause.owns_lock())
-    {
-        m_ulPause.unlock();
-    }
-}
-
-void ProgressDialog::__Update()
-{
-    lock_guard<mutex> lg(m_mutex);
-    int nElasped = (m_msElasped + chrono::duration_cast<chrono::milliseconds>(
-        chrono::system_clock::now() - m_tpStart)).count();
-
-    int nElaspedSecond = nElasped / 1000;
-    int nElaspedMinute = nElaspedSecond / 60;
-    int nElaspedHour = nElaspedMinute / 60;
-    m_pLabelElaspedTime->SetLabel(wxString::Format("%02d:%02d:%02d",
-        nElaspedHour, nElaspedMinute % 60, nElaspedSecond % 60));
-
-    if (0 != m_un64Completed)
-    {
-        int nLeft = nElasped * (m_un64Total - m_un64Completed) / m_un64Completed;
-        int nLeftSecond = nLeft / 1000;
-        int nLeftMinute = nLeftSecond / 60;
-        int nLeftHour = nLeftMinute / 60;
-        m_pLabelTimeLeft->SetLabel(wxString::Format(
-            "%02d:%02d:%02d", nLeftHour, nLeftMinute % 60, nLeftSecond % 60));
-    }
-
-    SetTitle(wxString::Format(m_wstrTitle,
-        m_tstrArchiveFileName));
-    m_pLabelArchivePath->SetLabel(wxString::Format(_("Archive %s"),
-        m_tstrArchivePath));
-    m_pLabelCurrentFile->SetLabel(m_tstrCurrentFile);
-    int nPercent = 0 == m_un64Total ? 0
-        : static_cast<double>(m_un64Completed) / m_un64Total * PROGRESS_MAX;
-    m_pLabelPercent->SetLabel(
-        wxString::Format(_("%d%%"), nPercent / (PROGRESS_MAX / 100)));
-    m_pGaugeProcessed->SetValue(nPercent);
-}
-
 void ProgressDialog::__OnUpdate(wxTimerEvent &WXUNUSED(event))
 {
-    __Update();
+    UpdateDisplay();
 }
 
 void ProgressDialog::__OnPauseClick(wxCommandEvent &WXUNUSED(event))
@@ -288,12 +262,12 @@ void ProgressDialog::__OnPauseClick(wxCommandEvent &WXUNUSED(event))
 #ifdef __WXMSW__
         m_taskerProgress.SetState(TBPF_NORMAL);
 #endif
-        __StartTimer();
+        Resume();
     }
     else
     {
         m_pButtonPause->SetLabel(_("&Continue"));
-        __StopTimer();
+        Pause();
 #ifdef __WXMSW__
         m_taskerProgress.SetState(TBPF_PAUSED);
 #endif
@@ -303,5 +277,5 @@ void ProgressDialog::__OnPauseClick(wxCommandEvent &WXUNUSED(event))
 
 void ProgressDialog::__OnCancelClick(wxCommandEvent &event)
 {
-    __Cancel();
+    Cancel();
 }

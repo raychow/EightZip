@@ -5,6 +5,7 @@
 
 #include <memory>
 
+#include "SevenZipCore/IArchive.h"
 #include "SevenZipCore/IExtractIndicator.h"
 #include "SevenZipCore/TString.h"
 
@@ -41,7 +42,10 @@ public:
     }
 
 private:
-    ProgressDialog *m_pProcessDialog;
+    ProgressDialog *m_pProcessDialog = nullptr;
+
+    SevenZipCore::OverwriteAnswer m_lastOverwriteAnswer
+        = SevenZipCore::OverwriteAnswer::Unknown;
 
 };
 
