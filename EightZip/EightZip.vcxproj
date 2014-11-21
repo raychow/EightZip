@@ -130,6 +130,7 @@
     <ClInclude Include="Extractor.h" />
     <ClInclude Include="OpenIndicator.h" />
     <ClInclude Include="PasswordDialog.h" />
+    <ClInclude Include="ScopeGuard.h" />
     <ClInclude Include="SevenZipCore\IOpenIndicator.h" />
     <ClInclude Include="SevenZipCore\IPassword.h" />
     <ClInclude Include="VirtualEntry.h" />
