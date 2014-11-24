@@ -234,6 +234,9 @@
     <ClInclude Include="VirtualRootModel.h">
       <Filter>头文件\Model</Filter>
     </ClInclude>
+    <ClInclude Include="ArchiveProperty.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -369,6 +372,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="PasswordDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchiveProperty.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="VirtualRootModel.cpp">

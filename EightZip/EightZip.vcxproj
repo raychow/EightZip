@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ArchiveProperty.h" />
     <ClInclude Include="Extractor.h" />
     <ClInclude Include="OpenIndicator.h" />
     <ClInclude Include="PasswordDialog.h" />
@@ -196,6 +197,7 @@
     <ClInclude Include="WindowStateManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ArchiveProperty.cpp" />
     <ClCompile Include="Extractor.cpp" />
     <ClCompile Include="OpenIndicator.cpp" />
     <ClCompile Include="PasswordDialog.cpp" />
