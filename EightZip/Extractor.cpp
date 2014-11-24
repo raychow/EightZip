@@ -40,9 +40,12 @@ SevenZipCore::unique_com_ptr<SevenZipCore::ArchiveExtractCallback> CreateCallbac
 }
 
 void Extractor::_Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
+    ArchiveProperty *pArchiveProperty,
     const std::vector<UINT32> &vun32ArchiveIndex)
 {
     auto &archive = archiveEntry.GetArchive();
+    auto extractIndicator = ExtractIndicator {
+        pArchiveProperty, m_pProgressDialog };
     try
     {
         auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
@@ -51,7 +54,7 @@ void Extractor::_Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
             archive,
             m_tstrExtractLocation,
             m_tstrInternalLocation,
-            m_pExtractIndicator);
+            &extractIndicator);
         if (vun32ArchiveIndex.empty())
         {
             inArchiveAdapter.ExtractAll(
@@ -66,13 +69,13 @@ void Extractor::_Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
     }
     catch (const SevenZipCore::ArchiveException &)
     {
-        if (m_pExtractIndicator
-            && m_pProgressDialog && !m_pProgressDialog->IsCancelled())
-        {
-            m_pExtractIndicator->AddError(wxString::Format(
-                _("Cannot extract \"%s\"."),
-                archive.GetPath()).ToStdWstring());
-        }
+        //if (m_pExtractIndicator
+        //    && m_pProgressDialog && !m_pProgressDialog->IsCancelled())
+        //{
+        //    m_pExtractIndicator->AddError(wxString::Format(
+        //        _("Cannot extract \"%s\"."),
+        //        archive.GetPath()).ToStdWstring());
+        //}
     }
 }
 
@@ -112,16 +115,14 @@ RealFileExtractor &RealFileExtractor::Execute()
         bool isSuccess = false;
         try
         {
-            auto openIndicator = OpenIndicator { GetProgressDialog() };
-            auto upCallback = SevenZipCore::MakeUniqueCom(
-                new SevenZipCore::OpenCallback { &openIndicator });
             auto spModel = make_shared<VirtualRootModel>(
                 Helper::GetLocation(tstrPath),
                 SevenZipCore::Helper::GetFileName(tstrPath),
                 tstrPath,
                 nullptr,
-                upCallback.get());
+                nullptr);
             _Execute(spModel->GetArchive().GetArchiveEntry(),
+                &spModel->GetProperty(),
                 vector < UINT32 > {});
             isSuccess = true;
         }
@@ -130,12 +131,12 @@ RealFileExtractor &RealFileExtractor::Execute()
         }
         if (!isSuccess)
         {
-            if (GetExtractIndicator())
-            {
-                GetExtractIndicator()->AddError(wxString::Format(
-                    _("%s: The archive is either in unknown format or damaged."),
-                    tstrPath).ToStdWstring());
-            }
+            //if (GetExtractIndicator())
+            //{
+            //    GetExtractIndicator()->AddError(wxString::Format(
+            //        _("%s: The archive is either in unknown format or damaged."),
+            //        tstrPath).ToStdWstring());
+            //}
         }
     }
     return *this;
@@ -172,6 +173,6 @@ VirtualFileExtractor &VirtualFileExtractor::Execute()
     {
         GetProgressDialog()->SetArchivePath(m_tstrVirtualArchivePath);
     }
-    _Execute(m_archiveEntry, m_vun32Index);
+    _Execute(m_archiveEntry, m_pArchiveProperty, m_vun32Index);
     return *this;
 }

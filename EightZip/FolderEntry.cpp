@@ -52,20 +52,17 @@ shared_ptr<ModelBase> FolderEntry::GetModel() const
             wxID_ANY,
             ProgressDialog::Mode::Open };
         progressDialog.SetArchivePath(tstrPath);
-        auto openIndicator = OpenIndicator { &progressDialog };
         auto result = shared_ptr < ModelBase > {};
         auto exceptionPtr = exception_ptr {};
         thread { [&]() {
             try
             {
-                auto upCallback = SevenZipCore::MakeUniqueCom(
-                    new SevenZipCore::OpenCallback { &openIndicator });
                 result = make_shared<VirtualRootModel>(
                     Helper::GetLocation(tstrPath),
                     SevenZipCore::Helper::GetFileName(tstrPath),
                     tstrPath,
                     nullptr,
-                    upCallback.get());
+                    &progressDialog);
             }
             catch (...)
             {

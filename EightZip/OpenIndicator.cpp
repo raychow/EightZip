@@ -3,6 +3,7 @@
 
 #include <future>
 
+#include "ArchiveProperty.h"
 #include "PasswordDialog.h"
 #include "ProgressDialog.h"
 #include "ScopeGuard.h"
@@ -23,22 +24,21 @@ void OpenIndicator::SetCompleted(UINT64 un64FileCount, UINT64 un64Size)
 
 boost::optional<TString> OpenIndicator::GetPassword()
 {
+    if (!m_pArchiveProperty)
+    {
+        return boost::none;
+    }
+    if (m_pArchiveProperty->IsSetPassword())
+    {
+        return m_pArchiveProperty->GetPassword();
+    }
     promise<boost::optional<TString>> result;
     wxTheApp->CallAfter([&]() {
         if (m_pProgressDialog)
         {
             m_pProgressDialog->Pause();
         }
-        PasswordDialog passwordDialog {
-            wxTheApp->GetTopWindow(), wxID_ANY, _("Enter password") };
-        if (passwordDialog.ShowModal() == wxID_OK)
-        {
-            result.set_value(passwordDialog.GetValue());
-        }
-        else
-        {
-            result.set_value(boost::none);
-        }
+        result.set_value(m_pArchiveProperty->GetPassword());
     });
     ON_SCOPE_EXIT([&] {
         if (auto *pProgressDialog = m_pProgressDialog)

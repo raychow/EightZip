@@ -5,14 +5,17 @@
 
 #include "SevenZipCore/IOpenIndicator.h"
 
+class ArchiveProperty;
 class ProgressDialog;
 
 class OpenIndicator
     : public SevenZipCore::IOpenIndicator
 {
 public:
-    OpenIndicator(ProgressDialog *pProgressDialog)
-        : m_pProgressDialog(pProgressDialog)
+    OpenIndicator(ArchiveProperty *pArchiveProperty,
+        ProgressDialog *pProgressDialog)
+        : m_pArchiveProperty(pArchiveProperty)
+        , m_pProgressDialog(pProgressDialog)
     { }
     virtual ~OpenIndicator() {}
 
@@ -21,6 +24,7 @@ public:
     virtual boost::optional<TString> GetPassword();
 
 private:
+    ArchiveProperty *m_pArchiveProperty = nullptr;
     ProgressDialog *m_pProgressDialog = nullptr;
 
 };

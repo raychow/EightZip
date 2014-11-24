@@ -6,6 +6,7 @@
 
 #include "SevenZipCore/CommonHelper.h"
 
+#include "ArchiveProperty.h"
 #include "OverwriteDialog.h"
 #include "ProgressDialog.h"
 #include "ScopeGuard.h"
@@ -113,4 +114,13 @@ void ExtractIndicator::SetOperationResult(
     SevenZipCore::ExtractResult extractResult)
 {
     //wxMessageBox(wxString::Format("SetOperationResult: %d", extractResult));
+}
+
+boost::optional<TString> ExtractIndicator::GetPassword() const
+{
+    if (m_pArchiveProperty)
+    {
+        return m_pArchiveProperty->GetPassword();
+    }
+    return boost::none;
 }

@@ -17,6 +17,7 @@ namespace SevenZipCore
     class ArchiveEntry;
 }
 
+class ArchiveProperty;
 class ProgressDialog;
 class VirtualEntry;
 class VirtualModel;
@@ -25,13 +26,10 @@ class Extractor
 {
 public:
     Extractor(TString tstrExtractLocation,
-        ExtractIndicator *pExtractIndicator,
+        ProgressDialog *pProgressDialog,
         TString tstrInternalLocation)
         : m_tstrExtractLocation(tstrExtractLocation)
-        , m_pExtractIndicator(pExtractIndicator)
-        , m_pProgressDialog(pExtractIndicator
-        ? pExtractIndicator->GetProgressDialog()
-        : nullptr)
+        , m_pProgressDialog(pProgressDialog)
         , m_tstrInternalLocation(tstrInternalLocation)
     {
 
@@ -43,11 +41,6 @@ public:
     inline TString GetExtractLocation() const
     {
         return m_tstrExtractLocation;
-    }
-
-    inline ExtractIndicator *GetExtractIndicator() const
-    {
-        return m_pExtractIndicator;
     }
 
     inline ProgressDialog *GetProgressDialog() const
@@ -62,12 +55,12 @@ public:
 
 protected:
     void _Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
+        ArchiveProperty *pArchiveProperty,
         const std::vector<UINT32> &vun32ArchiveIndex);
 
 private:
     TString m_tstrExtractLocation;
     TString m_tstrInternalLocation;
-    ExtractIndicator *m_pExtractIndicator = nullptr;
     ProgressDialog *m_pProgressDialog = nullptr;
 
     TString m_tstrLastExtractPath;
@@ -79,8 +72,8 @@ class RealFileExtractor
 {
 public:
     RealFileExtractor(
-        TString tstrExtractLocation, ExtractIndicator *pExtractIndicator)
-        : Extractor(tstrExtractLocation, pExtractIndicator, wxEmptyString)
+        TString tstrExtractLocation, ProgressDialog *pProgressDialog)
+        : Extractor(tstrExtractLocation, pProgressDialog, wxEmptyString)
     {
 
     }
@@ -104,11 +97,13 @@ class VirtualFileExtractor
 public:
     VirtualFileExtractor(
         TString tstrExtractLocation,
-        ExtractIndicator *pExtractIndicator,
+        ArchiveProperty *pArchiveProperty,
+        ProgressDialog *pProgressDialog,
         TString tstrInternalLocation,
         TString tstrVirtualArchivePath,
         const SevenZipCore::ArchiveEntry &archiveEntry)
-        : Extractor(tstrExtractLocation, pExtractIndicator, tstrInternalLocation)
+        : Extractor(tstrExtractLocation, pProgressDialog, tstrInternalLocation)
+        , m_pArchiveProperty(pArchiveProperty)
         , m_tstrVirtualArchivePath(tstrVirtualArchivePath)
         , m_archiveEntry(archiveEntry)
     {
@@ -130,6 +125,7 @@ public:
     virtual VirtualFileExtractor &Execute() override;
 
 private:
+    ArchiveProperty *m_pArchiveProperty;
     TString m_tstrVirtualArchivePath;
     const SevenZipCore::ArchiveEntry &m_archiveEntry;
     std::vector<UINT32> m_vun32Index;

@@ -443,6 +443,27 @@ namespace SevenZipCore
         }
     }
 
+    STDMETHODIMP ArchiveExtractCallback::CryptoGetTextPassword(BSTR *password)
+    {
+        try
+        {
+            if (m_pExtractIndicator)
+            {
+                if (auto result = m_pExtractIndicator->GetPassword())
+                {
+                    *password = SysAllocStringLen(
+                        result->data(), result->size());
+                    return S_OK;
+                }
+            }
+            return E_FAIL;
+        }
+        catch (...)
+        {
+            return E_FAIL;
+        }
+    }
+
     boost::optional<FILETIME> ArchiveExtractCallback::__GetTime(
         IInArchiveAdapter<> &archiveAdapter,
         UINT32 index,

@@ -39,15 +39,12 @@ shared_ptr<ModelBase> GetModelFromPath(
             }
             else if (isTryOpenArchive && attributes & EIGHT_FILE_STATUS_FILE)
             {
-                auto openIndicator = OpenIndicator { nullptr };
-                auto upCallback = SevenZipCore::MakeUniqueCom(
-                    new SevenZipCore::OpenCallback { &openIndicator });
                 auto spModel = make_shared<VirtualRootModel>(
                     Helper::GetLocation(tstrPath),
                     SevenZipCore::Helper::GetFileName(tstrPath),
                     tstrPath,
                     nullptr,
-                    upCallback.get());
+                    nullptr);
                 return GetModelFromPath(spModel, tstrOriginalPath);
             }
             tstrPath = SevenZipCore::Helper::RemovePathSlash(move(tstrPath));

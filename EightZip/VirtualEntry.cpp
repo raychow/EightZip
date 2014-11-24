@@ -7,7 +7,6 @@ using namespace std;
 #include "SevenZipCore/ComPtr.h"
 #include "SevenZipCore/Exception.h"
 #include "SevenZipCore/IArchiveAdapter.h"
-#include "SevenZipCore/OpenCallback.h"
 
 #include "Extractor.h"
 #include "FileHelper.h"
@@ -63,43 +62,45 @@ std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
                 archiveEntry.GetInArchive());
             try
             {
-                auto cpGetStream = inArchiveAdapter.QueryInterface<
-                    SevenZipCore::IInArchiveGetStream>(SevenZipCore::IID_IInArchiveGetStream);
-                if (cpGetStream)
+                for (;;)
                 {
+                    auto cpGetStream = inArchiveAdapter.QueryInterface <
+                        SevenZipCore::IInArchiveGetStream > (
+                        SevenZipCore::IID_IInArchiveGetStream);
+                    if (!cpGetStream)
+                    {
+                        break;
+                    }
                     auto cpSubSeqStream = SevenZipCore::IInArchiveGetStreamAdapter<>
                         (*cpGetStream).GetStream(m_archiveFile.GetIndex());
-                    if (cpSubSeqStream)
+                    if (!cpSubSeqStream)
                     {
-                        auto cpSubStream = SevenZipCore::Helper::QueryInterface<
-                            SevenZipCore::IInStream>(
-                            *cpSubSeqStream, SevenZipCore::IID_IInStream);
-                        if (cpSubStream)
-                        {
-                            auto openIndicator = OpenIndicator { nullptr };
-                            auto upCallback = SevenZipCore::MakeUniqueCom(
-                                new SevenZipCore::OpenCallback { &openIndicator });
-                            return make_shared<VirtualRootModel>(GetLocation(),
-                                GetName(),
-                                m_wpParent.lock(),
-                                move(cpSubStream),
-                                upCallback.get());
-                        }
+                        break;
                     }
+                    auto cpSubStream = SevenZipCore::Helper::QueryInterface <
+                        SevenZipCore::IInStream > (
+                        *cpSubSeqStream, SevenZipCore::IID_IInStream);
+                    if (!cpSubStream)
+                    {
+                        break;
+                    }
+                    return make_shared<VirtualRootModel>(GetLocation(),
+                        GetName(),
+                        m_wpParent.lock(),
+                        move(cpSubStream),
+                        nullptr);
+                    break;
                 }
             }
             catch (const SevenZipCore::SevenZipCoreException &)
             {
             }
             __ExtractToTempFolder();
-            auto openIndicator = OpenIndicator { nullptr };
-            auto upCallback = SevenZipCore::MakeUniqueCom(
-                new SevenZipCore::OpenCallback { &openIndicator });
             return make_shared<VirtualRootModel>(GetLocation(),
                 GetName(),
                 m_upTempFolder->GetFilePath(),
                 m_wpParent.lock(),
-                upCallback.get());
+                nullptr);
         }
     }
     else
@@ -170,7 +171,9 @@ void VirtualEntry::__ExtractToTempFolder() const
 {
     m_upTempFolder.reset(new TempFolder());
     m_upTempFolder->SetFilePath(
-        VirtualFileExtractor(m_upTempFolder->GetLocation(), nullptr,
+        VirtualFileExtractor(m_upTempFolder->GetLocation(),
+        &dynamic_pointer_cast<VirtualModel>(GetContainer())->GetProperty(),
+        nullptr,
         m_wpParent.lock()->GetInternalLocation(),
         wxEmptyString, GetArchiveFile().GetArchiveEntry())
         .AddPlan(*this)

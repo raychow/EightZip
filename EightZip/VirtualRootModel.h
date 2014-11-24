@@ -5,22 +5,33 @@
 
 #include <memory>
 
+#include "ArchiveProperty.h"
 #include "VirtualModel.h"
+
+class ProgressDialog;
 
 class ArchiveHandler
 {
 public:
-    ArchiveHandler(std::unique_ptr<SevenZipCore::Archive> upArchive)
-        : m_upArchive(move(upArchive))
-    { }
+    ArchiveHandler(TString tstrPath,
+        ProgressDialog *pProgressDialog);
+    ArchiveHandler(TString tstrPath,
+        shared_ptr<SevenZipCore::IInStream> cpStream,
+        ProgressDialog *pProgressDialog);
 
-    SevenZipCore::Archive &GetArchive() const
+    inline SevenZipCore::Archive &GetArchive() const
     {
         return *m_upArchive;
+    }
+
+    inline ArchiveProperty &GetProperty()
+    {
+        return m_property;
     }
         
 private:
     std::unique_ptr<SevenZipCore::Archive> m_upArchive;
+    ArchiveProperty m_property;
 
 };
 
@@ -34,16 +45,17 @@ public:
         TString tstrName,
         std::shared_ptr<ModelBase> spParent,
         std::shared_ptr<SevenZipCore::IInStream> cpStream,
-        SevenZipCore::IArchiveOpenCallback *pCallback);
+        ProgressDialog *pProgressDialog);
     // Open real file.
     VirtualRootModel(TString tstrLocation,
         TString tstrName,
         TString tstrRealPath,
         std::shared_ptr<ModelBase> spParent,
-        SevenZipCore::IArchiveOpenCallback *pCallback);
+        ProgressDialog *pProgressDialog);
     virtual ~VirtualRootModel() {}
 
     using VirtualModel::GetArchive;
+    using VirtualModel::GetProperty;
 
 };
 

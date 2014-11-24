@@ -19,6 +19,8 @@ namespace SevenZipCore
     class IExtractIndicator;
 }
 
+class ArchiveProperty;
+
 class VirtualModel
     : public ModelBase
     , public std::enable_shared_from_this<VirtualModel>
@@ -45,6 +47,10 @@ public:
     {
         return m_archive;
     }
+    inline ArchiveProperty &GetProperty() const
+    {
+        return m_property;
+    }
     inline SevenZipCore::ArchiveFolder &GetArchiveFolder() const
     {
         return m_archiveFolder;
@@ -56,12 +62,14 @@ protected:
     // Open archive root.
     VirtualModel(TString tstrLocation,
         TString tstrName,
-        SevenZipCore::Archive &archive);
+        SevenZipCore::Archive &archive,
+        ArchiveProperty &property);
 
     virtual EntryVector _InitializeEntries() const;
 
 private:
     SevenZipCore::Archive &m_archive;
+    ArchiveProperty &m_property;
     std::shared_ptr<ModelBase> m_spParent;
     SevenZipCore::ArchiveFolder &m_archiveFolder;
 

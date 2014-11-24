@@ -3,18 +3,43 @@
 
 using namespace std;
 
+#include "SevenZipCore/Archive.h"
+#include "SevenZipCore/OpenCallback.h"
+
 #include "CodecsLoader.h"
+#include "OpenIndicator.h"
+
+ArchiveHandler::ArchiveHandler(TString tstrPath,
+    ProgressDialog *pProgressDialog)
+{
+    auto openIndicator = OpenIndicator { &GetProperty(), pProgressDialog };
+    auto upCallback = SevenZipCore::MakeUniqueCom(
+        new SevenZipCore::OpenCallback { &openIndicator });
+    m_upArchive = make_unique<SevenZipCore::Archive>(
+        CodecsLoader::GetInstance().GetCodecs(), tstrPath, upCallback.get());
+}
+
+ArchiveHandler::ArchiveHandler(TString tstrPath,
+    shared_ptr<SevenZipCore::IInStream> cpStream,
+    ProgressDialog *pProgressDialog)
+{
+    auto openIndicator = OpenIndicator { &GetProperty(), pProgressDialog };
+    auto upCallback = SevenZipCore::MakeUniqueCom(
+        new SevenZipCore::OpenCallback { &openIndicator });
+    m_upArchive = make_unique<SevenZipCore::Archive>(
+        CodecsLoader::GetInstance().GetCodecs(),
+        tstrPath, move(cpStream), upCallback.get());
+}
 
 VirtualRootModel::VirtualRootModel(TString tstrLocation,
     TString tstrName,
     shared_ptr<ModelBase> spParent,
     shared_ptr<SevenZipCore::IInStream> cpStream,
-    SevenZipCore::IArchiveOpenCallback *pCallback)
-    : ArchiveHandler(make_unique<SevenZipCore::Archive>(
-    CodecsLoader::GetInstance().GetCodecs(),
-    tstrLocation, move(cpStream), pCallback))
+    ProgressDialog *pProgressDialog)
+    : ArchiveHandler(SevenZipCore::Helper::MakePathSlash(
+    tstrLocation) + tstrName, move(cpStream), pProgressDialog)
     , VirtualModel(move(tstrLocation), move(tstrName),
-    ArchiveHandler::GetArchive())
+    ArchiveHandler::GetArchive(), ArchiveHandler::GetProperty())
 {
 }
 
@@ -22,10 +47,9 @@ VirtualRootModel::VirtualRootModel(TString tstrLocation,
     TString tstrName,
     TString tstrRealPath,
     shared_ptr<ModelBase> spParent,
-    SevenZipCore::IArchiveOpenCallback *pCallback)
-    : ArchiveHandler(make_unique<SevenZipCore::Archive>(
-    CodecsLoader::GetInstance().GetCodecs(), move(tstrRealPath), pCallback))
+    ProgressDialog *pProgressDialog)
+    : ArchiveHandler(move(tstrRealPath), pProgressDialog)
     , VirtualModel(move(tstrLocation), move(tstrName),
-    ArchiveHandler::GetArchive())
+    ArchiveHandler::GetArchive(), ArchiveHandler::GetProperty())
 {
 }

@@ -57,9 +57,7 @@ namespace Helper
         ProgressDialog *pProgressDialog,
         bool isLaunchFolder)
     {
-        ExtractIndicator extractIndicator(pProgressDialog);
-
-        RealFileExtractor extractor(tstrExtractPath, &extractIndicator);
+        RealFileExtractor extractor(tstrExtractPath, pProgressDialog);
         for (auto &entry : vEntry)
         {
             extractor.AddPlan(entry.get().GetPath());
@@ -73,10 +71,9 @@ namespace Helper
         ProgressDialog *pProgressDialog,
         bool isLaunchFolder)
     {
-        ExtractIndicator extractIndicator(pProgressDialog);
-
         VirtualFileExtractor extractor(tstrExtractPath,
-            &extractIndicator,
+            &spModel->GetProperty(),
+            pProgressDialog,
             tstrInternalPath,
             spModel->GetPath(),
             spModel->GetArchiveFolder().GetArchiveEntry());
@@ -95,8 +92,6 @@ namespace Helper
             return;
         }
 
-        ExtractIndicator extractIndicator(pProgressDialog);
-
         auto spModel = dynamic_pointer_cast<VirtualModel>(
             vEntry.front().get().GetContainer());
         while (!spModel->IsRoot())
@@ -105,7 +100,8 @@ namespace Helper
         }
 
         VirtualFileExtractor extractor(tstrExtractPath,
-            &extractIndicator,
+            &spModel->GetProperty(),
+            pProgressDialog,
             tstrInternalPath,
             spModel->GetPath(),
             vEntry.front().get().GetArchiveFile().GetArchiveEntry());

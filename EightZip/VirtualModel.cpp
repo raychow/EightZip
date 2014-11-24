@@ -31,6 +31,7 @@ VirtualModel::VirtualModel(TString tstrLocation,
     SevenZipCore::ArchiveFolder &archiveFolder)
     : ModelBase(move(tstrLocation), move(tstrName))
     , m_archive(spParent->m_archive)
+    , m_property(spParent->m_property)
     , m_spParent(move(spParent))
     , m_archiveFolder(archiveFolder)
     , m_tstrInternalLocation(
@@ -40,9 +41,11 @@ VirtualModel::VirtualModel(TString tstrLocation,
 
 VirtualModel::VirtualModel(TString tstrLocation,
     TString tstrName,
-    SevenZipCore::Archive &archive)
+    SevenZipCore::Archive &archive,
+    ArchiveProperty &property)
     : ModelBase(move(tstrLocation), move(tstrName))
     , m_archive(archive)
+    , m_property(property)
     , m_archiveFolder(archive.GetArchiveEntry().GetRootFolder())
 {
 }

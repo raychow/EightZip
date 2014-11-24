@@ -12,6 +12,7 @@
 #include "FileStream.h"
 #include "IArchive.h"
 #include "IArchiveAdapter.h"
+#include "IPassword.h"
 
 namespace SevenZipCore
 {
@@ -19,6 +20,7 @@ namespace SevenZipCore
 
     class ArchiveExtractCallback
         : public IArchiveExtractCallback
+        , public ICryptoGetTextPassword
     {
     public:
         ArchiveExtractCallback(Archive &archive,
@@ -42,10 +44,12 @@ namespace SevenZipCore
         STDMETHOD(PrepareOperation)(INT32 askExtractMode);
         STDMETHOD(SetOperationResult)(INT32 operationResult);
 
+        STDMETHOD(CryptoGetTextPassword)(BSTR *password);
+
         const TString &GetExtractFolder() const { return m_tstrExtractFolder; }
         const TString &GetLastExtractPath() const { return m_tstrExtractPath; }
 
-        IUNKNOWN_IMP1(IArchiveExtractCallback)
+        IUNKNOWN_IMP2(IArchiveExtractCallback, ICryptoGetTextPassword)
 
     private:
         Archive &m_archive;
