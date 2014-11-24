@@ -12,8 +12,9 @@
 #include "SevenZipCore/CommonHelper.h"
 #include "SevenZipCore/TString.h"
 
+#include "EntryBase.h"
+
 enum class EntryItemType;
-class EntryBase;
 
 class ModelBase
 {

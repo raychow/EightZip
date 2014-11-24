@@ -231,6 +231,9 @@
     <ClInclude Include="ScopeGuard.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="VirtualRootModel.h">
+      <Filter>头文件\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -367,6 +370,9 @@
     </ClCompile>
     <ClCompile Include="PasswordDialog.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="VirtualRootModel.cpp">
+      <Filter>源文件\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

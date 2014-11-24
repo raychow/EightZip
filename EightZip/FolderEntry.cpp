@@ -14,7 +14,7 @@
 #include "FolderModel.h"
 #include "OpenIndicator.h"
 #include "ProgressDialog.h"
-#include "VirtualModel.h"
+#include "VirtualRootModel.h"
 
 using namespace std;
 
@@ -60,7 +60,7 @@ shared_ptr<ModelBase> FolderEntry::GetModel() const
             {
                 auto upCallback = SevenZipCore::MakeUniqueCom(
                     new SevenZipCore::OpenCallback { &openIndicator });
-                result = make_shared<VirtualModel>(
+                result = make_shared<VirtualRootModel>(
                     Helper::GetLocation(tstrPath),
                     SevenZipCore::Helper::GetFileName(tstrPath),
                     tstrPath,

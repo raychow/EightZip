@@ -11,7 +11,7 @@
 #include "FileHelper.h"
 #include "FolderModel.h"
 #include "OpenIndicator.h"
-#include "VirtualModel.h"
+#include "VirtualRootModel.h"
 
 using namespace std;
 
@@ -42,7 +42,7 @@ shared_ptr<ModelBase> GetModelFromPath(
                 auto openIndicator = OpenIndicator { nullptr };
                 auto upCallback = SevenZipCore::MakeUniqueCom(
                     new SevenZipCore::OpenCallback { &openIndicator });
-                auto spModel = make_shared<VirtualModel>(
+                auto spModel = make_shared<VirtualRootModel>(
                     Helper::GetLocation(tstrPath),
                     SevenZipCore::Helper::GetFileName(tstrPath),
                     tstrPath,

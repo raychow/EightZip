@@ -24,18 +24,6 @@ class VirtualModel
     , public std::enable_shared_from_this<VirtualModel>
 {
 public:
-    // Open stream.
-    VirtualModel(TString tstrLocation,
-        TString tstrName,
-        std::shared_ptr<ModelBase> spParent,
-        std::shared_ptr<SevenZipCore::IInStream> cpStream,
-        SevenZipCore::IArchiveOpenCallback *pCallback);
-    // Open real file.
-    VirtualModel(TString tstrLocation,
-        TString tstrName,
-        TString tstrRealPath,
-        std::shared_ptr<ModelBase> spParent,
-        SevenZipCore::IArchiveOpenCallback *pCallback);
     // Open archive folder.
     VirtualModel(TString tstrLocation,
         TString tstrInternalLocation,
@@ -55,7 +43,7 @@ public:
 
     inline SevenZipCore::Archive &GetArchive() const
     {
-        return *m_spArchive;
+        return m_archive;
     }
     inline SevenZipCore::ArchiveFolder &GetArchiveFolder() const
     {
@@ -65,10 +53,15 @@ public:
     inline bool IsRoot() const { return !m_spParent; }
 
 protected:
+    // Open archive root.
+    VirtualModel(TString tstrLocation,
+        TString tstrName,
+        SevenZipCore::Archive &archive);
+
     virtual EntryVector _InitializeEntries() const;
 
 private:
-    std::shared_ptr<SevenZipCore::Archive> m_spArchive;
+    SevenZipCore::Archive &m_archive;
     std::shared_ptr<ModelBase> m_spParent;
     SevenZipCore::ArchiveFolder &m_archiveFolder;
 

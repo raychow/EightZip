@@ -25,43 +25,25 @@
 using namespace std;
 
 VirtualModel::VirtualModel(TString tstrLocation,
-    TString tstrName,
-    shared_ptr<ModelBase> spParent,
-    shared_ptr<SevenZipCore::IInStream> cpStream,
-    SevenZipCore::IArchiveOpenCallback *pCallback)
-    : ModelBase(move(tstrLocation), move(tstrName))
-    , m_spArchive(make_shared<SevenZipCore::Archive>(
-    CodecsLoader::GetInstance().GetCodecs(),
-    tstrLocation, move(cpStream), pCallback))
-    , m_spParent(move(spParent))
-    , m_archiveFolder(m_spArchive->GetArchiveEntry().GetRootFolder())
-{
-}
-
-VirtualModel::VirtualModel(TString tstrLocation,
-    TString tstrName,
-    TString tstrRealPath,
-    shared_ptr<ModelBase> spParent,
-    SevenZipCore::IArchiveOpenCallback *pCallback)
-    : ModelBase(move(tstrLocation), move(tstrName))
-    , m_spArchive(make_shared<SevenZipCore::Archive>(
-    CodecsLoader::GetInstance().GetCodecs(), move(tstrRealPath), pCallback))
-    , m_spParent(move(spParent))
-    , m_archiveFolder(m_spArchive->GetArchiveEntry().GetRootFolder())
-{
-}
-
-VirtualModel::VirtualModel(TString tstrLocation,
     TString tstrInternalLocation,
     TString tstrName,
     shared_ptr<VirtualModel> spParent,
     SevenZipCore::ArchiveFolder &archiveFolder)
     : ModelBase(move(tstrLocation), move(tstrName))
-    , m_spArchive(spParent->m_spArchive)
+    , m_archive(spParent->m_archive)
     , m_spParent(move(spParent))
     , m_archiveFolder(archiveFolder)
     , m_tstrInternalLocation(
     SevenZipCore::Helper::MakePathSlash(move(tstrInternalLocation)))
+{
+}
+
+VirtualModel::VirtualModel(TString tstrLocation,
+    TString tstrName,
+    SevenZipCore::Archive &archive)
+    : ModelBase(move(tstrLocation), move(tstrName))
+    , m_archive(archive)
+    , m_archiveFolder(archive.GetArchiveEntry().GetRootFolder())
 {
 }
 

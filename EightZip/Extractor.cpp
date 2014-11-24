@@ -18,6 +18,7 @@
 #include "ProgressDialog.h"
 #include "VirtualEntry.h"
 #include "VirtualModel.h"
+#include "VirtualRootModel.h"
 
 using namespace std;
 
@@ -114,7 +115,7 @@ RealFileExtractor &RealFileExtractor::Execute()
             auto openIndicator = OpenIndicator { GetProgressDialog() };
             auto upCallback = SevenZipCore::MakeUniqueCom(
                 new SevenZipCore::OpenCallback { &openIndicator });
-            auto spModel = make_shared<VirtualModel>(
+            auto spModel = make_shared<VirtualRootModel>(
                 Helper::GetLocation(tstrPath),
                 SevenZipCore::Helper::GetFileName(tstrPath),
                 tstrPath,

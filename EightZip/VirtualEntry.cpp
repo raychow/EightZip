@@ -13,6 +13,7 @@ using namespace std;
 #include "FileHelper.h"
 #include "OpenIndicator.h"
 #include "VirtualModel.h"
+#include "VirtualRootModel.h"
 
 VirtualEntry::VirtualEntry(TString tstrLocation,
     TString tstrName,
@@ -78,7 +79,7 @@ std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
                             auto openIndicator = OpenIndicator { nullptr };
                             auto upCallback = SevenZipCore::MakeUniqueCom(
                                 new SevenZipCore::OpenCallback { &openIndicator });
-                            return make_shared<VirtualModel>(GetLocation(),
+                            return make_shared<VirtualRootModel>(GetLocation(),
                                 GetName(),
                                 m_wpParent.lock(),
                                 move(cpSubStream),
@@ -94,7 +95,7 @@ std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
             auto openIndicator = OpenIndicator { nullptr };
             auto upCallback = SevenZipCore::MakeUniqueCom(
                 new SevenZipCore::OpenCallback { &openIndicator });
-            return make_shared<VirtualModel>(GetLocation(),
+            return make_shared<VirtualRootModel>(GetLocation(),
                 GetName(),
                 m_upTempFolder->GetFilePath(),
                 m_wpParent.lock(),

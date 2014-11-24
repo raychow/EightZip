@@ -157,6 +157,7 @@
     <ClInclude Include="RenameDialog.h" />
     <ClInclude Include="SevenZipCore\IExtractIndicator.h" />
     <ClInclude Include="TaskbarProgressHelper.h" />
+    <ClInclude Include="VirtualRootModel.h" />
     <ClInclude Include="WindowHelper.h" />
     <ClInclude Include="ModelBase.h" />
     <ClInclude Include="FileHelper.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="ProgressDialog.cpp" />
     <ClCompile Include="RenameDialog.cpp" />
     <ClCompile Include="TaskbarProgressHelper.cpp" />
+    <ClCompile Include="VirtualRootModel.cpp" />
     <ClCompile Include="WindowHelper.cpp" />
     <ClCompile Include="ModelBase.cpp" />
     <ClCompile Include="SevenZipCore\Archive.cpp">
