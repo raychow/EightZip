@@ -112,20 +112,34 @@ public:
     ProgressDialogManager(ProgressDialog *pProgressDialog)
         : m_pDialog(pProgressDialog)
     {
-        wxTheApp->CallAfter(std::bind(
-            // Probably be called after destruct.
-            [](ProgressDialog *pDialog) {
-            pDialog->ShowModal();
-        }, m_pDialog));
+        if (m_isMainThread)
+        {
+            m_pDialog->ShowModal();
+        }
+        else
+        {
+            wxTheApp->CallAfter(std::bind(
+                // Probably be called after destruct.
+                [](ProgressDialog *pDialog) {
+                pDialog->ShowModal();
+            }, m_pDialog));
+        }
     }
 
     ~ProgressDialogManager()
     {
-        wxTheApp->CallAfter(std::bind(
-            // Probably be called after destruct.
-            [](ProgressDialog *pDialog, bool isSuccess) {
-            pDialog->Done(isSuccess);
-        }, m_pDialog, m_isSuccess));
+        if (m_isMainThread)
+        {
+            m_pDialog->Done(m_isSuccess);
+        }
+        else
+        {
+            wxTheApp->CallAfter(std::bind(
+                // Probably be called after destruct.
+                [](ProgressDialog *pDialog, bool isSuccess) {
+                pDialog->Done(isSuccess);
+            }, m_pDialog, m_isSuccess));
+        }
     }
 
     void SetSuccess(bool isSuccess)
@@ -136,6 +150,7 @@ public:
 private:
     ProgressDialog *m_pDialog = nullptr;
     bool m_isSuccess = false;
+    bool m_isMainThread = wxThread::IsMain();
 
     ProgressDialogManager(const ProgressDialogManager&) = delete;
     ProgressDialogManager &operator=(const ProgressDialogManager&) = delete;

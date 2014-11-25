@@ -32,21 +32,38 @@ boost::optional<TString> OpenIndicator::GetPassword()
     {
         return m_pArchiveProperty->GetPassword();
     }
-    promise<boost::optional<TString>> result;
-    wxTheApp->CallAfter([&]() {
+    if (wxThread::IsMain())
+    {
         if (m_pProgressDialog)
         {
             m_pProgressDialog->Pause();
         }
-        result.set_value(m_pArchiveProperty->GetPassword());
-    });
-    ON_SCOPE_EXIT([&] {
-        if (auto *pProgressDialog = m_pProgressDialog)
-        {
-            wxTheApp->CallAfter([pProgressDialog]() {
-                pProgressDialog->Resume();
-            });
-        }
-    });
-    return result.get_future().get();
+        ON_SCOPE_EXIT([&] {
+            if (m_pProgressDialog)
+            {
+                m_pProgressDialog->Resume();
+            }
+        });
+        return m_pArchiveProperty->GetPassword();
+    }
+    else
+    {
+        promise<boost::optional<TString>> result;
+        wxTheApp->CallAfter([&]() {
+            if (m_pProgressDialog)
+            {
+                m_pProgressDialog->Pause();
+            }
+            result.set_value(m_pArchiveProperty->GetPassword());
+        });
+        ON_SCOPE_EXIT([&] {
+            if (auto *pProgressDialog = m_pProgressDialog)
+            {
+                wxTheApp->CallAfter([pProgressDialog]() {
+                    pProgressDialog->Resume();
+                });
+            }
+        });
+        return result.get_future().get();
+    }
 }

@@ -45,12 +45,7 @@ SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
     case SevenZipCore::OverwriteAnswer::Cancel:
         return m_lastOverwriteAnswer;
     }
-    promise<SevenZipCore::OverwriteAnswer> result;
-    wxTheApp->CallAfter([&](){
-        if (m_pProcessDialog)
-        {
-            m_pProcessDialog->Pause();
-        }
+    auto updateOverwriteAnswer = [&]() {
         OverwriteDialog dialog(wxTheApp->GetTopWindow(),
             wxID_ANY,
             _("Confirm file replace"),
@@ -66,26 +61,61 @@ SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
         {
             *ptstrNewPath = dialog.GetPath();
         }
-        result.set_value(m_lastOverwriteAnswer);
-    });
-    ON_SCOPE_EXIT([&] {
-        if (auto *pProgressDialog = m_pProcessDialog)
+    };
+
+    if (wxThread::IsMain())
+    {
+        if (m_pProcessDialog)
         {
-            auto lastOverwriteAnswer = m_lastOverwriteAnswer;
-            wxTheApp->CallAfter([lastOverwriteAnswer, pProgressDialog]() {
+            m_pProcessDialog->Pause();
+        }
+        ON_SCOPE_EXIT([&] {
+            if (m_pProcessDialog)
+            {
                 if (SevenZipCore::OverwriteAnswer::Cancel
-                    == lastOverwriteAnswer)
+                    == m_lastOverwriteAnswer)
                 {
-                    pProgressDialog->Cancel();
+                    m_pProcessDialog->Cancel();
                 }
                 else
                 {
-                    pProgressDialog->Resume();
+                    m_pProcessDialog->Resume();
                 }
-            });
-        }
-    });
-    return result.get_future().get();
+            }
+        });
+        updateOverwriteAnswer();
+        return m_lastOverwriteAnswer;
+    }
+    else
+    {
+        promise<SevenZipCore::OverwriteAnswer> result;
+        wxTheApp->CallAfter([&]() {
+            if (m_pProcessDialog)
+            {
+                m_pProcessDialog->Pause();
+            }
+            updateOverwriteAnswer();
+            result.set_value(m_lastOverwriteAnswer);
+        });
+        ON_SCOPE_EXIT([&] {
+            if (auto *pProgressDialog = m_pProcessDialog)
+            {
+                auto lastOverwriteAnswer = m_lastOverwriteAnswer;
+                wxTheApp->CallAfter([lastOverwriteAnswer, pProgressDialog]() {
+                    if (SevenZipCore::OverwriteAnswer::Cancel
+                        == lastOverwriteAnswer)
+                    {
+                        pProgressDialog->Cancel();
+                    }
+                    else
+                    {
+                        pProgressDialog->Resume();
+                    }
+                });
+            }
+        });
+        return result.get_future().get();
+    }
 }
 
 void ExtractIndicator::AddError(TString tstrMessage)
