@@ -115,7 +115,11 @@ void VirtualEntry::OpenExternal() const
     {
         __ExtractToTempFolder();
     }
-    Helper::OpenFileExternal(m_upTempFolder->GetFilePath());
+    auto tstrFilePath = m_upTempFolder->GetFilePath();
+    if (!tstrFilePath.empty())
+    {
+        Helper::OpenFileExternal(tstrFilePath);
+    }
 }
 
 TString VirtualEntry::GetItem(EntryItemType itemType) const
