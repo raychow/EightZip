@@ -43,14 +43,14 @@ public:
     // Open stream.
     VirtualRootModel(TString tstrLocation,
         TString tstrName,
-        std::shared_ptr<ModelBase> spParent,
+        std::shared_ptr<VirtualModel> spParent,
         std::shared_ptr<SevenZipCore::IInStream> cpStream,
         ProgressDialog *pProgressDialog);
     // Open real file.
     VirtualRootModel(TString tstrLocation,
         TString tstrName,
         TString tstrRealPath,
-        std::shared_ptr<ModelBase> spParent,
+        std::shared_ptr<VirtualModel> spParent,
         ProgressDialog *pProgressDialog);
     virtual ~VirtualRootModel() {}
 

@@ -33,12 +33,12 @@ ArchiveHandler::ArchiveHandler(TString tstrPath,
 
 VirtualRootModel::VirtualRootModel(TString tstrLocation,
     TString tstrName,
-    shared_ptr<ModelBase> spParent,
+    shared_ptr<VirtualModel> spParent,
     shared_ptr<SevenZipCore::IInStream> cpStream,
     ProgressDialog *pProgressDialog)
     : ArchiveHandler(SevenZipCore::Helper::MakePathSlash(
     tstrLocation) + tstrName, move(cpStream), pProgressDialog)
-    , VirtualModel(move(tstrLocation), move(tstrName),
+    , VirtualModel(move(tstrLocation), move(tstrName), move(spParent),
     ArchiveHandler::GetArchive(), ArchiveHandler::GetProperty())
 {
 }
@@ -46,10 +46,10 @@ VirtualRootModel::VirtualRootModel(TString tstrLocation,
 VirtualRootModel::VirtualRootModel(TString tstrLocation,
     TString tstrName,
     TString tstrRealPath,
-    shared_ptr<ModelBase> spParent,
+    shared_ptr<VirtualModel> spParent,
     ProgressDialog *pProgressDialog)
     : ArchiveHandler(move(tstrRealPath), pProgressDialog)
-    , VirtualModel(move(tstrLocation), move(tstrName),
+    , VirtualModel(move(tstrLocation), move(tstrName), spParent,
     ArchiveHandler::GetArchive(), ArchiveHandler::GetProperty())
 {
 }

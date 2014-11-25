@@ -62,6 +62,7 @@ protected:
     // Open archive root.
     VirtualModel(TString tstrLocation,
         TString tstrName,
+        std::shared_ptr<VirtualModel> spParent,
         SevenZipCore::Archive &archive,
         ArchiveProperty &property);
 
