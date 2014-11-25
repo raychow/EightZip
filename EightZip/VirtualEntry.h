@@ -10,6 +10,7 @@
 #include "EntryBase.h"
 #include "TempFolder.h"
 
+class ProgressDialog;
 class VirtualModel;
 
 class VirtualEntry
@@ -47,7 +48,10 @@ private:
     SevenZipCore::ArchiveFile &m_archiveFile;
     mutable std::unique_ptr<TempFolder> m_upTempFolder;
 
-    void __ExtractToTempFolder() const;
+    void __ExtractToTempFolder(ProgressDialog *pProgressDialog) const;
+
+    std::shared_ptr<VirtualModel> __GetVirtualModel(
+        ProgressDialog *pProgressDialog) const;
 
 };
 

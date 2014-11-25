@@ -1,7 +1,8 @@
 #include "stdwx.h"
 #include "VirtualEntry.h"
 
-using namespace std;
+#include <future>
+#include <thread>
 
 #include "SevenZipCore/CommonHelper.h"
 #include "SevenZipCore/ComPtr.h"
@@ -11,8 +12,11 @@ using namespace std;
 #include "Extractor.h"
 #include "FileHelper.h"
 #include "OpenIndicator.h"
+#include "ProgressDialog.h"
 #include "VirtualModel.h"
 #include "VirtualRootModel.h"
+
+using namespace std;
 
 VirtualEntry::VirtualEntry(TString tstrLocation,
     TString tstrName,
@@ -38,74 +42,46 @@ TString VirtualEntry::GetInternalLocation() const
     return GetName();
 }
 
-std::shared_ptr<ModelBase> VirtualEntry::GetContainer() const
+shared_ptr<ModelBase> VirtualEntry::GetContainer() const
 {
     return m_wpParent.lock();
 }
 
-std::shared_ptr<ModelBase> VirtualEntry::GetModel() const
+shared_ptr<ModelBase> VirtualEntry::GetModel() const
 {
-    if (auto spParent = m_wpParent.lock())
+    auto spParent = m_wpParent.lock();
+    if (!spParent)
     {
-        if (IsDirectory())
-        {
-            return make_shared<VirtualModel>(GetLocation(),
-                GetInternalLocation(),
-                GetName(),
-                spParent,
-                dynamic_cast<SevenZipCore::ArchiveFolder &>(m_archiveFile));
-        }
-        else
-        {
-            auto &archiveEntry = m_archiveFile.GetArchiveEntry();
-            SevenZipCore::IInArchiveAdapter<> inArchiveAdapter(
-                archiveEntry.GetInArchive());
-            try
-            {
-                for (;;)
-                {
-                    auto cpGetStream = inArchiveAdapter.QueryInterface <
-                        SevenZipCore::IInArchiveGetStream > (
-                        SevenZipCore::IID_IInArchiveGetStream);
-                    if (!cpGetStream)
-                    {
-                        break;
-                    }
-                    auto cpSubSeqStream = SevenZipCore::IInArchiveGetStreamAdapter<>
-                        (*cpGetStream).GetStream(m_archiveFile.GetIndex());
-                    if (!cpSubSeqStream)
-                    {
-                        break;
-                    }
-                    auto cpSubStream = SevenZipCore::Helper::QueryInterface <
-                        SevenZipCore::IInStream > (
-                        *cpSubSeqStream, SevenZipCore::IID_IInStream);
-                    if (!cpSubStream)
-                    {
-                        break;
-                    }
-                    return make_shared<VirtualRootModel>(GetLocation(),
-                        GetName(),
-                        m_wpParent.lock(),
-                        move(cpSubStream),
-                        nullptr);
-                    break;
-                }
-            }
-            catch (const SevenZipCore::SevenZipCoreException &)
-            {
-            }
-            __ExtractToTempFolder();
-            return make_shared<VirtualRootModel>(GetLocation(),
-                GetName(),
-                m_upTempFolder->GetFilePath(),
-                m_wpParent.lock(),
-                nullptr);
-        }
+        return nullptr;
+    }
+    if (IsDirectory())
+    {
+        return make_shared<VirtualModel>(GetLocation(),
+            GetInternalLocation(),
+            GetName(),
+            spParent,
+            dynamic_cast<SevenZipCore::ArchiveFolder &>(m_archiveFile));
     }
     else
     {
-        return nullptr;
+        auto progressDialog = ProgressDialog { wxTheApp->GetTopWindow(),
+            wxID_ANY, ProgressDialog::Mode::Open };
+        promise<shared_ptr<ModelBase>> result;
+        thread { [&]() {
+            try
+            {
+                result.set_value(__GetVirtualModel(&progressDialog));
+            }
+            catch (...)
+            {
+                result.set_exception(current_exception());
+            }
+            wxTheApp->CallAfter([&]() {
+                progressDialog.Done(false);
+            });
+        } }.detach();
+        progressDialog.ShowModal();
+        return result.get_future().get();
     }
 }
 
@@ -113,7 +89,7 @@ void VirtualEntry::OpenExternal() const
 {
     if (!m_upTempFolder)
     {
-        __ExtractToTempFolder();
+        __ExtractToTempFolder(nullptr);
     }
     auto tstrFilePath = m_upTempFolder->GetFilePath();
     if (!tstrFilePath.empty())
@@ -171,15 +147,64 @@ bool VirtualEntry::Compare(const EntryBase &otherEntry,
     return EntryBase::Compare(otherEntry, itemType, isAscending);
 }
 
-void VirtualEntry::__ExtractToTempFolder() const
+void VirtualEntry::__ExtractToTempFolder(ProgressDialog *pProgressDialog) const
 {
     m_upTempFolder.reset(new TempFolder());
     m_upTempFolder->SetFilePath(
         VirtualFileExtractor(m_upTempFolder->GetLocation(),
         &dynamic_pointer_cast<VirtualModel>(GetContainer())->GetProperty(),
-        nullptr,
+        pProgressDialog,
         m_wpParent.lock()->GetInternalLocation(),
-        wxEmptyString, GetArchiveFile().GetArchiveEntry())
+        GetPath(), GetArchiveFile().GetArchiveEntry())
         .AddPlan(*this)
         .Execute().GetLastExtractPath());
+}
+
+shared_ptr<VirtualModel> VirtualEntry::__GetVirtualModel(
+    ProgressDialog *pProgressDialog) const
+{
+    auto &archiveEntry = m_archiveFile.GetArchiveEntry();
+    SevenZipCore::IInArchiveAdapter<> inArchiveAdapter(
+        archiveEntry.GetInArchive());
+    try
+    {
+        for (;;)
+        {
+            auto cpGetStream = inArchiveAdapter.QueryInterface <
+                SevenZipCore::IInArchiveGetStream > (
+                SevenZipCore::IID_IInArchiveGetStream);
+            if (!cpGetStream)
+            {
+                break;
+            }
+            auto cpSubSeqStream = SevenZipCore::IInArchiveGetStreamAdapter<>
+                (*cpGetStream).GetStream(m_archiveFile.GetIndex());
+            if (!cpSubSeqStream)
+            {
+                break;
+            }
+            auto cpSubStream = SevenZipCore::Helper::QueryInterface <
+                SevenZipCore::IInStream > (
+                *cpSubSeqStream, SevenZipCore::IID_IInStream);
+            if (!cpSubStream)
+            {
+                break;
+            }
+            return make_shared<VirtualRootModel>(GetLocation(),
+                GetName(),
+                m_wpParent.lock(),
+                move(cpSubStream),
+                pProgressDialog);
+            break;
+        }
+    }
+    catch (const SevenZipCore::SevenZipCoreException &)
+    {
+    }
+    __ExtractToTempFolder(pProgressDialog);
+    return make_shared<VirtualRootModel>(GetLocation(),
+        GetName(),
+        m_upTempFolder->GetFilePath(),
+        m_wpParent.lock(),
+        pProgressDialog);
 }
