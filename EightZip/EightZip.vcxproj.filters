@@ -237,6 +237,9 @@
     <ClInclude Include="ArchiveProperty.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ThreadHelper.h">
+      <Filter>头文件\Helper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">

@@ -134,6 +134,7 @@
     <ClInclude Include="ScopeGuard.h" />
     <ClInclude Include="SevenZipCore\IOpenIndicator.h" />
     <ClInclude Include="SevenZipCore\IPassword.h" />
+    <ClInclude Include="ThreadHelper.h" />
     <ClInclude Include="VirtualEntry.h" />
     <ClInclude Include="ArchiveHelper.h" />
     <ClInclude Include="VirtualModel.h" />
