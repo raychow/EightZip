@@ -16,17 +16,14 @@ public:
         return codecsLoader;
     }
     
-    std::shared_ptr<SevenZipCore::Codecs> GetCodecs() const
-    {
-        return m_cpCodecs;
-    }
+    std::shared_ptr<SevenZipCore::Codecs> GetCodecs() const;
 
 private:
-    CodecsLoader();
-    CodecsLoader(const CodecsLoader &);
-    CodecsLoader& operator=(const CodecsLoader &);
+    CodecsLoader() {}
+    CodecsLoader(const CodecsLoader &) = delete;
+    CodecsLoader& operator=(const CodecsLoader &) = delete;
 
-    std::shared_ptr<SevenZipCore::Codecs> m_cpCodecs;
+    mutable std::weak_ptr<SevenZipCore::Codecs> m_wpCodecs;
 
 };
 
