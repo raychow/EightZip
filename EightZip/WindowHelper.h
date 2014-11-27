@@ -7,6 +7,6 @@ namespace Helper
 {
     wxSizer *AlignBorder(wxSizer *pSizer);
 
-};
+}
 
 #endif // WINDOWHELPER_H

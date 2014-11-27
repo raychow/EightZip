@@ -23,6 +23,6 @@ namespace Helper
     bool IsPathEqual(const TString &tstrLeft, const TString &tstrRight);
     TString GetLocation(const TString &tstrPath);
 
-};
+}
 
 #endif // FILEHELPER_H
