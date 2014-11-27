@@ -8,11 +8,24 @@
 
 #include "SevenZipCore/TString.h"
 
+namespace SevenZipCore
+{
+    class Archive;
+    struct IArchiveOpenCallback;
+    struct IInStream;
+}
+
 class EntryBase;
 class VirtualModel;
 
 namespace Helper
 {
+    std::unique_ptr<SevenZipCore::Archive> CreateArchive(TString tstrPath,
+        SevenZipCore::IArchiveOpenCallback *pCallback);
+    std::unique_ptr<SevenZipCore::Archive> CreateArchive(TString tstrPath,
+        std::shared_ptr<SevenZipCore::IInStream> cpStream,
+        SevenZipCore::IArchiveOpenCallback *pCallback);
+
     bool Extract(TString tstrPath,
         TString tstrInternalPath,
         std::shared_ptr<VirtualModel> spModel,

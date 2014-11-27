@@ -9,7 +9,7 @@
 #include "SevenZipCore/Exception.h"
 #include "SevenZipCore/OpenCallback.h"
 
-#include "CodecsLoader.h"
+#include "ArchiveHelper.h"
 #include "FileHelper.h"
 #include "FolderModel.h"
 #include "OpenIndicator.h"
@@ -92,8 +92,7 @@ bool FolderEntry::CanExtract() const
         auto tstrPath = GetPath();
         try
         {
-            SevenZipCore::Archive(CodecsLoader::GetInstance().GetCodecs(),
-                GetPath(), nullptr);
+            Helper::CreateArchive(GetPath(), nullptr);
             return true;
         }
         catch (const SevenZipCore::SevenZipCoreException &)

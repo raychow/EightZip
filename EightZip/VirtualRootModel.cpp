@@ -6,7 +6,7 @@ using namespace std;
 #include "SevenZipCore/Archive.h"
 #include "SevenZipCore/OpenCallback.h"
 
-#include "CodecsLoader.h"
+#include "ArchiveHelper.h"
 #include "OpenIndicator.h"
 
 ArchiveHandler::ArchiveHandler(TString tstrPath,
@@ -15,8 +15,7 @@ ArchiveHandler::ArchiveHandler(TString tstrPath,
     auto openIndicator = OpenIndicator { &GetProperty(), pProgressDialog };
     auto upCallback = SevenZipCore::MakeUniqueCom(
         new SevenZipCore::OpenCallback { &openIndicator });
-    m_upArchive = make_unique<SevenZipCore::Archive>(
-        CodecsLoader::GetInstance().GetCodecs(), tstrPath, upCallback.get());
+    m_upArchive = Helper::CreateArchive(move(tstrPath), upCallback.get());
 }
 
 ArchiveHandler::ArchiveHandler(TString tstrPath,
@@ -26,9 +25,8 @@ ArchiveHandler::ArchiveHandler(TString tstrPath,
     auto openIndicator = OpenIndicator { &GetProperty(), pProgressDialog };
     auto upCallback = SevenZipCore::MakeUniqueCom(
         new SevenZipCore::OpenCallback { &openIndicator });
-    m_upArchive = make_unique<SevenZipCore::Archive>(
-        CodecsLoader::GetInstance().GetCodecs(),
-        tstrPath, move(cpStream), upCallback.get());
+    m_upArchive = Helper::CreateArchive(
+        move(tstrPath), move(cpStream), upCallback.get());
 }
 
 VirtualRootModel::VirtualRootModel(TString tstrLocation,

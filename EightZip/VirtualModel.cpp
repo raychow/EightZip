@@ -14,7 +14,6 @@
 #include "SevenZipCore/IExtractIndicator.h"
 #include "SevenZipCore/OpenCallback.h"
 
-#include "CodecsLoader.h"
 #include "Exception.h"
 #include "FileHelper.h"
 #include "FileInfo.h"

@@ -4,10 +4,14 @@
 #include <queue>
 #include <thread>
 
+#include "SevenZipCore/Archive.h"
 #include "SevenZipCore/ArchiveFile.h"
 #include "SevenZipCore/CommonHelper.h"
 #include "SevenZipCore/Exception.h"
+#include "SevenZipCore/IArchive.h"
+#include "SevenZipCore/IStream.h"
 
+#include "CodecsLoader.h"
 #include "EntryBase.h"
 #include "ExtractIndicator.h"
 #include "Extractor.h"
@@ -112,6 +116,22 @@ namespace Helper
         CallExecute(extractor, pProgressDialog, isLaunchFolder);
     }
 
+    unique_ptr<SevenZipCore::Archive> CreateArchive(TString tstrPath,
+        SevenZipCore::IArchiveOpenCallback *pCallback)
+    {
+        return make_unique<SevenZipCore::Archive>(
+            CodecsLoader::GetInstance().GetCodecs(), move(tstrPath), pCallback);
+    }
+
+    unique_ptr<SevenZipCore::Archive> CreateArchive(TString tstrPath,
+        shared_ptr<SevenZipCore::IInStream> cpStream,
+        SevenZipCore::IArchiveOpenCallback *pCallback)
+    {
+        return make_unique<SevenZipCore::Archive>(
+            CodecsLoader::GetInstance().GetCodecs(),
+            move(tstrPath), move(cpStream), pCallback);
+    }
+
     bool Extract(TString tstrPath,
         TString tstrInternalPath,
         shared_ptr<VirtualModel> spModel,
@@ -198,4 +218,5 @@ namespace Helper
         }
         return true;
     }
+
 }
