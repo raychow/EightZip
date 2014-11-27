@@ -2,7 +2,6 @@
 #include "ExtractIndicator.h"
 
 #include <functional>
-#include <future>
 
 #include "SevenZipCore/CommonHelper.h"
 
@@ -10,6 +9,7 @@
 #include "OverwriteDialog.h"
 #include "ProgressDialog.h"
 #include "ScopeGuard.h"
+#include "ThreadHelper.h"
 
 using namespace std;
 
@@ -45,26 +45,8 @@ SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
     case SevenZipCore::OverwriteAnswer::Cancel:
         return m_lastOverwriteAnswer;
     }
-    auto updateOverwriteAnswer = [&]() {
-        OverwriteDialog dialog(wxTheApp->GetTopWindow(),
-            wxID_ANY,
-            _("Confirm file replace"),
-            tstrPath,
-            oftExistModified,
-            oun64ExistSize,
-            oftNewModified,
-            oun64NewSize);
-        m_lastOverwriteAnswer = static_cast<SevenZipCore::OverwriteAnswer>(
-            dialog.ShowModal());
-        if (ptstrNewPath
-            && SevenZipCore::OverwriteAnswer::Rename == m_lastOverwriteAnswer)
-        {
-            *ptstrNewPath = dialog.GetPath();
-        }
-    };
 
-    if (wxThread::IsMain())
-    {
+    return Helper::CallOnMainThread([&] {
         if (m_pProcessDialog)
         {
             m_pProcessDialog->Pause();
@@ -83,39 +65,23 @@ SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
                 }
             }
         });
-        updateOverwriteAnswer();
+        OverwriteDialog dialog(wxTheApp->GetTopWindow(),
+            wxID_ANY,
+            _("Confirm file replace"),
+            tstrPath,
+            oftExistModified,
+            oun64ExistSize,
+            oftNewModified,
+            oun64NewSize);
+        m_lastOverwriteAnswer = static_cast<SevenZipCore::OverwriteAnswer>(
+            dialog.ShowModal());
+        if (ptstrNewPath
+            && SevenZipCore::OverwriteAnswer::Rename == m_lastOverwriteAnswer)
+        {
+            *ptstrNewPath = dialog.GetPath();
+        }
         return m_lastOverwriteAnswer;
-    }
-    else
-    {
-        promise<SevenZipCore::OverwriteAnswer> result;
-        wxTheApp->CallAfter([&]() {
-            if (m_pProcessDialog)
-            {
-                m_pProcessDialog->Pause();
-            }
-            updateOverwriteAnswer();
-            result.set_value(m_lastOverwriteAnswer);
-        });
-        ON_SCOPE_EXIT([&] {
-            if (auto *pProgressDialog = m_pProcessDialog)
-            {
-                auto lastOverwriteAnswer = m_lastOverwriteAnswer;
-                wxTheApp->CallAfter([lastOverwriteAnswer, pProgressDialog]() {
-                    if (SevenZipCore::OverwriteAnswer::Cancel
-                        == lastOverwriteAnswer)
-                    {
-                        pProgressDialog->Cancel();
-                    }
-                    else
-                    {
-                        pProgressDialog->Resume();
-                    }
-                });
-            }
-        });
-        return result.get_future().get();
-    }
+    });
 }
 
 void ExtractIndicator::AddError(TString tstrMessage)
