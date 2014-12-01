@@ -14,6 +14,7 @@
 #include "FolderModel.h"
 #include "OpenIndicator.h"
 #include "ProgressDialog.h"
+#include "ScopeGuard.h"
 #include "VirtualRootModel.h"
 
 using namespace std;
@@ -55,6 +56,14 @@ shared_ptr<ModelBase> FolderEntry::GetModel() const
         auto result = shared_ptr < ModelBase > {};
         auto exceptionPtr = exception_ptr {};
         thread { [&]() {
+            ON_SCOPE_EXIT([&] {
+                if (!progressDialog.CancelDelay(true))
+                {
+                    wxTheApp->CallAfter([&]() {
+                        progressDialog.Done(false);
+                    });
+                }
+            });
             try
             {
                 result = make_shared<VirtualRootModel>(
@@ -68,11 +77,8 @@ shared_ptr<ModelBase> FolderEntry::GetModel() const
             {
                 exceptionPtr = current_exception();
             }
-            wxTheApp->CallAfter([&]() {
-                progressDialog.Done(false);
-            });
         } }.detach();
-        progressDialog.ShowModal();
+        progressDialog.ShowModalDelayed();
         if (exceptionPtr)
         {
             rethrow_exception(exceptionPtr);

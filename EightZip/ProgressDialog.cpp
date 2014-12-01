@@ -1,7 +1,11 @@
 #include "stdwx.h"
 #include "ProgressDialog.h"
 
+#include <thread>
+
 #include "SevenZipCore/CommonHelper.h"
+
+#include "ScopeGuard.h"
 
 using namespace std;
 
@@ -17,7 +21,7 @@ ProgressDialog::ProgressDialog(
 #ifdef __WXMSW__
     , m_taskerProgress(wxTheApp->GetTopWindow()->GetHandle())
 #endif
-    , m_ulPause(m_mutex, defer_lock)
+    , m_ulPause(m_mutexUpdate, defer_lock)
     , m_mode(mode)
 {
     switch (mode)
@@ -31,7 +35,6 @@ ProgressDialog::ProgressDialog(
     }
 
     __Create();
-    Resume();
 }
 
 ProgressDialog::~ProgressDialog()
@@ -40,7 +43,7 @@ ProgressDialog::~ProgressDialog()
 
 void ProgressDialog::SetArchivePath(const TString &tstrPath)
 {
-    lock_guard<mutex> lg(m_mutex);
+    lock_guard<mutex> lg(m_mutexUpdate);
     CheckCancelled();
     m_tstrArchiveFileName = SevenZipCore::Helper::GetFileName(tstrPath);
     m_tstrArchivePath = tstrPath;
@@ -48,14 +51,14 @@ void ProgressDialog::SetArchivePath(const TString &tstrPath)
 
 void ProgressDialog::SetCurrentFile(const TString &tstrFileName)
 {
-    lock_guard<mutex> lg(m_mutex);
+    lock_guard<mutex> lg(m_mutexUpdate);
     CheckCancelled();
     m_tstrCurrentFile = tstrFileName;
 }
 
 void ProgressDialog::SetTotal(UINT64 un64Total)
 {
-    lock_guard<mutex> lg(m_mutex);
+    lock_guard<mutex> lg(m_mutexUpdate);
     CheckCancelled();
     m_un64Base = m_un64NextBase;
     m_un64NextBase += un64Total;
@@ -66,7 +69,7 @@ void ProgressDialog::SetTotal(UINT64 un64Total)
 
 void ProgressDialog::SetCompleted(UINT64 un64Completed)
 {
-    lock_guard<mutex> lg(m_mutex);
+    lock_guard<mutex> lg(m_mutexUpdate);
     CheckCancelled();
     m_un64Completed = m_un64Base + un64Completed;
 #ifdef __WXMSW__
@@ -87,14 +90,60 @@ void ProgressDialog::SetCurrentTotal(UINT64 un64NowTotal)
 
 bool ProgressDialog::Show(bool show /*= true*/)
 {
-    UpdateDisplay();
+    if (show)
+    {
+        Resume();
+        UpdateDisplay();
+    }
+    else
+    {
+        Pause();
+    }
     return wxDialog::Show(show);
+}
+
+void ProgressDialog::ShowModalDelayed(int delay /*= 1000*/)
+{
+    if (IsShown())
+    {
+        return;
+    }
+    auto isCancelShow = bool {};
+    {
+        auto ul = unique_lock < mutex > {m_mutexShow};
+        m_isDelaying = true;
+        while (m_isDelaying && cv_status::no_timeout
+            == m_cvShow.wait_for(ul, chrono::milliseconds(delay)));
+        isCancelShow = m_isCancelShow;
+        if (m_isDelaying)
+        {
+            m_isDelaying = false;
+        }
+    }
+    if (!isCancelShow)
+    {
+        ShowModal();
+    }
+}
+
+bool ProgressDialog::CancelDelay(bool isCancelShow/* = false*/)
+{
+    lock_guard<mutex> lg { m_mutexShow };
+    if (!m_isDelaying)
+    {
+        return false;
+    }
+    ON_SCOPE_EXIT([&] {
+        m_cvShow.notify_one();
+    });
+    m_isDelaying = false;
+    m_isCancelShow = isCancelShow;
+    return isCancelShow;
 }
 
 void ProgressDialog::UpdateDisplay()
 {
-
-    lock_guard<mutex> lg(m_mutex);
+    lock_guard<mutex> lg(m_mutexUpdate);
     int nElasped = (m_msElasped + chrono::duration_cast<chrono::milliseconds>(
         chrono::system_clock::now() - m_tpStart)).count();
 
@@ -128,9 +177,9 @@ void ProgressDialog::UpdateDisplay()
 
 void ProgressDialog::Pause()
 {
-    if (m_timer.IsRunning())
+    if (m_timerUpdate.IsRunning())
     {
-        m_timer.Stop();
+        m_timerUpdate.Stop();
         m_msElasped += chrono::duration_cast<chrono::milliseconds>(
             chrono::system_clock::now() - m_tpStart);
         m_tpStart = chrono::system_clock::now();
@@ -139,10 +188,10 @@ void ProgressDialog::Pause()
 
 void ProgressDialog::Resume()
 {
-    if (!m_timer.IsRunning())
+    if (!m_timerUpdate.IsRunning())
     {
         m_tpStart = chrono::system_clock::now();
-        m_timer.Start(UPDATE_INTERVAL);
+        m_timerUpdate.Start(UPDATE_INTERVAL);
     }
 }
 
@@ -164,6 +213,7 @@ void ProgressDialog::Done(bool isSuccess)
         FlashWindow(wxTheApp->GetTopWindow()->GetHandle(), true);
     }
 #endif
+    CancelDelay();
     Pause();
     Destroy();
 }
@@ -179,7 +229,7 @@ void ProgressDialog::CheckCancelled() const
 void ProgressDialog::__Create()
 {
     auto *pSizerMain = new wxBoxSizer(wxVERTICAL);
-    
+
     auto *pSizerStatus = new wxStaticBoxSizer(
         new wxStaticBox(this, wxID_ANY, wxEmptyString), wxVERTICAL);
 
@@ -245,7 +295,7 @@ void ProgressDialog::__Create()
     m_pButtonPause->Bind(wxEVT_BUTTON, &ProgressDialog::__OnPauseClick, this);
     pButtonCancel->Bind(wxEVT_BUTTON, &ProgressDialog::__OnCancelClick, this);
 
-    m_timer.Bind(wxEVT_TIMER, &ProgressDialog::__OnUpdate, this);
+    m_timerUpdate.Bind(wxEVT_TIMER, &ProgressDialog::__OnUpdate, this);
 }
 
 void ProgressDialog::__OnUpdate(wxTimerEvent &WXUNUSED(event))

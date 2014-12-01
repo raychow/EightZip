@@ -19,7 +19,7 @@ public:
     ExtractIndicator(ArchiveProperty *pArchiveProperty,
         ProgressDialog *pProgressDialog)
         : m_pArchiveProperty(pArchiveProperty)
-        , m_pProcessDialog(pProgressDialog)
+        , m_pProgressDialog(pProgressDialog)
     { }
 
     virtual void SetTotal(UINT64 un64Total) override;
@@ -42,12 +42,12 @@ public:
 
     inline ProgressDialog *GetProgressDialog() const
     {
-        return m_pProcessDialog;
+        return m_pProgressDialog;
     }
 
 private:
     ArchiveProperty *m_pArchiveProperty = nullptr;
-    ProgressDialog *m_pProcessDialog = nullptr;
+    ProgressDialog *m_pProgressDialog = nullptr;
 
     SevenZipCore::OverwriteAnswer m_lastOverwriteAnswer
         = SevenZipCore::OverwriteAnswer::Unknown;

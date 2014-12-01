@@ -13,6 +13,7 @@
 #include "FileHelper.h"
 #include "OpenIndicator.h"
 #include "ProgressDialog.h"
+#include "ScopeGuard.h"
 #include "VirtualModel.h"
 #include "VirtualRootModel.h"
 
@@ -66,22 +67,33 @@ shared_ptr<ModelBase> VirtualEntry::GetModel() const
     {
         auto progressDialog = ProgressDialog { wxTheApp->GetTopWindow(),
             wxID_ANY, ProgressDialog::Mode::Open };
-        promise<shared_ptr<ModelBase>> result;
+        auto result = shared_ptr < ModelBase > {};
+        auto ex = exception_ptr {};
         thread { [&]() {
+            ON_SCOPE_EXIT([&] {
+                if (!progressDialog.CancelDelay(true))
+                {
+                    wxTheApp->CallAfter([&]() {
+                        progressDialog.Done(false);
+                    });
+                }
+            });
             try
             {
-                result.set_value(__GetVirtualModel(&progressDialog));
+                result = __GetVirtualModel(&progressDialog);
             }
             catch (...)
             {
-                result.set_exception(current_exception());
+                ex = current_exception();
             }
-            wxTheApp->CallAfter([&]() {
-                progressDialog.Done(false);
-            });
+
         } }.detach();
-        progressDialog.ShowModal();
-        return result.get_future().get();
+        progressDialog.ShowModalDelayed();
+        if (ex)
+        {
+            rethrow_exception(ex);
+        }
+        return result;
     }
 }
 

@@ -5,6 +5,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <functional>
 #include <mutex>
 
@@ -53,6 +54,8 @@ public:
     void SetCurrentTotal(UINT64 un64NowTotal);
 
     virtual bool Show(bool show = true) override;
+    void ShowModalDelayed(int delay = 1000);
+    bool CancelDelay(bool isCancelShow = false);
 
     void UpdateDisplay();
     void Pause();
@@ -68,11 +71,16 @@ private:
     Helper::TaskbarProgress m_taskerProgress;
 #endif
 
-    std::mutex m_mutex;
+    std::mutex m_mutexUpdate;
     std::unique_lock<std::mutex> m_ulPause;
-    std::atomic<bool> m_isCancelled = false;
+    std::atomic<bool> m_isCancelled = {};
 
-    wxTimer m_timer;
+    std::mutex m_mutexShow;
+    std::condition_variable m_cvShow;
+    bool m_isDelaying = {};
+    bool m_isCancelShow = {};
+
+    wxTimer m_timerUpdate;
 
     std::chrono::milliseconds m_msElasped;
     std::chrono::system_clock::time_point m_tpStart;
@@ -100,6 +108,7 @@ private:
 
     void __Create();
 
+    void __OnShow(wxTimerEvent &WXUNUSED(event));
     void __OnUpdate(wxTimerEvent &WXUNUSED(event));
     void __OnPauseClick(wxCommandEvent &WXUNUSED(event));
     void __OnCancelClick(wxCommandEvent &event);
@@ -112,20 +121,15 @@ public:
     ProgressDialogManager(ProgressDialog *pProgressDialog)
         : m_pDialog(pProgressDialog)
     {
-        wxTheApp->CallAfter(std::bind(
-            // Probably be called after destruct.
-            [](ProgressDialog *pDialog) {
-            pDialog->ShowModal();
-        }, m_pDialog));
+        auto *pDialog = m_pDialog;
+        wxTheApp->CallAfter([=] { pDialog->ShowModal(); });
     }
 
     ~ProgressDialogManager()
     {
-        wxTheApp->CallAfter(std::bind(
-            // Probably be called after destruct.
-            [](ProgressDialog *pDialog, bool isSuccess) {
-            pDialog->Done(isSuccess);
-        }, m_pDialog, m_isSuccess));
+        auto *pDialog = m_pDialog;
+        auto isSuccess = m_isSuccess;
+        wxTheApp->CallAfter([=] { pDialog->Done(isSuccess); });
     }
 
     void SetSuccess(bool isSuccess)

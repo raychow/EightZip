@@ -15,17 +15,17 @@ using namespace std;
 
 void ExtractIndicator::SetTotal(UINT64 un64Total)
 {
-    if (m_pProcessDialog)
+    if (m_pProgressDialog)
     {
-        m_pProcessDialog->SetTotal(un64Total);
+        m_pProgressDialog->SetTotal(un64Total);
     }
 }
 
 void ExtractIndicator::SetCompleted(boost::optional<UINT64> oun64Value)
 {
-    if (m_pProcessDialog)
+    if (m_pProgressDialog)
     {
-        m_pProcessDialog->SetCompleted(oun64Value ? *oun64Value : 0);
+        m_pProgressDialog->SetCompleted(oun64Value ? *oun64Value : 0);
     }
 }
 
@@ -46,33 +46,37 @@ SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
         return m_lastOverwriteAnswer;
     }
 
+    if (m_pProgressDialog)
+    {
+        m_pProgressDialog->CancelDelay();
+    }
     return Helper::CallOnMainThread([&] {
-        if (m_pProcessDialog)
+        if (m_pProgressDialog)
         {
-            m_pProcessDialog->Pause();
+            m_pProgressDialog->Pause();
         }
         ON_SCOPE_EXIT([&] {
-            if (m_pProcessDialog)
+            if (m_pProgressDialog)
             {
                 if (SevenZipCore::OverwriteAnswer::Cancel
                     == m_lastOverwriteAnswer)
                 {
-                    m_pProcessDialog->Cancel();
+                    m_pProgressDialog->Cancel();
                 }
                 else
                 {
-                    m_pProcessDialog->Resume();
+                    m_pProgressDialog->Resume();
                 }
             }
         });
-        OverwriteDialog dialog(wxTheApp->GetTopWindow(),
+        OverwriteDialog dialog { wxTheApp->GetTopWindow(),
             wxID_ANY,
             _("Confirm file replace"),
             tstrPath,
             oftExistModified,
             oun64ExistSize,
             oftNewModified,
-            oun64NewSize);
+            oun64NewSize };
         m_lastOverwriteAnswer = static_cast<SevenZipCore::OverwriteAnswer>(
             dialog.ShowModal());
         if (ptstrNewPath
@@ -99,9 +103,9 @@ void ExtractIndicator::Prepare(TString tstrPath,
     SevenZipCore::ExtractAskMode askMode,
     boost::optional<UINT64> oun64Position)
 {
-    if (m_pProcessDialog)
+    if (m_pProgressDialog)
     {
-        m_pProcessDialog->SetCurrentFile(
+        m_pProgressDialog->SetCurrentFile(
             SevenZipCore::Helper::GetFileName(tstrPath));
     }
 }
@@ -114,9 +118,29 @@ void ExtractIndicator::SetOperationResult(
 
 boost::optional<TString> ExtractIndicator::GetPassword() const
 {
-    if (m_pArchiveProperty)
+    if (!m_pArchiveProperty)
+    {
+        return boost::none;
+    }
+    if (m_pArchiveProperty->IsSetPassword())
     {
         return m_pArchiveProperty->GetPassword();
     }
-    return boost::none;
+    if (m_pProgressDialog)
+    {
+        m_pProgressDialog->CancelDelay();
+    }
+    return Helper::CallOnMainThread([&] {
+        if (m_pProgressDialog)
+        {
+            m_pProgressDialog->Pause();
+        }
+        ON_SCOPE_EXIT([&] {
+            if (m_pProgressDialog)
+            {
+                m_pProgressDialog->Resume();
+            }
+        });
+        return m_pArchiveProperty->GetPassword();
+    });
 }

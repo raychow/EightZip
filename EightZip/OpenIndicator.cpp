@@ -2,7 +2,6 @@
 #include "OpenIndicator.h"
 
 #include "ArchiveProperty.h"
-#include "PasswordDialog.h"
 #include "ProgressDialog.h"
 #include "ScopeGuard.h"
 #include "ThreadHelper.h"
@@ -30,6 +29,10 @@ boost::optional<TString> OpenIndicator::GetPassword()
     if (m_pArchiveProperty->IsSetPassword())
     {
         return m_pArchiveProperty->GetPassword();
+    }
+    if (m_pProgressDialog)
+    {
+        m_pProgressDialog->CancelDelay();
     }
     return Helper::CallOnMainThread([&] {
         if (m_pProgressDialog)
