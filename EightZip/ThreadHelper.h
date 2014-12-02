@@ -17,14 +17,16 @@ namespace Helper
         }
         else
         {
+            auto isFinished = bool { false };
             std::condition_variable cv {};
-            wxTheApp->CallAfter([&]() {
-                fun();
-                cv.notify_one();
-            });
             std::mutex mtx {};
             std::unique_lock < std::mutex > ul { mtx };
-            cv.wait(ul);
+            wxTheApp->CallAfter([&]() {
+                fun();
+                isFinished = true;
+                cv.notify_one();
+            });
+            cv.wait(ul, [&] { return isFinished; });
         }
     }
 
