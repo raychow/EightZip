@@ -4,7 +4,14 @@
 
 #include "TaskbarProgressHelper.h"
 
+#ifdef __EIGHT_XP__
+bool IsWindows7OrGreater()
+{
+    return false;
+}
+#else
 #include <VersionHelpers.h>
+#endif
 
 namespace Helper
 {
@@ -32,20 +39,18 @@ namespace Helper
     void TaskbarProgress::SetValue(
         UINT64 un64Completed, UINT64 un64Total) const
     {
-        if (!m_pTaskbarList)
+        if (m_pTaskbarList)
         {
-            return;
+            m_pTaskbarList->SetProgressValue(m_handle, un64Completed, un64Total);
         }
-        m_pTaskbarList->SetProgressValue(m_handle, un64Completed, un64Total);
     }
 
     void TaskbarProgress::SetState(TBPFLAG tbpFlags) const
     {
-        if (!m_pTaskbarList)
+        if (m_pTaskbarList)
         {
-            return;
+            m_pTaskbarList->SetProgressState(m_handle, tbpFlags);
         }
-        m_pTaskbarList->SetProgressState(m_handle, tbpFlags);
     }
 }
 
