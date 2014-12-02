@@ -108,37 +108,32 @@ void ProgressDialog::ShowModalDelayed(int delay /*= 1000*/)
     {
         return;
     }
-    auto isCancelShow = bool {};
+    wxTimer timer { this, ID_SHOW_TIMER };
+    timer.StartOnce(delay);
+    timer.Notify();
+    ShowModalDetector detector { *this };
     {
-        auto ul = unique_lock < mutex > {m_mutexShow};
-        m_isDelaying = true;
-        while (m_isDelaying && cv_status::no_timeout
-            == m_cvShow.wait_for(ul, chrono::milliseconds(delay)));
-        isCancelShow = m_isCancelShow;
-        if (m_isDelaying)
+        auto *pTopWindow = wxTheApp->GetTopWindow();
+        pTopWindow->Enable(false);
+        ON_SCOPE_EXIT([&] { pTopWindow->Enable(true); });
+        while (!detector.IsShow() && !m_isClosed)
         {
-            m_isDelaying = false;
+            wxTheApp->Dispatch();
         }
     }
-    if (!isCancelShow)
+    detector.RemoveFilter();
+    if (detector.IsShow())
     {
         ShowModal();
     }
 }
 
-bool ProgressDialog::CancelDelay(bool isCancelShow/* = false*/)
+void ProgressDialog::CancelDelay()
 {
-    lock_guard<mutex> lg { m_mutexShow };
-    if (!m_isDelaying)
-    {
-        return false;
-    }
-    ON_SCOPE_EXIT([&] {
-        m_cvShow.notify_one();
-    });
-    m_isDelaying = false;
-    m_isCancelShow = isCancelShow;
-    return isCancelShow;
+    wxShowEvent event(GetId(), true);
+    event.SetEventObject(this);
+
+    HandleWindowEvent(event);
 }
 
 void ProgressDialog::UpdateDisplay()
@@ -207,15 +202,15 @@ void ProgressDialog::Cancel()
 
 void ProgressDialog::Done(bool isSuccess)
 {
+    m_isClosed = true;
 #ifdef __WXMSW__
     if (isSuccess)
     {
         FlashWindow(wxTheApp->GetTopWindow()->GetHandle(), true);
     }
 #endif
-    CancelDelay();
     Pause();
-    Destroy();
+    Hide();
 }
 
 void ProgressDialog::CheckCancelled() const
@@ -328,4 +323,31 @@ void ProgressDialog::__OnPauseClick(wxCommandEvent &WXUNUSED(event))
 void ProgressDialog::__OnCancelClick(wxCommandEvent &event)
 {
     Cancel();
+}
+
+int ProgressDialog::ShowModalDetector::FilterEvent(wxEvent &event)
+{
+    const auto type = event.GetEventType();
+    if (wxEVT_SHOW == type ||
+        wxEVT_TIMER == type && ID_SHOW_TIMER == event.GetId())
+    {
+        if (!m_progressDialog.m_isClosed)
+        {
+            m_isShow = true;
+        }
+    }
+    else if (wxEVT_ASYNC_METHOD_CALL == type)
+    {
+        return Event_Skip;
+    }
+    return Event_Ignore;
+}
+
+void ProgressDialog::ShowModalDetector::RemoveFilter()
+{
+    if (!m_isRemoved)
+    {
+        wxEvtHandler::RemoveFilter(this);
+        m_isRemoved = true;
+    }
 }

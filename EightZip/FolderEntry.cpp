@@ -57,12 +57,9 @@ shared_ptr<ModelBase> FolderEntry::GetModel() const
         auto exceptionPtr = exception_ptr {};
         thread { [&]() {
             ON_SCOPE_EXIT([&] {
-                if (!progressDialog.CancelDelay(true))
-                {
-                    wxTheApp->CallAfter([&]() {
-                        progressDialog.Done(false);
-                    });
-                }
+                wxTheApp->CallAfter([&]() {
+                    progressDialog.Done(false);
+                });
             });
             try
             {

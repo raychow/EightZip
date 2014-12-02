@@ -48,7 +48,9 @@ SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
 
     if (m_pProgressDialog)
     {
-        m_pProgressDialog->CancelDelay();
+        Helper::InvokeOnMainThread([&] {
+            m_pProgressDialog->CancelDelay();
+        });
     }
     return Helper::CallOnMainThread([&] {
         if (m_pProgressDialog)
@@ -128,7 +130,9 @@ boost::optional<TString> ExtractIndicator::GetPassword() const
     }
     if (m_pProgressDialog)
     {
-        m_pProgressDialog->CancelDelay();
+        Helper::InvokeOnMainThread([&] {
+            m_pProgressDialog->CancelDelay();
+        });
     }
     return Helper::CallOnMainThread([&] {
         if (m_pProgressDialog)

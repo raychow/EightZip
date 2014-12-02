@@ -71,12 +71,9 @@ shared_ptr<ModelBase> VirtualEntry::GetModel() const
         auto ex = exception_ptr {};
         thread { [&]() {
             ON_SCOPE_EXIT([&] {
-                if (!progressDialog.CancelDelay(true))
-                {
-                    wxTheApp->CallAfter([&]() {
-                        progressDialog.Done(false);
-                    });
-                }
+                wxTheApp->CallAfter([&]() {
+                    progressDialog.Done(false);
+                });
             });
             try
             {

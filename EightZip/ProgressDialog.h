@@ -23,6 +23,11 @@ class ProgressDialog
     : public wxDialog
 {
 public:
+    enum
+    {
+        ID_SHOW_TIMER = wxID_HIGHEST + 1,
+    };
+
     enum class Mode
     {
         Open,
@@ -55,7 +60,7 @@ public:
 
     virtual bool Show(bool show = true) override;
     void ShowModalDelayed(int delay = 1000);
-    bool CancelDelay(bool isCancelShow = false);
+    void CancelDelay();
 
     void UpdateDisplay();
     void Pause();
@@ -67,6 +72,37 @@ public:
     void CheckCancelled() const;
 
 private:
+    class ShowModalDetector
+        : public wxEventFilter
+    {
+    public:
+        explicit ShowModalDetector(ProgressDialog &progressDialog)
+            : m_progressDialog(progressDialog)
+        {
+            wxEvtHandler::AddFilter(this);
+        }
+
+        virtual ~ShowModalDetector()
+        {
+            RemoveFilter();
+        }
+
+        virtual int FilterEvent(wxEvent &event) override;
+
+        inline bool IsShow() const { return m_isShow; }
+
+        void RemoveFilter();
+
+    private:
+        bool m_isRemoved = false;
+        bool m_isShow = false;
+        ProgressDialog &m_progressDialog;
+
+        ShowModalDetector(const ShowModalDetector &) = delete;
+        ShowModalDetector &operator=(const ShowModalDetector &) = delete;
+
+    };
+
 #ifdef __WXMSW__
     Helper::TaskbarProgress m_taskerProgress;
 #endif
@@ -75,10 +111,7 @@ private:
     std::unique_lock<std::mutex> m_ulPause;
     std::atomic<bool> m_isCancelled = {};
 
-    std::mutex m_mutexShow;
-    std::condition_variable m_cvShow;
-    bool m_isDelaying = {};
-    bool m_isCancelShow = {};
+    bool m_isClosed = {};
 
     wxTimer m_timerUpdate;
 
@@ -129,7 +162,10 @@ public:
     {
         auto *pDialog = m_pDialog;
         auto isSuccess = m_isSuccess;
-        wxTheApp->CallAfter([=] { pDialog->Done(isSuccess); });
+        wxTheApp->CallAfter([=] {
+            pDialog->Done(isSuccess);
+            pDialog->Destroy();
+        });
     }
 
     void SetSuccess(bool isSuccess)

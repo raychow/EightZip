@@ -32,7 +32,9 @@ boost::optional<TString> OpenIndicator::GetPassword()
     }
     if (m_pProgressDialog)
     {
-        m_pProgressDialog->CancelDelay();
+        Helper::InvokeOnMainThread([&] {
+            m_pProgressDialog->CancelDelay();
+        });
     }
     return Helper::CallOnMainThread([&] {
         if (m_pProgressDialog)
