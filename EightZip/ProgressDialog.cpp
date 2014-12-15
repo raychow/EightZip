@@ -13,10 +13,10 @@ ProgressDialog::ProgressDialog(
     wxWindow *parent,
     wxWindowID id,
     Mode mode,
-    const wxPoint& pos /*= wxDefaultPosition*/,
-    const wxSize& size /*= wxDefaultSize*/,
+    const wxPoint &pos /*= wxDefaultPosition*/,
+    const wxSize &size /*= wxDefaultSize*/,
     long style /*= wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER*/,
-    const wxString& name /*= wxDialogNameStr*/)
+    const wxString &name /*= wxDialogNameStr*/)
     : wxDialog(parent, id, wxEmptyString, pos, size, style, name)
 #ifdef __WXMSW__
     , m_taskerProgress(wxTheApp->GetTopWindow()->GetHandle())

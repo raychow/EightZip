@@ -43,10 +43,10 @@ public:
         wxWindow *parent,
         wxWindowID id,
         Mode mode,
-        const wxPoint& pos = wxDefaultPosition,
-        const wxSize& size = wxDefaultSize,
+        const wxPoint &pos = wxDefaultPosition,
+        const wxSize &size = wxDefaultSize,
         long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER,
-        const wxString& name = wxDialogNameStr);
+        const wxString &name = wxDialogNameStr);
 
     virtual ~ProgressDialog();
 

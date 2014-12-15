@@ -69,6 +69,7 @@ void Extractor::_Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
     }
     catch (const SevenZipCore::ArchiveException &)
     {
+
         //if (m_pExtractIndicator
         //    && m_pProgressDialog && !m_pProgressDialog->IsCancelled())
         //{
@@ -123,7 +124,7 @@ RealFileExtractor &RealFileExtractor::Execute()
                 nullptr);
             _Execute(spModel->GetArchive().GetArchiveEntry(),
                 &spModel->GetProperty(),
-                vector < UINT32 > {});
+                {});
             isSuccess = true;
         }
         catch (const SevenZipCore::SevenZipCoreException &)

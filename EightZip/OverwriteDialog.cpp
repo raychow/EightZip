@@ -38,16 +38,16 @@ wxString GetBytesString(UINT64 value)
 OverwriteDialog::OverwriteDialog(
     wxWindow *parent,
     wxWindowID id,
-    const wxString& title,
+    const wxString &title,
     TString tstrPath,
     boost::optional<time_t> oftExistModified,
     boost::optional<UINT64> oun64ExistSize,
     boost::optional<time_t> oftNewModified,
     boost::optional<UINT64> oun64NewSize,
-    const wxPoint& pos /*= wxDefaultPosition*/,
-    const wxSize& size /*= wxDefaultSize*/,
+    const wxPoint &pos /*= wxDefaultPosition*/,
+    const wxSize &size /*= wxDefaultSize*/,
     long style /*= wxDEFAULT_DIALOG_STYLE*/,
-    const wxString& name /*= wxDialogNameStr*/)
+    const wxString &name /*= wxDialogNameStr*/)
     : wxDialog(parent, id, title, pos, size, style, name)
     , m_imageList(false)
     , m_tstrPath(tstrPath)

@@ -12,7 +12,7 @@ ExtractDialog::ExtractDialog(
     const wxPoint &pos /*= wxDefaultPosition*/,
     const wxSize &size /*= wxDefaultSize*/,
     long style /*= wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER*/,
-    const wxString& name /*= wxDialogNameStr*/)
+    const wxString &name /*= wxDialogNameStr*/)
     : wxDialog(parent, id, title, pos, size, style, name)
     , m_windowStateManager(this,
     ConfigIndex::Nothing,
