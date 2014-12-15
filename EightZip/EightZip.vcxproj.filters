@@ -240,6 +240,9 @@
     <ClInclude Include="ThreadHelper.h">
       <Filter>头文件\Helper</Filter>
     </ClInclude>
+    <ClInclude Include="MessageDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdwx.cpp">
@@ -382,6 +385,9 @@
     </ClCompile>
     <ClCompile Include="VirtualRootModel.cpp">
       <Filter>源文件\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageDialog.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

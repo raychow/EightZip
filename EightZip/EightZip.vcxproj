@@ -129,6 +129,7 @@
   <ItemGroup>
     <ClInclude Include="ArchiveProperty.h" />
     <ClInclude Include="Extractor.h" />
+    <ClInclude Include="MessageDialog.h" />
     <ClInclude Include="OpenIndicator.h" />
     <ClInclude Include="PasswordDialog.h" />
     <ClInclude Include="ScopeGuard.h" />
@@ -200,6 +201,7 @@
   <ItemGroup>
     <ClCompile Include="ArchiveProperty.cpp" />
     <ClCompile Include="Extractor.cpp" />
+    <ClCompile Include="MessageDialog.cpp" />
     <ClCompile Include="OpenIndicator.cpp" />
     <ClCompile Include="PasswordDialog.cpp" />
     <ClCompile Include="VirtualEntry.cpp" />
