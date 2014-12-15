@@ -6,6 +6,8 @@
 #include "SevenZipCore/CommonHelper.h"
 
 #include "ArchiveProperty.h"
+#include "Exception.h"
+#include "MessageDialog.h"
 #include "OverwriteDialog.h"
 #include "ProgressDialog.h"
 #include "ScopeGuard.h"
@@ -92,12 +94,17 @@ SevenZipCore::OverwriteAnswer ExtractIndicator::AskOverwrite(
 
 void ExtractIndicator::AddError(TString tstrMessage)
 {
-    //wxMessageBox(wxString::Format("AddError: %s", tstrMessage));
+    Helper::InvokeOnMainThread([&] {
+        MessageDialog::ShowAndAddMessage(tstrMessage);
+    });
 }
 
 void ExtractIndicator::AddError(TString tstrMessage, TString tstrParameter)
 {
-    //wxMessageBox(wxString::Format("AddError: %s %s", tstrMessage, tstrParameter));
+    Helper::InvokeOnMainThread([&] {
+        MessageDialog::ShowAndAddMessage(
+            wxString::Format(_(tstrMessage), tstrParameter).ToStdWstring());
+    });
 }
 
 void ExtractIndicator::Prepare(TString tstrPath,
@@ -115,7 +122,26 @@ void ExtractIndicator::Prepare(TString tstrPath,
 void ExtractIndicator::SetOperationResult(
     SevenZipCore::ExtractResult extractResult)
 {
-    //wxMessageBox(wxString::Format("SetOperationResult: %d", extractResult));
+    auto tstrMessage = TString {};
+    switch (extractResult)
+    {
+    case SevenZipCore::ExtractResult::OK:
+        return;
+    case SevenZipCore::ExtractResult::UnSupportedMethod:
+        tstrMessage = _("Unsupported compression method.");
+        break;
+    case SevenZipCore::ExtractResult::DataError:
+        tstrMessage = _("Data error.");
+        break;
+    case SevenZipCore::ExtractResult::CRCError:
+        tstrMessage = _("CRC failed.");
+        break;
+    default:
+        throw ArchiveException("Not supported extract result.");
+    }
+    Helper::InvokeOnMainThread([&] {
+        MessageDialog::ShowAndAddMessage(tstrMessage);
+    });
 }
 
 boost::optional<TString> ExtractIndicator::GetPassword() const

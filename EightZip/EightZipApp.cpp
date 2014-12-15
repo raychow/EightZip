@@ -11,6 +11,7 @@ bool EightZipApp::OnInit()
 {
     wxImage::AddHandler(new wxPNGHandler);
     EightZipFrame *eightZip = new EightZipFrame();
+    SetTopWindow(eightZip);
     eightZip->Show(true);
 
     return true;
