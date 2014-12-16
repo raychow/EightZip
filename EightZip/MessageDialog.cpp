@@ -26,6 +26,8 @@ void MessageDialog::AddMessage(const TString &tstrMessage)
     if (-1 != index)
     {
         m_pListViewMessage->SetItem(index, 1, tstrMessage);
+        m_pListViewMessage->SetColumnWidth(0, wxLIST_AUTOSIZE);
+        m_pListViewMessage->SetColumnWidth(1, wxLIST_AUTOSIZE);
     }
 }
 
@@ -43,8 +45,7 @@ void MessageDialog::__Create()
 
     m_pListViewMessage = new wxListView { this, wxID_ANY };
     m_pListViewMessage->InsertColumn(0, wxEmptyString, wxLIST_FORMAT_RIGHT);
-    m_pListViewMessage->InsertColumn(1, _("Message"), wxLIST_FORMAT_LEFT,
-        wxLIST_AUTOSIZE_USEHEADER);
+    m_pListViewMessage->InsertColumn(1, _("Message"), wxLIST_FORMAT_LEFT);
     pSizerMain->Add(m_pListViewMessage,
         wxSizerFlags().Border(wxALL, 7).Expand().Proportion(1));
 
