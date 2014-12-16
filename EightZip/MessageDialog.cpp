@@ -59,6 +59,7 @@ void MessageDialog::__Create()
 
     SetSizer(pSizerMain);
     SetSize(500, 280);
+    Layout();
     //CenterOnParent();
 
     Bind(wxEVT_CLOSE_WINDOW, [&](wxCloseEvent &event) {
