@@ -28,7 +28,8 @@ namespace SevenZipCore
             bool isFolder,
             ExtractAskMode askMode,
             boost::optional<UINT64> oun64Position) = 0;
-        virtual void SetOperationResult(ExtractResult extractResult) = 0;
+        virtual void SetOperationResult(
+            SevenZipCore::ExtractResult extractResult, bool isEncrypted) = 0;
         virtual boost::optional<TString> GetPassword() const = 0;
 
         virtual ~IExtractIndicator() = 0 { }

@@ -101,9 +101,10 @@ void ExtractIndicator::AddError(TString tstrMessage)
 
 void ExtractIndicator::AddError(TString tstrMessage, TString tstrParameter)
 {
+    auto tstrFormattedMessage = wxString::Format(
+        _(tstrMessage), tstrParameter).ToStdWstring();
     Helper::InvokeOnMainThread([&] {
-        MessageDialog::ShowAndAddMessage(
-            wxString::Format(_(tstrMessage), tstrParameter).ToStdWstring());
+        MessageDialog::ShowAndAddMessage(tstrFormattedMessage);
     });
 }
 
@@ -112,6 +113,7 @@ void ExtractIndicator::Prepare(TString tstrPath,
     SevenZipCore::ExtractAskMode askMode,
     boost::optional<UINT64> oun64Position)
 {
+    m_tstrVirtualPath = tstrPath;
     if (m_pProgressDialog)
     {
         m_pProgressDialog->SetCurrentFile(
@@ -120,7 +122,7 @@ void ExtractIndicator::Prepare(TString tstrPath,
 }
 
 void ExtractIndicator::SetOperationResult(
-    SevenZipCore::ExtractResult extractResult)
+    SevenZipCore::ExtractResult extractResult, bool isEncrypted)
 {
     auto tstrMessage = TString {};
     switch (extractResult)
@@ -128,19 +130,25 @@ void ExtractIndicator::SetOperationResult(
     case SevenZipCore::ExtractResult::OK:
         return;
     case SevenZipCore::ExtractResult::UnSupportedMethod:
-        tstrMessage = _("Unsupported compression method.");
+        tstrMessage = _("Unsupported compression method for \"%s\".");
         break;
     case SevenZipCore::ExtractResult::DataError:
-        tstrMessage = _("Data error.");
+        tstrMessage = isEncrypted
+            ? _("Data error in the encrypted file \"%s\". Corrupt file or wrong password.")
+            : _("Data error in \"%s\". The file is corrupt.");
         break;
     case SevenZipCore::ExtractResult::CRCError:
-        tstrMessage = _("CRC failed.");
+        tstrMessage = isEncrypted
+            ? _("Checksum error in the encrypted file \"%s\". Corrupt file or wrong password.")
+            : _("Checksum error in \"%s\". The file is corrupt.");
         break;
     default:
         throw ArchiveException("Not supported extract result.");
     }
+    auto tstrFormattedMessage = wxString::Format(
+        _(tstrMessage), m_tstrVirtualPath).ToStdWstring();
     Helper::InvokeOnMainThread([&] {
-        MessageDialog::ShowAndAddMessage(tstrMessage);
+        MessageDialog::ShowAndAddMessage(tstrFormattedMessage);
     });
 }
 

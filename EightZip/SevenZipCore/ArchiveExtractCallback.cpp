@@ -302,7 +302,7 @@ namespace SevenZipCore
                             if (m_pExtractIndicator)
                             {
                                 m_pExtractIndicator->AddError(TEXT(
-                                    "Error: Cannot create file \"%s\" with auto name."),
+                                    "Cannot create file \"%s\" with auto name."),
                                     tstrFullPath);
                             }
                             return E_FAIL;
@@ -319,7 +319,7 @@ namespace SevenZipCore
                             if (m_pExtractIndicator)
                             {
                                 m_pExtractIndicator->AddError(TEXT(
-                                    "Error: Cannot delete output file \"%s\"."),
+                                    "Cannot delete output file \"%s\"."),
                                     tstrFullPath);
                             }
                             return S_OK;
@@ -432,7 +432,8 @@ namespace SevenZipCore
             }
             if (m_pExtractIndicator)
             {
-                m_pExtractIndicator->SetOperationResult(extractResult);
+                m_pExtractIndicator->SetOperationResult(
+                    extractResult, m_isEncrypted);
             }
 
             return S_OK;

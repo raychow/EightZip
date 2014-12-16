@@ -37,7 +37,7 @@ public:
         SevenZipCore::ExtractAskMode askMode,
         boost::optional<UINT64> oun64Position) override;
     virtual void SetOperationResult(
-        SevenZipCore::ExtractResult extractResult) override;
+        SevenZipCore::ExtractResult extractResult, bool isEncrypted) override;
     virtual boost::optional<TString> GetPassword() const override;
 
     inline ProgressDialog *GetProgressDialog() const
@@ -48,6 +48,8 @@ public:
 private:
     ArchiveProperty *m_pArchiveProperty = nullptr;
     ProgressDialog *m_pProgressDialog = nullptr;
+
+    TString m_tstrVirtualPath;
 
     SevenZipCore::OverwriteAnswer m_lastOverwriteAnswer
         = SevenZipCore::OverwriteAnswer::Unknown;
