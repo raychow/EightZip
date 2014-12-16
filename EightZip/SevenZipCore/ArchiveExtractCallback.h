@@ -49,22 +49,24 @@ namespace SevenZipCore
         const TString &GetExtractFolder() const { return m_tstrExtractFolder; }
         const TString &GetLastExtractPath() const { return m_tstrExtractPath; }
 
+        bool HasError() const { return m_hasError; }
+
         IUNKNOWN_IMP2(IArchiveExtractCallback, ICryptoGetTextPassword)
 
     private:
         Archive &m_archive;
-        bool m_isStandardOutMode;
-        bool m_isTestMode;
-        bool m_isCRCMode;
-        bool m_isExtractMode;
+        bool m_isStandardOutMode = {};
+        bool m_isTestMode = {};
+        bool m_isCRCMode = {};
+        bool m_isExtractMode = {};
         TString m_tstrExtractFolder;
         std::vector<TString> m_vtstrCurrentBeginPathPart;
-        UINT64 m_un64Total;
-        UINT32 m_nindex;
-        bool m_isEncrypted;
-        bool m_isSplit;
+        UINT64 m_un64Total = {};
+        UINT32 m_nindex = {};
+        bool m_isEncrypted = {};
+        bool m_isSplit = {};
         TString m_tstrInternalPath;
-        bool m_isDirectory;
+        bool m_isDirectory = {};
         boost::optional<UINT64> m_oun64Size;
         boost::optional<UINT64> m_oun64Position;
         boost::optional<UINT32> m_ounAttribute;
@@ -73,7 +75,8 @@ namespace SevenZipCore
         boost::optional<FILETIME> m_oftModified;
         ExtractPathMode m_pathMode;
         ExtractOverwriteMode m_overwriteMode;
-        IExtractIndicator *m_pExtractIndicator;
+        IExtractIndicator *m_pExtractIndicator = nullptr;
+        bool m_hasError = false;
 
         TString m_tstrExtractPath;
         std::shared_ptr<OutFileStream> m_cpOutStream;

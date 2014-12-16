@@ -98,7 +98,10 @@ void VirtualEntry::OpenExternal() const
 {
     if (!m_upTempFolder)
     {
-        __ExtractToTempFolder(nullptr);
+        if (!__ExtractToTempFolder(nullptr))
+        {
+            return;
+        }
     }
     auto tstrFilePath = m_upTempFolder->GetFilePath();
     if (!tstrFilePath.empty())
@@ -156,17 +159,17 @@ bool VirtualEntry::Compare(const EntryBase &otherEntry,
     return EntryBase::Compare(otherEntry, itemType, isAscending);
 }
 
-void VirtualEntry::__ExtractToTempFolder(ProgressDialog *pProgressDialog) const
+bool VirtualEntry::__ExtractToTempFolder(ProgressDialog *pProgressDialog) const
 {
-    m_upTempFolder.reset(new TempFolder());
-    m_upTempFolder->SetFilePath(
-        VirtualFileExtractor(m_upTempFolder->GetLocation(),
+    m_upTempFolder = make_unique<TempFolder>();
+    auto extractor = VirtualFileExtractor { m_upTempFolder->GetLocation(),
         &dynamic_pointer_cast<VirtualModel>(GetContainer())->GetProperty(),
         pProgressDialog,
         m_wpParent.lock()->GetInternalLocation(),
-        GetPath(), GetArchiveFile().GetArchiveEntry())
-        .AddPlan(*this)
-        .Execute().GetLastExtractPath());
+        GetPath(), GetArchiveFile().GetArchiveEntry() };
+    auto result = extractor.AddPlan(*this).Execute();
+    m_upTempFolder->SetFilePath(result.second);
+    return !result.first;
 }
 
 shared_ptr<VirtualModel> VirtualEntry::__GetVirtualModel(
@@ -210,7 +213,10 @@ shared_ptr<VirtualModel> VirtualEntry::__GetVirtualModel(
     catch (const SevenZipCore::SevenZipCoreException &)
     {
     }
-    __ExtractToTempFolder(pProgressDialog);
+    if (!__ExtractToTempFolder(pProgressDialog))
+    {
+        throw ArchiveException("Extraction failed.");
+    }
     return make_shared<VirtualRootModel>(GetLocation(),
         GetName(),
         m_upTempFolder->GetFilePath(),

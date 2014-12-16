@@ -299,6 +299,7 @@ namespace SevenZipCore
                     case ExtractOverwriteMode::AutoRename:
                         if (!Helper::AutoRenamePath(tstrFullPath))
                         {
+                            m_hasError = true;
                             if (m_pExtractIndicator)
                             {
                                 m_pExtractIndicator->AddError(TEXT(
@@ -310,12 +311,13 @@ namespace SevenZipCore
                         break;
                     case ExtractOverwriteMode::AutoRenameExisting:
                         // Unused?
-                        // Not implement yet.
+                        // Not implemented yet.
                         return E_FAIL;
                     default:
                         boost::filesystem::remove(tstrFullPath, errorCode);
                         if (errorCode)
                         {
+                            m_hasError = true;
                             if (m_pExtractIndicator)
                             {
                                 m_pExtractIndicator->AddError(TEXT(
@@ -335,6 +337,7 @@ namespace SevenZipCore
                     }
                     catch (const FileException &)
                     {
+                        m_hasError = true;
                         if (m_pExtractIndicator)
                         {
                             m_pExtractIndicator->AddError(
@@ -410,9 +413,11 @@ namespace SevenZipCore
             switch (extractResult)
             {
             case ExtractResult::OK:
+                break;
             case ExtractResult::UnSupportedMethod:
             case ExtractResult::CRCError:
             case ExtractResult::DataError:
+                m_hasError = true;
                 break;
             default:
                 m_cpOutStream.reset();
@@ -457,7 +462,7 @@ namespace SevenZipCore
                     return S_OK;
                 }
             }
-            return E_FAIL;
+            return E_ABORT;
         }
         catch (...)
         {

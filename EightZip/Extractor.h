@@ -5,6 +5,7 @@
 
 #include <map>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "SevenZipCore/BaseType.h"
@@ -25,6 +26,8 @@ class VirtualModel;
 class Extractor
 {
 public:
+    typedef std::pair<bool, TString> ExecutionResult;
+
     Extractor(TString tstrExtractLocation,
         ProgressDialog *pProgressDialog,
         TString tstrInternalLocation)
@@ -36,7 +39,7 @@ public:
     }
     virtual ~Extractor() = 0 {};
 
-    virtual Extractor &Execute() = 0;
+    virtual ExecutionResult Execute() = 0;
 
     inline TString GetExtractLocation() const
     {
@@ -48,13 +51,9 @@ public:
         return m_pProgressDialog;
     }
 
-    inline const TString &GetLastExtractPath() const
-    {
-        return m_tstrLastExtractPath;
-    }
-
 protected:
-    void _Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
+    ExecutionResult _Execute(
+        const SevenZipCore::ArchiveEntry &archiveEntry,
         ArchiveProperty *pArchiveProperty,
         const std::vector<UINT32> &vun32ArchiveIndex);
 
@@ -62,8 +61,6 @@ private:
     TString m_tstrExtractLocation;
     TString m_tstrInternalLocation;
     ProgressDialog *m_pProgressDialog = nullptr;
-
-    TString m_tstrLastExtractPath;
 
 };
 
@@ -84,7 +81,7 @@ public:
         return *this;
     }
 
-    virtual RealFileExtractor &Execute() override;
+    virtual ExecutionResult Execute() override;
 
 private:
     std::vector<TString> m_vtstrPath;
@@ -122,7 +119,7 @@ public:
     VirtualFileExtractor &AddPlan(const VirtualEntry &entry);
     VirtualFileExtractor &AddPlan(const VirtualModel &model);
 
-    virtual VirtualFileExtractor &Execute() override;
+    virtual ExecutionResult Execute() override;
 
 private:
     ArchiveProperty *m_pArchiveProperty;

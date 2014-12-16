@@ -137,6 +137,10 @@ void FileExplorer::__CreateExplorer(wxBoxSizer *pSizerMain)
 void FileExplorer::__SetModel(shared_ptr<ModelBase> spModel,
     TString tstrFocusedName/* = wxEmptyString*/)
 {
+    if (!spModel)
+    {
+        return;
+    }
     m_pListCtrl->SetModel(*spModel, tstrFocusedName);
     auto tstrPath = spModel->GetPath();
     m_pAddressComboBox->SetValue(tstrPath);
@@ -170,6 +174,10 @@ void FileExplorer::__OnListItemActivated(wxListEvent &event)
         try
         {
             __SetModel(entry.GetModel());
+            return;
+        }
+        catch (const ArchiveException &)
+        {
             return;
         }
         catch (const SevenZipCore::ArchiveException &ex)

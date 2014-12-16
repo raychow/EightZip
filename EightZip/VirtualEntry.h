@@ -48,7 +48,7 @@ private:
     SevenZipCore::ArchiveFile &m_archiveFile;
     mutable std::unique_ptr<TempFolder> m_upTempFolder;
 
-    void __ExtractToTempFolder(ProgressDialog *pProgressDialog) const;
+    bool __ExtractToTempFolder(ProgressDialog *pProgressDialog) const;
 
     std::shared_ptr<VirtualModel> __GetVirtualModel(
         ProgressDialog *pProgressDialog) const;

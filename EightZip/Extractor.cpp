@@ -39,48 +39,49 @@ SevenZipCore::unique_com_ptr<SevenZipCore::ArchiveExtractCallback> CreateCallbac
         pExtractIndicator));
 }
 
-void Extractor::_Execute(const SevenZipCore::ArchiveEntry &archiveEntry,
+pair<bool, TString> Extractor::_Execute(
+    const SevenZipCore::ArchiveEntry &archiveEntry,
     ArchiveProperty *pArchiveProperty,
     const std::vector<UINT32> &vun32ArchiveIndex)
 {
     auto &archive = archiveEntry.GetArchive();
     auto extractIndicator = ExtractIndicator {
         pArchiveProperty, m_pProgressDialog };
-    try
+//     try
+//     {
+    auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
+        archiveEntry.GetInArchive());
+    auto cpCallback = CreateCallback(
+        archive,
+        m_tstrExtractLocation,
+        m_tstrInternalLocation,
+        &extractIndicator);
+    if (vun32ArchiveIndex.empty())
     {
-        auto inArchiveAdapter = SevenZipCore::IInArchiveAdapter<>(
-            archiveEntry.GetInArchive());
-        auto cpCallback = CreateCallback(
-            archive,
-            m_tstrExtractLocation,
-            m_tstrInternalLocation,
-            &extractIndicator);
-        if (vun32ArchiveIndex.empty())
-        {
-            inArchiveAdapter.ExtractAll(
-                false,
-                cpCallback.get());
-        }
-        else
-        {
-            inArchiveAdapter.Extract(vun32ArchiveIndex, false, cpCallback.get());
-        }
-        m_tstrLastExtractPath = cpCallback->GetLastExtractPath();
+        inArchiveAdapter.ExtractAll(
+            false,
+            cpCallback.get());
     }
-    catch (const SevenZipCore::ArchiveException &)
+    else
     {
-
-        //if (m_pExtractIndicator
-        //    && m_pProgressDialog && !m_pProgressDialog->IsCancelled())
-        //{
-        //    m_pExtractIndicator->AddError(wxString::Format(
-        //        _("Cannot extract \"%s\"."),
-        //        archive.GetPath()).ToStdWstring());
-        //}
+        inArchiveAdapter.Extract(vun32ArchiveIndex, false, cpCallback.get());
     }
+    return { cpCallback->HasError(), cpCallback->GetLastExtractPath() };
+//     }
+//     catch (const SevenZipCore::ArchiveException &ex)
+//     {
+// 
+//         //if (m_pExtractIndicator
+//         //    && m_pProgressDialog && !m_pProgressDialog->IsCancelled())
+//         //{
+//         //    m_pExtractIndicator->AddError(wxString::Format(
+//         //        _("Cannot extract \"%s\"."),
+//         //        archive.GetPath()).ToStdWstring());
+//         //}
+//     }
 }
 
-RealFileExtractor &RealFileExtractor::Execute()
+Extractor::ExecutionResult RealFileExtractor::Execute()
 {
     auto allSize = wxULongLong_t{};
     auto sizes = vector < UINT64 > {};
@@ -101,6 +102,7 @@ RealFileExtractor &RealFileExtractor::Execute()
     {
         GetProgressDialog()->SetAllTotal(allSize);
     }
+    auto result = ExecutionResult {};
     for (auto i = 0; i != vtstrExistPath.size(); ++i)
     {
         const auto &tstrPath = vtstrExistPath[i];
@@ -122,9 +124,14 @@ RealFileExtractor &RealFileExtractor::Execute()
                 tstrPath,
                 nullptr,
                 nullptr);
-            _Execute(spModel->GetArchive().GetArchiveEntry(),
+            auto thisResult = _Execute(spModel->GetArchive().GetArchiveEntry(),
                 &spModel->GetProperty(),
                 {});
+            if (thisResult.first)
+            {
+                result.first = true;
+            }
+            result.second = thisResult.second;
             isSuccess = true;
         }
         catch (const SevenZipCore::SevenZipCoreException &)
@@ -140,7 +147,7 @@ RealFileExtractor &RealFileExtractor::Execute()
             //}
         }
     }
-    return *this;
+    return result;
 }
 
 VirtualFileExtractor &VirtualFileExtractor::AddPlan(const VirtualEntry &entry)
@@ -165,7 +172,7 @@ VirtualFileExtractor &VirtualFileExtractor::AddPlan(const VirtualModel &model)
     return *this;
 }
 
-VirtualFileExtractor &VirtualFileExtractor::Execute()
+Extractor::ExecutionResult VirtualFileExtractor::Execute()
 {
     sort(m_vun32Index.begin(), m_vun32Index.end());
     m_vun32Index.erase(unique(m_vun32Index.begin(), m_vun32Index.end()),
@@ -174,6 +181,5 @@ VirtualFileExtractor &VirtualFileExtractor::Execute()
     {
         GetProgressDialog()->SetArchivePath(m_tstrVirtualArchivePath);
     }
-    _Execute(m_archiveEntry, m_pArchiveProperty, m_vun32Index);
-    return *this;
+    return _Execute(m_archiveEntry, m_pArchiveProperty, m_vun32Index);
 }
